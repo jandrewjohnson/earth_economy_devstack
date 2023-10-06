@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../global_invest/global_invest_dev"
+		},
+		{
+			"path": "../gtap_invest/gtap_invest_dev"
+		},
+		{
+			"path": "../gtappy/gtappy_dev"
+		},
+		{
+			"path": "../hazelbean/hazelbean_dev"
+		},
+		{
+			"path": "../seals/seals_dev"
+		}
+	],
+	"settings": {
+		"files.autoSave": "onFocusChange"
+	}
+}
