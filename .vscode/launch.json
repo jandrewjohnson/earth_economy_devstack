@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "internalConsole, Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "internalConsole",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+    ]
+}
