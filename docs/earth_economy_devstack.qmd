@@ -1,0 +1,112 @@
+# Earth-Economy Devstack
+
+Placeholder file that will collect the cross-repo organizational standards common to our software stack
+
+## Id, index, label, name, description
+
+In programming, `id` and `index` are two different concepts that are used in different contexts.
+
+`id` refers to the unique identifier of an object. In this specification, it is an integer that is sorted by the ONE in the many-to-one correspondence, sorted alphabetically at generation time (though not necessarily to remain sorted given downstream correspondences).
+
+`index` refers to the position of an element in a sequence (e.g. a list or a string). In the context of a correspondence file, this is the position of the row within the sorted spreadsheet, but is not assumed to be stable and shouldn't generally be used.
+
+`labelheader` refers to an (exactly) 4 character string that is lowercase-alphanumeric with no special symbols besides underscore. Useful for the Header label in har files. Technically is case insensitive but we assume lowercase.
+
+`labelshort` refers to an 8-character or less string that is lowercase-alphanumeric with no special symbols besides underscore. Useful for .har files.
+
+`label` refers to a string that is lowercase-alphanumeric with no special symbols besides underscore
+
+`name`refers to a string of any ascii characters with python-style escaping of special characters: `'She\'s a star!'` . It's assumed to be short enough to view as a column header or plot label
+
+`Description`refers to a `name` of any length with detailed description, possibly even formatted MD text.
+
+### Id, Index etc. in the context of vector data
+
+Note that geopandas assumes the vector data are indexed with an FID. This is the order in which the geometries are added to the file and can get wonky when dealing with legacy file types (like ESRI Shapefiles). Additionally, when you write a GDP to a CSV, it will not include the fid, so you might lose data. To fix this, EE spec requires that any GPKG when saved as a CSV have a new column, `id` added as the first col, which is generated starting at 1 and incrementing up by 1 after having sorted the data on the simplest non-fid label (e.g., iso3_label). See gtap_invest_generate_base_data.py.
+
+## Correspondences
+
+Model linkages often require mapping many-to-one relationship in a consistent way. Correspondence files define this via a src-to-dst (source and destination). They are named according to the following pattern: `[src_label]_[dst_label]_correspondence.csv`
+
+For example:
+
+1.  Converting from the 37 ESA CCI LULC classes to the 7 SEALS functional classes
+2.  Converting from 141 gtap11 regions to 50 gtapaez11 regions
+3.  Converting from luh2 14 classes of coarse proportional lulc change estimates to the seals7 discrete classes.
+
+An example of a region correspondence table is below.
+
+| src_id | dst_id | src_label | dst_label | src_description | dst_description                |
+|------------|------------|------------|------------|------------|------------|
+| 1      | 1      | aus       | oceania   | Australia       | Oceania (including NZ and AUS) |
+| 2      | 1      | nzl       | oceania   | New Zealand     | Oceania (including NZ and AUS) |
+
+Correspondence files work with Hazelbean via
+
+and
+
+`seals_utils.set_derived_attributes(p)`
+
+and
+
+```{python}
+p.lulc_correspondence_dict = hb.utils.get_reclassification_dict_from_df(p.lulc_correspondence_path, 'src_id', 'dst_id', 'src_label', 'dst_label')
+```
+
+which will return a very useful dictionary for various reclassification tasks:
+
+```{python}
+return_dict = {}
+return_dict['dst_to_src_reclassification_dict'] = dst_to_src_reclassification_dict  # Dict of one-to-many keys to lists of what each dst_key should be mapped to from each src_key. Useful when aggrigating multiple layers to a aggregated dest type
+return_dict['src_to_dst_reclassification_dict'] = src_to_dst_reclassification_dict # Useful when going to a specific value.
+return_dict['dst_to_src_labels_dict'] = dst_to_src_labels_dict # Dictionary of lists of labels that map to each dst label
+return_dict['src_ids'] = remove_duplicates_in_order(src_ids) # Unique set of src_ids
+return_dict['dst_ids'] = remove_duplicates_in_order(dst_ids) # Unique set of dst_ids
+return_dict['src_labels'] = remove_duplicates_in_order(src_labels) # Unique set of src_labels
+return_dict['dst_labels'] = remove_duplicates_in_order(dst_labels) # Unique set of dst_labels
+return_dict['src_ids_to_labels'] = {k: v for k, v in zip(return_dict['src_ids'], return_dict['src_labels'])} # one-to-one dictionary of src ids to labels
+return_dict['dst_ids_to_labels'] = {k: v for k, v in zip(return_dict['dst_ids'], return_dict['dst_labels'])} # one-to-one dictionary of dst ids to labels
+return_dict['src_labels_to_ids'] = {k: v for k, v in zip(return_dict['src_labels'], return_dict['src_ids'])} # one-to-one dictionary of src labels to ids
+return_dict['dst_labels_to_ids'] = {k: v for k, v in zip(return_dict['dst_labels'], return_dict['dst_ids'])} # one-to-one dictionary of dst labels to ids
+```
+
+Among other possibilities, this could be used for reclassifying LULC geotiffs via
+
+```{python}
+rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict']
+hb.reclassify_raster_hb(raster_path, rules, output_path)
+```
+
+## Naming Convetions
+
+The names of project-level variables are carefully defined. For example, in `gtap11_region_correspondence_input_path`, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. In the filename `gtap11_region_names_path` we extract from the input_path and write a EE-compliant region_names table. In the filename `gtap11_gtapaez11_region_correspondence_path`, we use these regions and then connect it to the gtapaez11 labels. We can infer also that it is from a mapping labeled gtap11 to gtapaez11 and that the variable in question is the regions while the word correspondence then indicates this is a many-to-one mapping file.
+
+Note that the file path says "regions" while the column label in the CSV says "region".
+
+```{python}
+    p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')
+    p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')
+    p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')
+```
+
+## Task Format
+
+Project flow requires a consistent format for tasks. The following is an example of a task that creates a correspondence file from gtap11 regions to gtapaez11 regions. The task itself defined as a function that takes a `p` object as an argument. This `p` object is a `ProjectFlow` object that contains all the project-level variables, manages folders and files, and manages tasks and parallelization. `p` also includes documentation, which will be written directly into the task directory.
+
+Also note that any project-level attribute defined in between the function start and the `if p.run_this:` component are the "project level variables" that are fair-game for use in other tasks. These paths are critical for high performance because they enable quick-skipping of completed tasks and determiniation of which parts of the task tree need rerunning.
+
+```{python}
+def gtap_aez_seals_corresondences(p):
+    p.current_task_documentation = """
+    Create correspondence CSVs from ISO3 countries to GTAPv11 160
+    regions, and then to gtapaezv11 50ish regions, also put the classification
+    for seals simplification and luh.  
+    """
+    p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')
+    p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')
+    p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')    
+
+    if p.run_this:
+        
+        "logic here"
+```
