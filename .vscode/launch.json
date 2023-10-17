@@ -15,5 +15,28 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
+        {
+            "name": "internalTerminal, Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+        {
+            "name": "externalConsole, Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+
     ]
 }
