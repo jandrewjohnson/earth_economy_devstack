@@ -96,7 +96,7 @@ Project flow requires a consistent format for tasks. The following is an example
 Also note that any project-level attribute defined in between the function start and the `if p.run_this:` component are the "project level variables" that are fair-game for use in other tasks. These paths are critical for high performance because they enable quick-skipping of completed tasks and determiniation of which parts of the task tree need rerunning.
 
 ```{python}
-def gtap_aez_seals_corresondences(p):
+def gtap_aez_seals_correspondences(p):
     p.current_task_documentation = """
     Create correspondence CSVs from ISO3 countries to GTAPv11 160
     regions, and then to gtapaezv11 50ish regions, also put the classification
