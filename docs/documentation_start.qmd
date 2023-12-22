@@ -1,9 +1,0 @@
-### Steps for getting a new scenario into SEALS
-
--   You need to have coarse scale rasters in the format of change in hectares - the change is relative to a baseline, the default baseline scenario is SEALS is the one from LUH2.
-
--   To tell SEALS where to find these you need to paste the file path in the three_test_scenarios_with_baseline.csv located in the **input** folder located within the respective project folder.
-
--   Need to define the lulc_correspondence_path - and create this csv.
-
-src_id, dst_id, src_label, dst_label

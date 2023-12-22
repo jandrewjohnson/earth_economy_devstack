@@ -26,28 +26,26 @@ If there is a domain, described below, id, index, etc all should prepended with 
 
 Note that geopandas assumes the vector data are indexed with an FID. This is the order in which the geometries are added to the file and can get wonky when dealing with legacy file types (like ESRI Shapefiles). Additionally, when you write a GPKG to a CSV, it will not include the fid, so you might lose data. To fix this, EE spec requires that any GPKG when saved as a CSV have a new column, `id` added as the first col, which is generated starting at 1 and incrementing up by 1 after having sorted the data on the simplest non-fid label (e.g., iso3_label). See gtap_invest_generate_base_data.py.
 
+## Labels files
 
+Based on how the GTAP database is structured, EE spec defines several file types of files to systemetize how dimensions/sets are defined (and then used in e.g. figure plotting). A single dimension is first defined by a labels file. The labels file has at least 3 columns of domain_id, domain_label, domain_name and optionally a domain_description. If present, a column needs to be fully filled (no missing values). Label files are used in other contexts to, e.g., go from id to name for labeling an axis on a plot, as well as building the correspondence files below.
 
 ## Correspondences
 
-Model linkages often require mapping many-to-one relationship in a consistent way. Correspondence files define this via a src-to-dst (source and destination). They are named according to the following pattern: `[src_label]_[dst_label]_correspondence.csv`
+Model linkages often require mapping many-to-one relationship in a consistent way. Correspondence files define this via a src-to-dst (source and destination). They are named according to a relatively complex pattern. Specifically, using the file path `gadm_r263_gtapv7_r251_r160_r50_correspondence`, we have a domain label `gadm` followed by a src dimension-size pair `r263` (where r is a label, short for region in this case, and 263 is the number of unique entries in that dimension). To be a correspondence,there needs to be at least one other dst dimension-size pair, where in this case there are 3 additional dimension-size pairs (`r251`, `r160`, and `r50`). However, the later three pairs are from a different domain, namely that of `gtapv7`. Each pair is identified with the domain most identified most closely prior. The dst dimension-size pairs are sorted in order of decreasing size. The dst dimension-size pairs are then followed by the word `correspondence`. This example creates a correspondence file that maps from the GADM 263 regions to the GTAPv7 251 regions, which are then mapped to the GTAPv7 160 regions, which are then mapped to the GTAPv7 50 regions.
 
-For example:
-
-1.  Converting from the 37 ESA CCI LULC classes to the 7 SEALS functional classes
-2.  Converting from 141 gtap11 regions to 50 gtapaez11 regions
-3.  Converting from luh2 14 classes of coarse proportional lulc change estimates to the seals7 discrete classes.
-
-An example of a region correspondence table is below.
+An example of a 2-type correspondence is below. However, in this file, src and dst would have to be replaced with the specific domain names used.
 
 | src_id | dst_id | src_label | dst_label | src_description | dst_description                |
 |------------|------------|------------|------------|------------|------------|
 | 1      | 1      | aus       | oceania   | Australia       | Oceania (including NZ and AUS) |
 | 2      | 1      | nzl       | oceania   | New Zealand     | Oceania (including NZ and AUS) |
 
-Correspondence files work with Hazelbean via
+Here are the specific labels and corespondence files generated for gtapv7-aez-rd:
 
-and
+![](images/paste-22.png)
+
+If defined exactly right, 2 dimensional correspondence files will work with Hazelbean via
 
 `seals_utils.set_derived_attributes(p)`
 
@@ -81,11 +79,11 @@ rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict']
 hb.reclassify_raster_hb(raster_path, rules, output_path)
 ```
 
-## Naming Convetions
+## Naming Conventions
 
 The names of project-level variables are carefully defined. For example, in gtapv7_r251_r160_correspondence_input_path, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. In this name, we see two other structures. First, the gtapv7 label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
 
-It's bad practice, but you can have multiple mappings in a single correspondence file. For example, gtapv7_r251_s65_r50_s26_correspondence_input_path, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
+You can have multiple mappings in a single correspondence file. For example, gtapv7_r251_s65_r50_s26_correspondence_input_path, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
 
 Appart from correspondence files, we also have **labels** files, such as gtapv7_r251_labels_path. Labels files are for a single set/variable/dimension but map together the synonymous categorizers. Specifically, it must have an id, label, and name, all filled out for every entry. It can optionally have others like description.
 
@@ -104,6 +102,8 @@ Note that the file path says "regions" while the column label in the CSV says "r
 Project flow requires a consistent format for tasks. The following is an example of a task that creates a correspondence file from gtap11 regions to gtapaez11 regions. The task itself defined as a function that takes a `p` object as an argument. This `p` object is a `ProjectFlow` object that contains all the project-level variables, manages folders and files, and manages tasks and parallelization. `p` also includes documentation, which will be written directly into the task directory.
 
 Also note that any project-level attribute defined in between the function start and the `if p.run_this:` component are the "project level variables" that are fair-game for use in other tasks. These paths are critical for high performance because they enable quick-skipping of completed tasks and determiniation of which parts of the task tree need rerunning.
+
+Tasks should be named as a noun (this breaks Python pep8 style) referencing what will be stored in the tasks output dir. This might feel awkward at first, but it means that the resultant file structure is easier to interpret by a non-EE outsider.
 
 ```{python}
 def gtap_aez_seals_correspondences(p):
@@ -129,6 +129,18 @@ ProjectFlow very carefully defines whether or not you should run something based
 # Note EE Spec validates by the existence of the LAST path generated.
 if not hb.path_exists(p.gadm_adm0_100sec_vector_path):
 ```
+
+# EE File organization
+
+![](images/paste-23.png)
+
+![](images/paste-24.png)
+
+In addition to the 5 repos plus the EE repo, there is a managed base data set stored in teh same location
+
+![](images/paste-25.png)
+
+![](images/paste-26.png)
 
 # GTAPpy details
 
@@ -433,5 +445,3 @@ If it's a supply response elasticity (as in PNAS) that WILL affect it (unlike ab
 needs to be percentage change over default POP. In base data. Read this in and process it against Eric's file.
 
 Shock pop(REG) = SELECT FROM FILE filename header 4ltr header. Swap QGDP aoreg shock aoall (agcom_sm, reg) = select from yield file.
-
-### v2023-10-01
