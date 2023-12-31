@@ -121,14 +121,67 @@ def gtap_aez_seals_correspondences(p):
         "logic here"
 ```
 
+## Automatic Directory Organization via Tasks
+
+Hazelbean automatically defines directory organization as a function of the task tree. When the ProjectFlow object is created, it takes a directory as its only required input. This directory defines the root of the project. The other directory that needs to be referenced is the base_data_dir. When you initialize the p object, it notes this:
+
+Created ProjectFlow object at C:\\Users\\jajohns\\Files\\gtap_invest\\projects\\cwon from script C:\\Users\\jajohns\\Files\\gtap_invest\\gtap_invest_dev\\gtap_invest\\run_cwon.py with base_data set at C:\\Users\\jajohns\\Files/base_data
+
+`Created ProjectFlow object at C:\Users\jajohns\Files\gtap_invest\projects\cwon     from script C:\Users\jajohns\Files\gtap_invest\gtap_invest_dev\gtap_invest\run_cwon.py     with base_data set at C:\Users\jajohns\Files/base_data`
+
+In the run file, the following line generates the task tree:
+
+`gtap_invest_initialize_project.build_extract_and_run_aez_seals_task_tree(p)`
+
+Which points to a builder function in the initialize file, looking something like this:
+
+![](images/paste-28.png)
+
+This would generate the following task tree:
+
+![](images/paste-27.png)
+
+Two notations are especially useful within this task tree.
+
+1.  Within the function that defines a task, p.cur_dir points to the directory of that task. So for instance, the last task defined in the image above, in its code, you could reference p.cur_dir, and it would point to `<project_root>/econ_vizualization/econ_lcovercom`
+2.  Outside of a given function's code, you can still refer to paths that were defined from within the functions code, but now (because you are outside the function) it is given a new reference. Using the example above, you could reference the same directory with `p.econ_lcovercom_dir` where the p attribute is named exactly as \<function_name\>\_dir
+
+All of this setup enable another useful feature: automatic management of file generation, storage and downloading. This is done via the hazelbean function:
+
+```{python, eval=FALSE}
+useful_path = hb.get_path(relative_path)
+```
+
+This function will iteratively search multiple locations and return the most "useful" one. By default, the relative_path variable will first joined with the p.cur_dir. If the file exists, it returns it. If not, it checks the next location, which is p.input_dir, and then p.base_data_dir. If it doesn't find it anywhere, it will attempt to download it from google cloud (NYI) and save it in the p.cur_dir. If it is not available to download on google cloud, then it treats the path as something we will be generating within the task, and thus, get_path returns the first option above, namely joining the relative_path with p.cur_dir.
+
+One exception to this is if you are calling get_path outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
+
+```{python, eval=FALSE}
+p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_adm0_10sec.gpkg'), possible_dirs=[p.input_dir, p.base_data_dir])
+```
+
 ## Validation of files
 
-ProjectFlow very carefully defines whether or not you should run something based on the existence of specific paths. Usually this is just checking for each written path and only executing the code if it's missing, but in some cases where lots of files are created, it's possible to take the shortcut of just checking for the existence of the last-created path:
+ProjectFlow is designed to calculate very fast while simultaneously validating that everything is approximately correct. It does this by checking for the existence of files (often combined with hb.get_path()). For example
 
-```         
-# Note EE Spec validates by the existence of the LAST path generated.
-if not hb.path_exists(p.gadm_adm0_100sec_vector_path):
+```{python}
+p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'gadm_r263_gtapv7_r251_r160_r50_regions.gpkg'))     
+if not hb.path_exists(p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path):         
+    hb.log('Creating ' + p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path)         
+    "computationally expensive thing here."
 ```
+
+ProjectFlow very carefully defines whether or not you should run something based on the existence of specific paths. Usually this is just checking for each written path and only executing the code if it's missing, but in some cases where lots of files are created, it's possible to take the shortcut of just checking for the existence of the last-created path.
+
+### Eliminating redundant calculation across projects
+
+If you have a time consuming task that, or example, writes to
+
+```{python}
+big_file_path = hb.get_path('lulc', 'esa', 'seals7', 'convolutions', '2017', 'convolution_esa_seals7_2017_cropland_gaussian_5.tif' )
+```
+
+In this example, suppose you needed to create this file via your create_convolutions() task or something. When you first do this, it obviously won't exist yet, so get_path() will join that relative path in the p.cur_dir location. If you run the ProjectFlow again, it will see it's there and then instantly skip recalcualting it.
 
 # EE File organization
 
@@ -141,6 +194,8 @@ In addition to the 5 repos plus the EE repo, there is a managed base data set st
 ![](images/paste-25.png)
 
 ![](images/paste-26.png)
+
+### 
 
 # GTAPpy details
 
