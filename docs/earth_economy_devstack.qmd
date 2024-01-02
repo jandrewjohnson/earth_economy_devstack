@@ -79,6 +79,18 @@ rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict']
 hb.reclassify_raster_hb(raster_path, rules, output_path)
 ```
 
+### Correspondences with geometries
+
+```{# The rules for naming correspondences are a little different when adding geometry to the data. Because}
+    # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their
+    # members can get confusing, each correspondence file keeps all the labels but then is also saved along
+    # with a geometry file that drops the other labels (and the word correspondence in the filename).
+    p.ee_r264_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264_correspondence.gpkg'))
+    p.ee_r264_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264.gpkg'))
+{python}
+
+```
+
 ## Naming Conventions
 
 The names of project-level variables are carefully defined. For example, in gtapv7_r251_r160_correspondence_input_path, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. In this name, we see two other structures. First, the gtapv7 label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
