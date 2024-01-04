@@ -79,15 +79,23 @@ rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict']
 hb.reclassify_raster_hb(raster_path, rules, output_path)
 ```
 
+### Combined ids
+
+One special case of ids is when two different ids are combined together leveraging their decimal position to compress data. For example, if you want a Region-AEZ-specific id stored in single column, you can do that by saying the joined id is 5 digits long, the first three correspond to ee_r264 and the final two correspond to aez18, as in this example:
+
+![](images/paste-29.png)
+
+In the event of a combined id, not that the \_id column above has two region-specifications combined (which otherwise violates the ee spec defined above for non combined ids).
+
 ### Correspondences with geometries
 
-```{# The rules for naming correspondences are a little different when adding geometry to the data. Because}
+```{python}
+    # The rules for naming correspondences are a little different when adding geometry to the data. Because}
     # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their
     # members can get confusing, each correspondence file keeps all the labels but then is also saved along
     # with a geometry file that drops the other labels (and the word correspondence in the filename).
     p.ee_r264_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264_correspondence.gpkg'))
     p.ee_r264_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264.gpkg'))
-{python}
 
 ```
 
@@ -166,7 +174,19 @@ useful_path = hb.get_path(relative_path)
 
 This function will iteratively search multiple locations and return the most "useful" one. By default, the relative_path variable will first joined with the p.cur_dir. If the file exists, it returns it. If not, it checks the next location, which is p.input_dir, and then p.base_data_dir. If it doesn't find it anywhere, it will attempt to download it from google cloud (NYI) and save it in the p.cur_dir. If it is not available to download on google cloud, then it treats the path as something we will be generating within the task, and thus, get_path returns the first option above, namely joining the relative_path with p.cur_dir.
 
-One exception to this is if you are calling get_path outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
+One important use-case that needs explaining is for tasks that generate files that will eventually be placed in the base_data_dir. The goal is to enable easy generation of it to the intermediate directory in the appropriate task_dir, but then have the ability to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches the desired directory relative to the base data dir. So, for example, we include `'gtappy', 'aggregation_mappings'` at the beginning of the relative path for in the intermediate directory in the appropriate task_dir, but then we also will want to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches that in the base_data_dir, for example `<base_data_dir>/'gtappy/aggregation_mappings/gadm_adm0.gpkg',`
+
+```{python}
+template_path = p.get_path(os.path.join('gtappy', 'aggregation_mappings', 'gadm_adm0.gpkg')) 
+```
+
+It can be hard deciding what counts as a base_data_generating task or not, but generally if it is a file that will not be used by other projects, you should not treat it as a base_data_generating task. Instead, you should just make it relative to the cur_dir (or wahtever makes sense), as below:
+
+```{python}
+output_path = p.get_path(os.path.join(aggregation_label + '_' + experiment_label + '_' + header + '_stacked_time_series.csv'))
+```
+
+One additional exception to the above is if you are calling get_path outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
 
 ```{python, eval=FALSE}
 p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_adm0_10sec.gpkg'), possible_dirs=[p.input_dir, p.base_data_dir])
