@@ -81,14 +81,13 @@ hb.reclassify_raster_hb(raster_path, rules, output_path)
 
 ### Correspondences with geometries
 
-```{# The rules for naming correspondences are a little different when adding geometry to the data. Because}
+```{python}
+# The rules for naming correspondences are a little different when adding geometry to the data. Because
     # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their
     # members can get confusing, each correspondence file keeps all the labels but then is also saved along
     # with a geometry file that drops the other labels (and the word correspondence in the filename).
     p.ee_r264_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264_correspondence.gpkg'))
     p.ee_r264_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264.gpkg'))
-{python}
-
 ```
 
 ## Naming Conventions
