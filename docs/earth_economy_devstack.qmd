@@ -227,7 +227,18 @@ In addition to the 5 repos plus the EE repo, there is a managed base data set st
 
 ![](images/paste-26.png)
 
-### 
+### Python Tips and Conventions
+
+For large files that take a long time to load, use a string-\>dataframe/dataset substitution as below. Make a LOCAL variable to contain the loaded object, and have that be assigned to the correct project-level path string. In subsequent usages, check type and if it's still a string, then it hasn't been loaded yet, so do that. I'm debating making it a project level variable trick
+
+```{python}
+
+gadm = p.gadm_adm0_vector_input_path    
+
+# Just load it on first pass
+if type(gadm) is str:
+    gadm = hb.read_vector(p.gadm_adm0_vector_input_path)
+```
 
 # GTAPpy details
 
@@ -413,6 +424,10 @@ Now that the sets are defined, can use them in defining the SHOCKS
 
 **alternatively just specify they use hb.get_path() to the private database.**
 
+## Iterating over multiple aggregations
+
+GTAPPY runs for multiple aggregations and follows the philosophy that for a well-built model, the results will be intuitively similar for different aggregations and thus it serves as a decent check. This is similar to "leave-one-out" testing in regression.
+
 ## Release notes
 
 ### v2023-12-18
@@ -532,3 +547,103 @@ If it's a supply response elasticity (as in PNAS) that WILL affect it (unlike ab
 needs to be percentage change over default POP. In base data. Read this in and process it against Eric's file.
 
 Shock pop(REG) = SELECT FROM FILE filename header 4ltr header. Swap QGDP aoreg shock aoall (agcom_sm, reg) = select from yield file.
+
+# SEALS
+
+## Iterating over many model assumptions
+
+In many case, such as a standard GTAPPy run, we will iterate over different aggergations and scenarios (now renamed counterfactuals). This is done as expected with code like this:
+
+```{python}
+for aggregation_label in p.aggregation_labels:
+     
+    for experiment_label in p.experiment_labels:
+        
+        for n_years_counter, ending_year in enumerate(p.years):
+            
+            if n_years_counter == 0:
+                starting_year = p.base_year
+            else:
+                starting_year = p.years[n_years_counter - 1]
+                
+            output_dir = p.get_path(os.path.join(aggregation_label, experiment_label, str(ending_year)))
+```
+
+But sometimes, this becomes DEEPLY nested and confusing. SEALS implements an API that reads these nested layers from a CSV. This is defined more fully in the SEALS user guide.
+
+```{python}
+for index, row in p.scenarios_df.iterrows():
+    seals_utils.assign_df_row_to_object_attributes(p, row)
+    
+    if p.scenario_type != 'baseline':
+                            
+        for n_years_counter, ending_year in enumerate(p.years):
+
+            if n_years_counter == 0:
+                starting_year = p.base_year
+            else:
+                starting_year = p.years[n_years_counter - 1]
+                
+            current_run_dirs = os.path.join(p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label)
+            output_dir = p.get_path(current_run_dirs, str(ending_year))
+            expected_sl4_path = os.path.join(output_dir, p.counterfactual_label + '_Y' + str(ending_year) + '.sl4')
+
+```
+
+In this scenarios_df, which was loaded from scenarios_csv_path, there are multiple nested for loops implied, for `p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label`, each row has a unique value that would have been iterated over with the for loop above. Now, however, we are iterating just over scenario_df rows. Within each row pass, a project-level attribute is assigned via `seals_utils.assign_df_row_to_object_attributes(p, row)`. This is used instead of the nested for loop.
+
+## Creating scenarios spreadsheets
+
+Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading it (keeps it up to date as code changes quickly). However, this gets convoluted when you also have to initialize the attributes before you write?!?
+
+```{python}
+    # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
+    # then you need to add the path to the seals directory to the system path.
+    custom_seals_path = None
+    if custom_seals_path is not None: # G:/My Drive/Files/Research/seals/seals_dev/seals
+        sys.path.insert(0, custom_seals_path)
+
+    # SEALS will run based on the scenarios defined in a scenario_definitions.csv
+    # If you have not run SEALS before, SEALS will generate it in your project's input_dir.
+    # A useful way to get started is to to run SEALS on the test data without modification
+    # and then edit the scenario_definitions.csv to your project needs.
+    # Some of the other test files use different scenario definition csvs 
+    # to illustrate the technique. If you point to one of these 
+    # (or any one CSV that already exists), SEALS will not generate a new one.
+    # The avalable example files in the default_inputs include:
+    # - test_three_scenario_defininitions.csv
+    # - test_scenario_defininitions_multi_coeffs.csvs
+    
+    p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
+
+    # Set defaults and generate the scenario_definitions.csv if it doesn't exist.
+    if not hb.path_exists(p.scenario_definitions_path):
+        # There are several possibilities for what you might want to set as the default.
+        # Choose accordingly by uncommenting your desired one. The set of
+        # supported options are
+        # - set_attributes_to_dynamic_default (primary one)
+        # - set_attributes_to_dynamic_many_year_default
+        # - set_attributes_to_default # Deprecated
+
+        gtap_invest_utils.set_attributes_to_dynamic_gtap_default(p) # Default option
+
+
+        # # Optional overrides for us in intitla scenarios
+        # p.aoi = 'RWA'
+
+        # gtap_invest_utils.set_attributes_to_dynamic_default(p)
+        # Once the attributes are set, generate the scenarios csv and put it in the input_dir.
+        gtap_invest_utils.generate_gtap_invest_scenarios_csv_and_put_in_input_dir(p)
+        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+    else:
+        # Read in the scenarios csv and assign the first row to the attributes of this object (in order to setup additional 
+        # project attributes like the resolutions of the fine scale and coarse scale data)
+        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+
+        # Because we've only read the scenarios file, set the attributes
+        # to what is in the first row.
+        for index, row in p.scenarios_df.iterrows():
+            seals_utils.assign_df_row_to_object_attributes(p, row)
+            break # Just get first for initialization.
+
+```
