@@ -1,120 +1,197 @@
 # Earth-Economy Devstack
 
-Placeholder file that will collect the cross-repo organizational standards common to our software stack
+This is the documentation for the Earth-Economy Devstack, which is the set of repositories and code tools used by the Johnson-Polasky Lab and NatCap TEEMs. This documentation starts with overall organization of the Earth-Economy Devstack and discusses common coding practices used among the 5 underlying repositories. Next, each of the repositories is discussed in turn.
 
-## Id, index, label, name, description
+# Overall Organization
 
-In programming, `id` and `index` are two different concepts that are used in different contexts.
+## Getting the earth_economy_devstack repository
 
-`id` refers to the unique identifier of an object. In this specification, it is an integer that is sorted by the ONE in the many-to-one correspondence, sorted alphabetically at generation time (though not necessarily to remain sorted given downstream correspondences).
+Assuming you have already setup your python environment and installed VS Code, the first step is to clone all of the relevant repositories into the exact-right location. Throughout this documentation, we refer to "EE Spec", or Earth-Economy Specification. This is simply the common conventions for things like naming files and organizing them so that it works for all participants. The EE Spec organization is to clone the `earth_economy_devstack` repository, available at <https://github.com/jandrewjohnson/earth_economy_devstack>, into your Users directory in a subdirectory called Files. The PC version is shown below.
 
-`index` refers to the position of an element in a sequence (e.g. a list or a string). In the context of a correspondence file, this is the position of the row within the sorted spreadsheet, but is not assumed to be stable and shouldn't generally be used.
+![](images/paste-23.png)
 
-`labelheader` refers to an (exactly) 4 character string that is lowercase-alphanumeric with no special symbols besides underscore. Useful for the Header label in har files. Technically is case insensitive but we assume lowercase.
+To clone here, you can use the command line, navigate to the Files directory and use `git clone https://github.com/jandrewjohnson/earth_economy_devstack` . Alternatively you could use VS Code's Command Pallate \<ctrl-shift-s\> Git Clone command and navigate to this repo. This repository configures VS Code to work well with the other EE repos and, for instance, defines launch-configurations that will always use the latest from github.
 
-`labelshort` refers to an 8-character or less string that is lowercase-alphanumeric with no special symbols besides underscore. Useful for .har files.
+## Get the other repositories
 
-`label` refers to a string that is lowercase-alphanumeric with no special symbols besides underscore
+Next, create a folder for each of the five repositories in the Files directory, as in the picture above.
 
-`name` refers to a string of any ascii characters with python-style escaping of special characters: `'She\'s a star!'` . It's assumed to be short enough to view as a column header or plot label
+1.  hazelbean
+2.  seals
+3.  gtappy
+4.  gtap_invest
+5.  global_invest
 
-`Description`refers to a `name` of any length with detailed description, possibly even formatted MD text.
+Inside each of these folders, you will clone the corresponding repositories:
 
-If there is a domain, described below, id, index, etc all should prepended with it to be eg gadm_id.
+1.  <https://github.com/jandrewjohnson/hazelbean_dev>
+2.  <https://github.com/jandrewjohnson/seals_dev>
+3.  <https://github.com/jandrewjohnson/gtappy_dev>
+4.  <https://github.com/jandrewjohnson/gtap_invest_dev>
+5.  <https://github.com/jandrewjohnson/global_invest_dev>
 
-### Id, Index etc. in the context of vector data
+If successful, you will have a new folder with `_dev` postpended, indicating that it is the repository itself (and is the dev, i.e., not yet public, version of it). For GTAPPy it should look like this:
 
-Note that geopandas assumes the vector data are indexed with an FID. This is the order in which the geometries are added to the file and can get wonky when dealing with legacy file types (like ESRI Shapefiles). Additionally, when you write a GPKG to a CSV, it will not include the fid, so you might lose data. To fix this, EE spec requires that any GPKG when saved as a CSV have a new column, `id` added as the first col, which is generated starting at 1 and incrementing up by 1 after having sorted the data on the simplest non-fid label (e.g., iso3_label). See gtap_invest_generate_base_data.py.
+![](images/paste-30.png)
 
-## Labels files
+All code will be stored in the \_dev repository. All files that you will generate when running the libraries, conversely, will be in a different Projects directory as above (This will be discussed more in the ProjectFlow section).
 
-Based on how the GTAP database is structured, EE spec defines several file types of files to systemetize how dimensions/sets are defined (and then used in e.g. figure plotting). A single dimension is first defined by a labels file. The labels file has at least 3 columns of domain_id, domain_label, domain_name and optionally a domain_description. If present, a column needs to be fully filled (no missing values). Label files are used in other contexts to, e.g., go from id to name for labeling an axis on a plot, as well as building the correspondence files below.
+## Launching the devstack in VS Code
 
-## Correspondences
+Navigate to the earth_economy_devstack directory. In there, you will find a file `earth_economy_devstack.code-workspace` (pictured below).
 
-Model linkages often require mapping many-to-one relationship in a consistent way. Correspondence files define this via a src-to-dst (source and destination). They are named according to a relatively complex pattern. Specifically, using the file path `gadm_r263_gtapv7_r251_r160_r50_correspondence`, we have a domain label `gadm` followed by a src dimension-size pair `r263` (where r is a label, short for region in this case, and 263 is the number of unique entries in that dimension). To be a correspondence,there needs to be at least one other dst dimension-size pair, where in this case there are 3 additional dimension-size pairs (`r251`, `r160`, and `r50`). However, the later three pairs are from a different domain, namely that of `gtapv7`. Each pair is identified with the domain most identified most closely prior. The dst dimension-size pairs are sorted in order of decreasing size. The dst dimension-size pairs are then followed by the word `correspondence`. This example creates a correspondence file that maps from the GADM 263 regions to the GTAPv7 251 regions, which are then mapped to the GTAPv7 160 regions, which are then mapped to the GTAPv7 50 regions.
+![](images/paste-31.png)
 
-An example of a 2-type correspondence is below. However, in this file, src and dst would have to be replaced with the specific domain names used.
+Double click it to load a preconfigured VS Code Workspace. You will know you have it all working if the explorer tab in VS Code shows all all SIX of the repositories.
 
-| src_id | dst_id | src_label | dst_label | src_description | dst_description                |
-|------------|------------|------------|------------|------------|------------|
-| 1      | 1      | aus       | oceania   | Australia       | Oceania (including NZ and AUS) |
-| 2      | 1      | nzl       | oceania   | New Zealand     | Oceania (including NZ and AUS) |
+![](images/paste-32.png)
 
-Here are the specific labels and corespondence files generated for gtapv7-aez-rd:
+## Launch and VS Code Configurations
 
-![](images/paste-22.png)
+The earth_economy_devstack.code-workspace configures VS Code so that it includes all of the necessary repositories for EE code to run. Specifically, this means that if you pull the most recent version of each repository from Github, your code will all work together seamlessly. In addition to this file, you will see in the .vs_code directory there is a `launch.json` file. This file defines how to launch the python Debugger so that it uses the correct versions of the repositories. To launch a specific python file, first make it the active editor window, then open the debugger tab in VS Code's left navbar, and in the Run and Debug dropdown box (pictured below) select the first run configuration, then hit the green Play triangle to launch the python file you had open. If all is setup correctly, your file you ran should be able to import all of the libraries in the devstack.
 
-If defined exactly right, 2 dimensional correspondence files will work with Hazelbean via
+![](images/paste-34.png)
 
-`seals_utils.set_derived_attributes(p)`
+# How to contribute
 
-and
+## Version management with Git & GitHub repository
 
-```{python}
-p.lulc_correspondence_dict = hb.utils.get_reclassification_dict_from_df(p.lulc_correspondence_path, 'src_id', 'dst_id', 'src_label', 'dst_label')
+SEALS is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development. However, some basic preferred workflows are outlined in the following.
+
+![](images/git_workflow.png)
+
+### Create a new fork of the original SEALS repo
+
+Before developing the code it is recommended to create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for - code development or fixes - submitting a pull request to the original SEALS repository.
+
+### Clone fork to your local machine
+
+Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). To clone the repository on your local machine via the command line, navigate to the local folder, in which you want to clone the repository, and type
+
+```         
+git clone -b <name-of-branch>` <url-to-github-repo> <name-of-local-clone-folder>
 ```
 
-which will return a very useful dictionary for various reclassification tasks:
+For example, if you want to clone the develop branch of your SEALS fork type
 
-```{python}
-return_dict = {}
-return_dict['dst_to_src_reclassification_dict'] = dst_to_src_reclassification_dict  # Dict of one-to-many keys to lists of what each dst_key should be mapped to from each src_key. Useful when aggrigating multiple layers to a aggregated dest type
-return_dict['src_to_dst_reclassification_dict'] = src_to_dst_reclassification_dict # Useful when going to a specific value.
-return_dict['dst_to_src_labels_dict'] = dst_to_src_labels_dict # Dictionary of lists of labels that map to each dst label
-return_dict['src_ids'] = remove_duplicates_in_order(src_ids) # Unique set of src_ids
-return_dict['dst_ids'] = remove_duplicates_in_order(dst_ids) # Unique set of dst_ids
-return_dict['src_labels'] = remove_duplicates_in_order(src_labels) # Unique set of src_labels
-return_dict['dst_labels'] = remove_duplicates_in_order(dst_labels) # Unique set of dst_labels
-return_dict['src_ids_to_labels'] = {k: v for k, v in zip(return_dict['src_ids'], return_dict['src_labels'])} # one-to-one dictionary of src ids to labels
-return_dict['dst_ids_to_labels'] = {k: v for k, v in zip(return_dict['dst_ids'], return_dict['dst_labels'])} # one-to-one dictionary of dst ids to labels
-return_dict['src_labels_to_ids'] = {k: v for k, v in zip(return_dict['src_labels'], return_dict['src_ids'])} # one-to-one dictionary of src labels to ids
-return_dict['dst_labels_to_ids'] = {k: v for k, v in zip(return_dict['dst_labels'], return_dict['dst_ids'])} # one-to-one dictionary of dst labels to ids
+```         
+git clone -b develop https://github.com/<username/seals_dev seals_develop
 ```
 
-Among other possibilities, this could be used for reclassifying LULC geotiffs via
+### Code changes
+
+For any code development it is recommended to use the clone of the code base at your local machine and an IDE. For larger code developments, a new code branch should also be created by using `git branch <name-of-new-branch>`. To let git know that you want to switch to and work on the new branch use `git checkout <name-of-new-branch>`.
+
+Before making any changes, make sure that your fork and/or your local repository are up-to-date with the original SEALS repository. To pull changes from your fork use `git pull origin <name-of-branch>`. In order to pull the latest changes from the original SEALS repository you can set up a link to the original upstream repository with the command `git remote add upstream https://github.com/jandrewjohnson/seals_dev`. To pull the latest changes from the develop branch in the original upstream repository use `git pull upstream develop`.
+
+During code development, any changes or fixes that should go back to the fork and/or the original SEALS repository need to be ['staged'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) and then ['commited'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) with a commit message that succinctly describes the changes. By staging changes, **git** is informed that these changes should become part of the next 'commit', which essentially takes a snapshot of all staged changes thus far.
+
+To stage all changes in the current repository use the command `git add .`. If you only want to stage changes in a certain file use `git add <(relative)-path-to-file-in-repo>`.
+
+To commit all staged changes use the command `git commit -m "a short description of the code changes"`.
+
+After committing the changes, they can be pushed to your fork by using `git push origin <name-of-branch>`.
+
+![](images/git_branches.png) \### Pull requests
+
+In order to propose changes to the original SEALS repository, it is recommended to use [pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork). Pull requests inform other users about your code changes and allow them to review these changes by comparing and highlighting the parts of the code that have have been altered. They also highlight potential [merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts), which occur when git is trying to merge branches with competing commits within the same parts of the code. Pull requests can be done directly at GitHub by navigating to either the forked repository or the original SEALS repository and by clicking on 'Pull requests' and then 'New pull request'. This will open a new pull request page where changes can be described in more detail and code reviewers can be specfied. Pull requests should be reviewed by at least one of the main code developers.
+
+## Iterating over many model assumptions
+
+In many case, such as a standard GTAPPy run, we will iterate over different aggergations and scenarios (now renamed counterfactuals). This is done as expected with code like this:
 
 ```{python}
-rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict']
-hb.reclassify_raster_hb(raster_path, rules, output_path)
+for aggregation_label in p.aggregation_labels:
+     
+    for experiment_label in p.experiment_labels:
+        
+        for n_years_counter, ending_year in enumerate(p.years):
+            
+            if n_years_counter == 0:
+                starting_year = p.base_year
+            else:
+                starting_year = p.years[n_years_counter - 1]
+                
+            output_dir = p.get_path(os.path.join(aggregation_label, experiment_label, str(ending_year)))
 ```
 
-### Combined ids
-
-One special case of ids is when two different ids are combined together leveraging their decimal position to compress data. For example, if you want a Region-AEZ-specific id stored in single column, you can do that by saying the joined id is 5 digits long, the first three correspond to ee_r264 and the final two correspond to aez18, as in this example:
-
-![](images/paste-29.png)
-
-In the event of a combined id, not that the \_id column above has two region-specifications combined (which otherwise violates the ee spec defined above for non combined ids).
-
-### Correspondences with geometries
+But sometimes, this becomes DEEPLY nested and confusing. SEALS implements an API that reads these nested layers from a CSV. This is defined more fully in the SEALS user guide.
 
 ```{python}
-    # The rules for naming correspondences are a little different when adding geometry to the data. Because}
-    # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their
-    # members can get confusing, each correspondence file keeps all the labels but then is also saved along
-    # with a geometry file that drops the other labels (and the word correspondence in the filename).
-    p.ee_r264_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264_correspondence.gpkg'))
-    p.ee_r264_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264.gpkg'))
+for index, row in p.scenarios_df.iterrows():
+    seals_utils.assign_df_row_to_object_attributes(p, row)
+    
+    if p.scenario_type != 'baseline':
+                            
+        for n_years_counter, ending_year in enumerate(p.years):
+
+            if n_years_counter == 0:
+                starting_year = p.base_year
+            else:
+                starting_year = p.years[n_years_counter - 1]
+                
+            current_run_dirs = os.path.join(p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label)
+            output_dir = p.get_path(current_run_dirs, str(ending_year))
+            expected_sl4_path = os.path.join(output_dir, p.counterfactual_label + '_Y' + str(ending_year) + '.sl4')
 
 ```
 
-## Naming Conventions
+In this scenarios_df, which was loaded from scenarios_csv_path, there are multiple nested for loops implied, for `p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label`, each row has a unique value that would have been iterated over with the for loop above. Now, however, we are iterating just over scenario_df rows. Within each row pass, a project-level attribute is assigned via `seals_utils.assign_df_row_to_object_attributes(p, row)`. This is used instead of the nested for loop.
 
-The names of project-level variables are carefully defined. For example, in gtapv7_r251_r160_correspondence_input_path, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. In this name, we see two other structures. First, the gtapv7 label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
+## Creating scenarios spreadsheets
 
-You can have multiple mappings in a single correspondence file. For example, gtapv7_r251_s65_r50_s26_correspondence_input_path, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
-
-Appart from correspondence files, we also have **labels** files, such as gtapv7_r251_labels_path. Labels files are for a single set/variable/dimension but map together the synonymous categorizers. Specifically, it must have an id, label, and name, all filled out for every entry. It can optionally have others like description.
-
-In the filename gtapv7_r251_labels_path we extract from the input_path and write a EE-compliant labels table for the gtapv7 r251 set. In the filename `gtap11_gtapaez11_region_correspondence_path`, we use these regions and then connect it to the gtapaez11 labels. We can infer also that it is from a mapping labeled gtap11 to gtapaez11 and that the variable in question is the regions while the word correspondence then indicates this is a many-to-one mapping file.
-
-Note that the file path says "regions" while the column label in the CSV says "region".
+Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading it (keeps it up to date as code changes quickly). However, this gets convoluted when you also have to initialize the attributes before you write?!?
 
 ```{python}
-    p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')
-    p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')
-    p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')
+    # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
+    # then you need to add the path to the seals directory to the system path.
+    custom_seals_path = None
+    if custom_seals_path is not None: # G:/My Drive/Files/Research/seals/seals_dev/seals
+        sys.path.insert(0, custom_seals_path)
+
+    # SEALS will run based on the scenarios defined in a scenario_definitions.csv
+    # If you have not run SEALS before, SEALS will generate it in your project's input_dir.
+    # A useful way to get started is to to run SEALS on the test data without modification
+    # and then edit the scenario_definitions.csv to your project needs.
+    # Some of the other test files use different scenario definition csvs 
+    # to illustrate the technique. If you point to one of these 
+    # (or any one CSV that already exists), SEALS will not generate a new one.
+    # The avalable example files in the default_inputs include:
+    # - test_three_scenario_defininitions.csv
+    # - test_scenario_defininitions_multi_coeffs.csvs
+    
+    p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
+
+    # Set defaults and generate the scenario_definitions.csv if it doesn't exist.
+    if not hb.path_exists(p.scenario_definitions_path):
+        # There are several possibilities for what you might want to set as the default.
+        # Choose accordingly by uncommenting your desired one. The set of
+        # supported options are
+        # - set_attributes_to_dynamic_default (primary one)
+        # - set_attributes_to_dynamic_many_year_default
+        # - set_attributes_to_default # Deprecated
+
+        gtap_invest_utils.set_attributes_to_dynamic_gtap_default(p) # Default option
+
+
+        # # Optional overrides for us in intitla scenarios
+        # p.aoi = 'RWA'
+
+        # gtap_invest_utils.set_attributes_to_dynamic_default(p)
+        # Once the attributes are set, generate the scenarios csv and put it in the input_dir.
+        gtap_invest_utils.generate_gtap_invest_scenarios_csv_and_put_in_input_dir(p)
+        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+    else:
+        # Read in the scenarios csv and assign the first row to the attributes of this object (in order to setup additional 
+        # project attributes like the resolutions of the fine scale and coarse scale data)
+        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+
+        # Because we've only read the scenarios file, set the attributes
+        # to what is in the first row.
+        for index, row in p.scenarios_df.iterrows():
+            seals_utils.assign_df_row_to_object_attributes(p, row)
+            break # Just get first for initialization.
+
 ```
 
 ## Task Format
@@ -215,12 +292,6 @@ big_file_path = hb.get_path('lulc', 'esa', 'seals7', 'convolutions', '2017', 'co
 
 In this example, suppose you needed to create this file via your create_convolutions() task or something. When you first do this, it obviously won't exist yet, so get_path() will join that relative path in the p.cur_dir location. If you run the ProjectFlow again, it will see it's there and then instantly skip recalcualting it.
 
-# EE File organization
-
-![](images/paste-23.png)
-
-![](images/paste-24.png)
-
 In addition to the 5 repos plus the EE repo, there is a managed base data set stored in teh same location
 
 ![](images/paste-25.png)
@@ -240,7 +311,7 @@ if type(gadm) is str:
     gadm = hb.read_vector(p.gadm_adm0_vector_input_path)
 ```
 
-# GTAPpy details
+# GTAPPy
 
 ## Installation
 
@@ -550,100 +621,419 @@ Shock pop(REG) = SELECT FROM FILE filename header 4ltr header. Swap QGDP aoreg s
 
 # SEALS
 
-## Iterating over many model assumptions
+## From Readme (might be redundant)
 
-In many case, such as a standard GTAPPy run, we will iterate over different aggergations and scenarios (now renamed counterfactuals). This is done as expected with code like this:
+SEALS is under active development and will change much as it moves from a personal research library to supported model. We have submitted this code for publication but are waiting on reviews. For installation and other details, see the [SEALS documentation](https://justinandrewjohnson.com/seals/documentation).
 
-```{python}
-for aggregation_label in p.aggregation_labels:
-     
-    for experiment_label in p.experiment_labels:
-        
-        for n_years_counter, ending_year in enumerate(p.years):
-            
-            if n_years_counter == 0:
-                starting_year = p.base_year
-            else:
-                starting_year = p.years[n_years_counter - 1]
-                
-            output_dir = p.get_path(os.path.join(aggregation_label, experiment_label, str(ending_year)))
+To run a minimal version of the model, open a terminal/console and navigate to the directory where run_test_seals.py is located. Then, simply run: \> python run_test_seals.py
+
+In order for the above line to work, you will need to set the project directory and data directory lines in run_test_seals.py. To obtain the base_data necessary, see the SEALS manuscript for the download link.
+
+To run a full version of the model, copy run_test_seals.py to a new file (i.e., run_seals.py) and set p.test_mode = False. You may also want to specify a new project directory to keep different runs separate.
+
+## Release Notes
+
+### Update v0.5.0
+
+Downloading of base data now works.
+
+### Update v0.4.0
+
+Now all project flow objects can be set via a scenario_definitions.csv file, allowing for iteration over multiple projects.
+
+If no scenario_definitions.csv is present, it will create the file based on the parameters set in the run file.
+
+## Installation
+
+-   Install Mambaforge from <https://github.com/conda-forge/miniforge#mambaforge>
+-   For convenience, during installation, I select yes for "Add Mambaforge to my PATH environment Variable"
+-   (PC) Open the Miniforge Prompt (search for it in the start menu) or (Mac) just type "mamba init"
+-   Create a new mamba environment with the following commands (here it is named env2023a):
+
+`mamba create -n env2023a -c conda-forge`
+
+-   Activate the environment
+
+`mamba activate research2023a`
+
+-   Install libraries using the mamba command:
+
+`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools`
+
+-   And then finally, install non-conda distributions via pip:
+
+`pip install mglearn pandoc datascience hazelbean`
+
+## Numpy errors
+
+If numpy throws "wrong size or changes size binary": upgrade numpy at the end of the installation process. See for details: <https://stackoverflow.com/questions/66060487/valueerror-numpy-ndarray-size-changed-may-indicate-binary-incompatibility-exp>
+
+## Mac specific errors
+
+Your python environment has to have permissions to access and write to the base data folder.
+
+## Hazelbean
+
+SEALS relies on the Hazelbean project, available via PIP. Hazelbean is a collection of geospatial processing tools based on gdal, numpy, scipy, cython, pygeoprocessing, taskgraph, natcap.invest, geopandas and many others to assist in common spatial analysis tasks in sustainability science, ecosystem service assessment, global integrated modelling assessment, natural capital accounting, and/or calculable general equilibrium modelling.
+
+Note that for hazelbean to work, your computer will need to be configured to compile Cython files to C code. This workflow is tested in a Python 3.10, 64 bit Windows environment. It should work on other system environments, but this is not yet tested.
+
+## Project Flow
+
+One key component of Hazelbean is that it manages directories, base_data, etc. using a concept called ProjectFlow. ProjectFlow defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
+
+## First run walkthrough tutorial
+
+The simplest way to run SEALS is to clone the repository and then open run_test_seals.py in your preferred editor. Then, update the values in ENVIRONMENT SETTINGS near the top of run_test_seals.py for your local computer (ensuring this points to directories you have write-access for and is not a virtual/cloud directory).
+
+``` python
+    ### ------- ENVIRONMENT SETTINGS -------------------------------
+
+    # Users should only need to edit lines in this ENVIRONMENT SETTINGS section
+    # Everything is relative to these (or the source code dir).
+    # Specifically,
+    # 1. ensure that the project_dir makes sense for your machine
+    # 2. ensure that the base_data_dir makes sense for your machine
+    # 3. ensure that the data_credentials_path points to a valid credentials file
+    # 4. ensure that the input_bucket_name points to a cloud bucket you have access to
+
+    # A ProjectFlow object is created from the Hazelbean library to organize directories and enable parallel processing.
+    # project-level variables are assigned as attributes to the p object (such as in p.base_data_dir = ... below)
+    # The only agrument for a project flow object is where the project directory is relative to the current_working_directory.
+    user_dir = os.path.expanduser('~')
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+
+    project_name = 'test_seals_project'
+    project_dir = os.path.join(user_dir,  'seals', 'projects', project_name)
+    p = hb.ProjectFlow(project_dir)
 ```
 
-But sometimes, this becomes DEEPLY nested and confusing. SEALS implements an API that reads these nested layers from a CSV. This is defined more fully in the SEALS user guide.
+The project name and the project dir will define the root directory where all files will be saved. This directory is given `hb.ProjectFlow()` to initalize the project (which will create the dirs). Once these are set, you should be able to run run_test_seals.py in your preferred way, ensuring that you are in the Conda environment discussed above. This could be achieved in VS Code by selecting the Conda environment in the bottom-right status bar and then selecting run. Alternatively, this could be done via the command line with the command `python run_test_seals.py` in the appropriate directory.
 
-```{python}
-for index, row in p.scenarios_df.iterrows():
-    seals_utils.assign_df_row_to_object_attributes(p, row)
-    
-    if p.scenario_type != 'baseline':
-                            
-        for n_years_counter, ending_year in enumerate(p.years):
+When SEALS is run in this way, it will use the default values for a test run on a small country (Rawanda). All of these values are set (and documented) in the run file (run_test_seals.py) in the SET DEFAULT VARIABLES section. For your first run, it is recommended to use the defaults. When run, a configuration file will be written into your project's input_dir named scenario_definitions.csv. This file is a table where each row is a "scenario" necessary to be defined for SEALS to run. In this minimal run, it must have 2 rows: one for the baseline condition (the starting LULC map) and one for a scenario of change that will indicate how much change of each LU class will happen in some coarse grid-cell or region/zone. Inspecting and/or modifying this file may give insights on how to customize a new run.
 
-            if n_years_counter == 0:
-                starting_year = p.base_year
-            else:
-                starting_year = p.years[n_years_counter - 1]
-                
-            current_run_dirs = os.path.join(p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label)
-            output_dir = p.get_path(current_run_dirs, str(ending_year))
-            expected_sl4_path = os.path.join(output_dir, p.counterfactual_label + '_Y' + str(ending_year) + '.sl4')
+``` python
+### ------- SET DEFAULT VARIABLES --------------------------------
 
+# Set the path to the scenario definitions file. This is a CSV file that defines the scenarios to run.
+# If this file exists, it will load all of the attributes from this file and overwrite the attributes
+# set above. This is useful because adding new lines to to the scenario definitions file will allow
+# you to run many different scenarios easily. If this file does not exist, it will be created based
+# on the attributes set above and saved to the location in scenarios_definitions_path.
+p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
+
+# IMPORTANT NOTE: If you set a scenario_definitions_path, then the attributes set in this file (such as p.scenario_label below)
+# will be overwritten. Conversely, if you don't set a scenario_definitions_path, then the attributes set in this file will be used
+# and will be written to a CSV file in your project's input dir.
+
+# If you did not set a p.scenarios_definitions_path, the following default variables will be used
+# and will be written to a scenarios csv in your project's input_dir for later use/editing/expansion.
+
+# String that uniquely identifies the scenario. Will be referenced by other scenarios for comparison.
+p.scenario_label = 'ssp2_rcp45_luh2-globio_bau'
+
+# Scenario type determines if it is historical (baseline) or future (anything else) as well
+# as what the scenario should be compared against. I.e., Policy minus BAU.
+p.scenario_type = 'bau'
 ```
 
-In this scenarios_df, which was loaded from scenarios_csv_path, there are multiple nested for loops implied, for `p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label`, each row has a unique value that would have been iterated over with the for loop above. Now, however, we are iterating just over scenario_df rows. Within each row pass, a project-level attribute is assigned via `seals_utils.assign_df_row_to_object_attributes(p, row)`. This is used instead of the nested for loop.
+This computing stack also uses hazelbean to automatically download needed data at run time. In the code block below, notice the absolute path assigned to p.base_data_dir. Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. This also lets you use the same base data across different projects.
 
-## Creating scenarios spreadsheets
+In addition to defining a base_data_dir, you will need to For this to work, you need to also point SEALS to the correct data_credentials_path. If you don't have a credentils file, email jajohns\@umn.edu. The data are freely available but are very, very large (and thus expensive to host), so I limit access via credentials.
 
-Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading it (keeps it up to date as code changes quickly). However, this gets convoluted when you also have to initialize the attributes before you write?!?
+``` python
+p.base_data_dir = os.path.join('G:/My Drive/Files/base_data')
+
+p.data_credentials_path = '..\\api_key_credentials.json'
+```
+
+NOTE THAT the final directory has to be named base_data to match the naming convention on the google cloud bucket.
+
+## Running the model
+
+After doing the above steps, you should be ready to run `run_test_seals.py`. Upon starting, SEALS will report the "task tree" of steps that it will compute in the ProjectFlow environment. To understand SEALS in more depth, inspect each of the functions that define these tasks for more documention in the code.
+
+Once the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:
+
+![](images/paste-3.png)
+
+Open up the projected one (e.g., lulc_ssp2_rcp45_luh2-message_bau_2045.tif) in QGIS and enjoy your new, high-resolution land-use change projection!
+
+## More SEALS details
+
+### Linking paths
+
+The logic used for paths in SEALS is confusing at first, but it enables efficient processing of very large files (and minimizes re-downloading or re-processing data. When a path to a file is specified in SEALS, often SEALS will call a function in hazelbean that checks multiple places for that file to exist, as in the code below.
+
+``` python
+path = hb.get_first_extant_path(path, [p.input_dir, p.base_data_dir])
+```
+
+If the path given is relative, this function will then iterate through the list of possible directories and join the path to each directory, continuing down the list until it finds an existing path. If it never finds it, the function will return the path joined with the first element in the list (presumably for later file creation). This functionality means that if a file is in your base data directory, hazelbean will not download it. As a protip, after the first time it's downloaded, you can move it from the input_dir to your base_data_dir (while keeping the exact same relative directory path) and then Hazelbean will not waste time re-downloading.
+
+# Hazelbean
+
+## Quickstart
+
+Test that hazelbean imports correctly. Importing it will trigger compilation of the C files if they are not there.
+
+``` python
+import hazelbean as hb
+```
+
+## Library of useful functions
+
+Explore examples of the useful spatial, statistical and economic functions in the examples section of this documentation.
+
+## Project Flow
+
+One key component of Hazelbean is that it manages directories, base_data, etc. using a concept called ProjectFlow. ProjectFlow defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
+
+### Project Flow notes
+
+Project Flow is intended to flow easily into the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework.
+
+#### Notes
+
+In run.py, initialize the project flow object. This is the only place where user supplied (possibly absolute but can be relative) path is stated. The p ProjectFlow object is the one global variable used throughout all parts of hazelbean.
+
+``` python
+import hazelbean as hb
+
+if __name__ == '__main__':
+    p = hb.ProjectFlow(r'C:\Files\Research\cge\gtap_invest\projects\feedback_policies_and_tipping_points')
+```
+
+In a multi-file setup, in the run.py you will need to import different scripts, such as main.py i.e.:
+
+``` python
+import visualizations.main
+```
+
+The script file mainpy can have whatever code, but in particular can include "task" functions. A task function, shown below, takes only p as an agrument and returns p (potentially modified). It also must have a conditional (if p.run_this:) to specify what always runs (and is assumed to run trivially fast, i.e., to specify file paths) just by nature of having it in the task tree and what is run only conditionally (based on the task.run attribute, or optionally based on satisfying a completed function.)
+
+``` python
+def example_task_function(p):
+    """Fast function that creates several tiny geotiffs of gaussian-like kernels for later use in ffn_convolve."""
+
+    if p.run_this:
+        for i in computationally_intensive_loop:
+            print(i)
+```
+
+**Important Non-Obvious Note**
+
+Importing the script will define function(s) to add "tasks", which take the ProjectFlow object as an argument and returns it after potential modification.
+
+``` python
+def add_all_tasks_to_task_tree(p):
+    p.generated_kernels_task = p.add_task(example_task_function)
+```
+
+# Global InVEST
+
+NYI
+
+# GTAP-InVEST
+
+NYI.
+
+# Naming conventions
+
+### Id, index, label, name, description
+
+In programming, `id` and `index` are two different concepts that are used in different contexts.
+
+`id` refers to the unique identifier of an object. In this specification, it is an integer that is sorted by the ONE in the many-to-one correspondence, sorted alphabetically at generation time (though not necessarily to remain sorted given downstream correspondences).
+
+`index` refers to the position of an element in a sequence (e.g. a list or a string). In the context of a correspondence file, this is the position of the row within the sorted spreadsheet, but is not assumed to be stable and shouldn't generally be used.
+
+`labelheader` refers to an (exactly) 4 character string that is lowercase-alphanumeric with no special symbols besides underscore. Useful for the Header label in har files. Technically is case insensitive but we assume lowercase.
+
+`labelshort` refers to an 8-character or less string that is lowercase-alphanumeric with no special symbols besides underscore. Useful for .har files.
+
+`label` refers to a string that is lowercase-alphanumeric with no special symbols besides underscore
+
+`name` refers to a string of any ascii characters with python-style escaping of special characters: `'She\'s a star!'` . It's assumed to be short enough to view as a column header or plot label
+
+`Description`refers to a `name` of any length with detailed description, possibly even formatted MD text.
+
+If there is a domain, described below, id, index, etc all should prepended with it to be eg gadm_id.
+
+### Id, Index etc. in the context of vector data
+
+Note that geopandas assumes the vector data are indexed with an FID. This is the order in which the geometries are added to the file and can get wonky when dealing with legacy file types (like ESRI Shapefiles). Additionally, when you write a GPKG to a CSV, it will not include the fid, so you might lose data. To fix this, EE spec requires that any GPKG when saved as a CSV have a new column, `id` added as the first col, which is generated starting at 1 and incrementing up by 1 after having sorted the data on the simplest non-fid label (e.g., iso3_label). See gtap_invest_generate_base_data.py.
+
+### Labels files
+
+Based on how the GTAP database is structured, EE spec defines several file types of files to systemetize how dimensions/sets are defined (and then used in e.g. figure plotting). A single dimension is first defined by a labels file. The labels file has at least 3 columns of domain_id, domain_label, domain_name and optionally a domain_description. If present, a column needs to be fully filled (no missing values). Label files are used in other contexts to, e.g., go from id to name for labeling an axis on a plot, as well as building the correspondence files below.
+
+### Correspondences
+
+Model linkages often require mapping many-to-one relationship in a consistent way. Correspondence files define this via a src-to-dst (source and destination). They are named according to a relatively complex pattern. Specifically, using the file path `gadm_r263_gtapv7_r251_r160_r50_correspondence`, we have a domain label `gadm` followed by a src dimension-size pair `r263` (where r is a label, short for region in this case, and 263 is the number of unique entries in that dimension). To be a correspondence,there needs to be at least one other dst dimension-size pair, where in this case there are 3 additional dimension-size pairs (`r251`, `r160`, and `r50`). However, the later three pairs are from a different domain, namely that of `gtapv7`. Each pair is identified with the domain most identified most closely prior. The dst dimension-size pairs are sorted in order of decreasing size. The dst dimension-size pairs are then followed by the word `correspondence`. This example creates a correspondence file that maps from the GADM 263 regions to the GTAPv7 251 regions, which are then mapped to the GTAPv7 160 regions, which are then mapped to the GTAPv7 50 regions.
+
+An example of a 2-type correspondence is below. However, in this file, src and dst would have to be replaced with the specific domain names used.
+
+| src_id | dst_id | src_label | dst_label | src_description | dst_description                |
+|------------|------------|------------|------------|------------|------------|
+| 1      | 1      | aus       | oceania   | Australia       | Oceania (including NZ and AUS) |
+| 2      | 1      | nzl       | oceania   | New Zealand     | Oceania (including NZ and AUS) |
+
+Here are the specific labels and corespondence files generated for gtapv7-aez-rd:
+
+![](images/paste-22.png)
+
+If defined exactly right, 2 dimensional correspondence files will work with Hazelbean via
+
+`seals_utils.set_derived_attributes(p)`
+
+and
 
 ```{python}
-    # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
-    # then you need to add the path to the seals directory to the system path.
-    custom_seals_path = None
-    if custom_seals_path is not None: # G:/My Drive/Files/Research/seals/seals_dev/seals
-        sys.path.insert(0, custom_seals_path)
+p.lulc_correspondence_dict = hb.utils.get_reclassification_dict_from_df(p.lulc_correspondence_path, 'src_id', 'dst_id', 'src_label', 'dst_label')}`
 
-    # SEALS will run based on the scenarios defined in a scenario_definitions.csv
-    # If you have not run SEALS before, SEALS will generate it in your project's input_dir.
-    # A useful way to get started is to to run SEALS on the test data without modification
-    # and then edit the scenario_definitions.csv to your project needs.
-    # Some of the other test files use different scenario definition csvs 
-    # to illustrate the technique. If you point to one of these 
-    # (or any one CSV that already exists), SEALS will not generate a new one.
-    # The avalable example files in the default_inputs include:
-    # - test_three_scenario_defininitions.csv
-    # - test_scenario_defininitions_multi_coeffs.csvs
-    
-    p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
-
-    # Set defaults and generate the scenario_definitions.csv if it doesn't exist.
-    if not hb.path_exists(p.scenario_definitions_path):
-        # There are several possibilities for what you might want to set as the default.
-        # Choose accordingly by uncommenting your desired one. The set of
-        # supported options are
-        # - set_attributes_to_dynamic_default (primary one)
-        # - set_attributes_to_dynamic_many_year_default
-        # - set_attributes_to_default # Deprecated
-
-        gtap_invest_utils.set_attributes_to_dynamic_gtap_default(p) # Default option
-
-
-        # # Optional overrides for us in intitla scenarios
-        # p.aoi = 'RWA'
-
-        # gtap_invest_utils.set_attributes_to_dynamic_default(p)
-        # Once the attributes are set, generate the scenarios csv and put it in the input_dir.
-        gtap_invest_utils.generate_gtap_invest_scenarios_csv_and_put_in_input_dir(p)
-        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
-    else:
-        # Read in the scenarios csv and assign the first row to the attributes of this object (in order to setup additional 
-        # project attributes like the resolutions of the fine scale and coarse scale data)
-        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
-
-        # Because we've only read the scenarios file, set the attributes
-        # to what is in the first row.
-        for index, row in p.scenarios_df.iterrows():
-            seals_utils.assign_df_row_to_object_attributes(p, row)
-            break # Just get first for initialization.
-
+# return a very useful dictionary for various reclassification tasks:
 ```
+
+```{python}
+return_dict = {} return_dict['dst_to_src_reclassification_dict'] = dst_to_src_reclassification_dict  # Dict of one-to-many keys to lists of what each dst_key should be mapped to from each src_key. Useful when aggrigating multiple layers to a aggregated dest type 
+return_dict['src_to_dst_reclassification_dict'] = src_to_dst_reclassification_dict # Useful when going to a specific value. 
+return_dict['dst_to_src_labels_dict'] = dst_to_src_labels_dict # Dictionary of lists of labels that map to each dst label 
+return_dict['src_ids'] = remove_duplicates_in_order(src_ids) # Unique set of src_ids r
+eturn_dict['dst_ids'] = remove_duplicates_in_order(dst_ids) # Unique set of dst_ids 
+return_dict['src_labels'] = remove_duplicates_in_order(src_labels) # Unique set of src_labels 
+return_dict['dst_labels'] = remove_duplicates_in_order(dst_labels) # Unique set of dst_labels 
+return_dict['src_ids_to_labels'] = {k: v for k, v in zip(return_dict['src_ids'], return_dict['src_labels'])} # one-to-one dictionary of src ids to labels 
+return_dict['dst_ids_to_labels'] = {k: v for k, v in zip(return_dict['dst_ids'], return_dict['dst_labels'])} # one-to-one dictionary of dst ids to labels 
+return_dict['src_labels_to_ids'] = {k: v for k, v in zip(return_dict['src_labels'], return_dict['src_ids'])} # one-to-one dictionary of src labels to ids 
+return_dict['dst_labels_to_ids'] = {k: v for k, v in zip(return_dict['dst_labels'], return_dict['dst_ids'])} # one-to-one dictionary of dst labels to ids}
+```
+
+Among other possibilities, this could be used for reclassifying LULC geotiffs via
+
+`{python} rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict'] hb.reclassify_raster_hb(raster_path, rules, output_path)}`
+
+### Combined ids
+
+One special case of ids is when two different ids are combined together leveraging their decimal position to compress data. For example, if you want a Region-AEZ-specific id stored in single column, you can do that by saying the joined id is 5 digits long, the first three correspond to ee_r264 and the final two correspond to aez18, as in this example:
+
+![](images/paste-29.png)
+
+In the event of a combined id, not that the \_id column above has two region-specifications combined (which otherwise violates the ee spec defined above for non combined ids).
+
+### Correspondences with geometries
+
+```{python}
+# The rules for naming correspondences are a little different when adding geometry to the data. Because}     
+# # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their     
+# # members can get confusing, each correspondence file keeps all the labels but then is also saved along     
+# # with a geometry file that drops the other labels (and the word correspondence in the filename).     
+p.ee_r264_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264_correspondence.gpkg'))     
+p.ee_r264_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'ee_r264.gpkg'))
+```
+
+### More on naming Conventions
+
+The names of project-level variables are carefully defined. For example, in gtapv7_r251_r160_correspondence_input_path, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. In this name, we see two other structures. First, the gtapv7 label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
+
+You can have multiple mappings in a single correspondence file. For example, gtapv7_r251_s65_r50_s26_correspondence_input_path, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
+
+Appart from correspondence files, we also have **labels** files, such as gtapv7_r251_labels_path. Labels files are for a single set/variable/dimension but map together the synonymous categorizers. Specifically, it must have an id, label, and name, all filled out for every entry. It can optionally have others like description.
+
+In the filename gtapv7_r251_labels_path we extract from the input_path and write a EE-compliant labels table for the gtapv7 r251 set. In the filename `gtap11_gtapaez11_region_correspondence_path`, we use these regions and then connect it to the gtapaez11 labels. We can infer also that it is from a mapping labeled gtap11 to gtapaez11 and that the variable in question is the regions while the word correspondence then indicates this is a many-to-one mapping file.
+
+Note that the file path says "regions" while the column label in the CSV says "region".
+
+```{python}
+p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')     
+p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')     
+p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')}
+```
+
+## Variable and Scenario Naming Conventions
+
+To keep track of the MANY different filetypes, data processes, variables, scenarios, policies etc, please follow exactly the specifications below.
+
+-   The word label refers to a relatively short string (preferably 8 characters long or less) with no spaces, underscores or punctuation (but may have hyphens). This is case-sensitive, but try to avoid capitalization.
+
+-   The word short_label refers to a label that is strictly less or equal to 8 characters to ensure compatibility with HAR files.
+
+-   The word name refers to a longer string that describes a specific label with a 1:1 correspondence. Will usually be defined via a correspondence dictionary.
+
+-   The words index, indices or id refers to numerical data that describes a label with a 1:1 correspondence. Will usually be defined via a correspondence dictionary. If both are used, index/indices refer to a unique, ordered list of ints while an id/ids refer are unique but not necessarily ordered.
+
+-   The word class refers to LULC class. Consider renaming this to lc-class?
+
+-   Scenarios are defined in the following nested structure:
+
+    -   Label (with no hyphens) for Exogenous Assumptions (e.g., which SSP, which GDP, which population). Typically this will be fully defined by the SSP.
+
+    -   Label (with no hyphens) for Climate Assumption (which RCP)
+
+    -   Label (can have hyphens) for which model is used (e.g., magpie, luh2-message). Only model is allowed to have hyphens (because they are used for multistep scenario processing of counterfactuals)
+
+    -   Label for Counterfactual. This often represent policy Assumptions/Definition and can include BAU, which is a special counterfactual against which other policies are compared. Different counterfactuals correspond to different shockfiles in the econ model or different LUC projection priorities, etc.
+
+        -   Counterfactuals may have multiple processing steps, which will be denoted by appending a hyphen and exactly 4 chars to the end of the base counterfactual label.
+
+            -   IFor example, a run excludes consideration of ES, insert "-noes", at the end of the policy_name if it does include ES, postpend nothing (as this will be the one that is referenced by default)
+
+    -   Year
+
+        -   When the variable is singular, it must be an int. If it is plural, as is ints in a list. However, when either is stored in a dataframe, always type always type check as follows:
+
+            -   If singular, do str(value), int(value) or float(value) as appropriate when reading from the df into a python variable.
+
+            -   If plural, assume the df value is a space-delimited string that needs to be split, e.g. as \[int(i) for i in value.split(' ')\], or' '.join(values) if going into the DF
+
+        -   Three types of years exist, including
+
+            -   p.base_years, (which recall will always be a list even if there is a single entry because the variable name is plural)
+
+-   Together, the labels above mean that the scenarios can be represented by directories as follows:
+
+    -   'ssp2/rcp45/luh2-message/bau/filename_2050.tif'
+        -   Note, the last layer of the hierarchy will be included as a the suffix of the filename start rather than as a directory (also see below for filename conventions)
+
+-   For filenames, there are two possible conventions:
+
+    -   Implied: This means that the directory structure above defines all the labels with the exception of year (which is postpended to the filename label) and the current variable name (such as lulc) which appears at the front of the filename.
+
+        -   e.g., project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_2050.tif
+
+    -   Explicit: Even if a file is in a directory which implies its labels, explicit file naming will always include each label (and the variable label stays in front of the filename), so the above example is:
+
+        -   project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif
+
+        -   And if there are no ES considered, it would be project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif
+
+-   Because labels have no spaces or underscores, it is possible to convert the nested structure above to a single string, as in filename_ssp2_rcp45_policyname_year.tif.
+
+-   Filetypes that supported in this computation environment include
+
+    -   Netcdf with the above listed dimensions in the same order
+
+    -   A set of geotiffs embedded in directories. Each label gets a directory level expect for year, which by convention, will ALWAYS be the last 4 characters of a filename before the extension (with an underscore before it).
+
+    -   A spreadsheet linkable to a geographic representation (e.g., a shapefile or a geopackage) in vertical format
+
+-   Also we will create a set of tables to analyze results
+
+    -   These will define Regions (shp) for quick result plotting
+
+    -   Specifically, we will have a full vertically stacked CSV of results, then for each Report Archetype we would output 1 minimal info CSV and the corresponding Figure.
+
+-   Miscellaneous:
+
+    -   base_years is correct, never baseline_years (due to confusion between baseline and bau)
+
+-   Scenario types
+
+    -   Three scenario_types are supported: baseline, bau and policy
+        -   Baseline assumes the year has data existing from observations (rather than modelled) and that these years are defined in p.years (and identically defined in p.base_years).
+            -   One exception is when eg GTAP is used to update the base year from 2017 to 2023, and then policies are applied on 2023.
+        -   BAU and policy scenarios assume the results are modelled and that their years are defined in p.years (but not p.base_years)
+    -   Clarify what is the naming difference between src dst versus input output. Is the former only for file paths or can it also be e.g. array. OR does this have to do with if it is a function return.
+        -   Proposed answer: src/dst is a pointer/reference to a thing and Input/Output is the thing itself. Esp useful for paths.
+        -   Similarly, \_path and \_dir imply the string is a reference, so src_path and src_dir are common.
+        -   You might often see e.g. input_array = hb.as_array(src_path), illustrating this difference.
