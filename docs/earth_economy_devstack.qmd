@@ -296,6 +296,8 @@ In addition to the 5 repos plus the EE repo, there is a managed base data set st
 
 ![](images/paste-25.png)
 
+A ProjectFlow object must have a base_data_dir set (I think...). This is because the p.get_path() will look in this folder for it, and/or will download to it.
+
 ![](images/paste-26.png)
 
 ### Python Tips and Conventions
@@ -310,6 +312,27 @@ gadm = p.gadm_adm0_vector_input_path
 if type(gadm) is str:
     gadm = hb.read_vector(p.gadm_adm0_vector_input_path)
 ```
+
+# Python Installation
+
+-   Install Mambaforge from <https://github.com/conda-forge/miniforge#mambaforge>
+-   For convenience, during installation, I select yes for "Add Mambaforge to my PATH environment Variable"
+-   (PC) Open the Miniforge Prompt (search for it in the start menu) or (Mac) just type "mamba init"
+-   Create a new mamba environment with the following commands (here it is named env2023a):
+
+`mamba create -n env2023a -c conda-forge`
+
+-   Activate the environment
+
+`mamba activate research2023a`
+
+-   Install libraries using the mamba command:
+
+`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm`
+
+-   And then finally, install non-conda distributions via pip:
+
+`pip install mglearn pandoc datascience hazelbean`
 
 # GTAPPy
 
@@ -643,27 +666,6 @@ Now all project flow objects can be set via a scenario_definitions.csv file, all
 
 If no scenario_definitions.csv is present, it will create the file based on the parameters set in the run file.
 
-## Installation
-
--   Install Mambaforge from <https://github.com/conda-forge/miniforge#mambaforge>
--   For convenience, during installation, I select yes for "Add Mambaforge to my PATH environment Variable"
--   (PC) Open the Miniforge Prompt (search for it in the start menu) or (Mac) just type "mamba init"
--   Create a new mamba environment with the following commands (here it is named env2023a):
-
-`mamba create -n env2023a -c conda-forge`
-
--   Activate the environment
-
-`mamba activate research2023a`
-
--   Install libraries using the mamba command:
-
-`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools`
-
--   And then finally, install non-conda distributions via pip:
-
-`pip install mglearn pandoc datascience hazelbean`
-
 ## Numpy errors
 
 If numpy throws "wrong size or changes size binary": upgrade numpy at the end of the installation process. See for details: <https://stackoverflow.com/questions/66060487/valueerror-numpy-ndarray-size-changed-may-indicate-binary-incompatibility-exp>
@@ -900,7 +902,7 @@ return_dict = {} return_dict['dst_to_src_reclassification_dict'] = dst_to_src_re
 return_dict['src_to_dst_reclassification_dict'] = src_to_dst_reclassification_dict # Useful when going to a specific value. 
 return_dict['dst_to_src_labels_dict'] = dst_to_src_labels_dict # Dictionary of lists of labels that map to each dst label 
 return_dict['src_ids'] = remove_duplicates_in_order(src_ids) # Unique set of src_ids r
-eturn_dict['dst_ids'] = remove_duplicates_in_order(dst_ids) # Unique set of dst_ids 
+return_dict['dst_ids'] = remove_duplicates_in_order(dst_ids) # Unique set of dst_ids 
 return_dict['src_labels'] = remove_duplicates_in_order(src_labels) # Unique set of src_labels 
 return_dict['dst_labels'] = remove_duplicates_in_order(dst_labels) # Unique set of dst_labels 
 return_dict['src_ids_to_labels'] = {k: v for k, v in zip(return_dict['src_ids'], return_dict['src_labels'])} # one-to-one dictionary of src ids to labels 
