@@ -18,23 +18,26 @@ In programming, `id` and `index` are two different concepts that are used in dif
 
 `name` refers to a string of any ascii characters with python-style escaping of special characters: `'She\'s a star!'` . It's assumed to be short enough to view as a column header or plot label
 
-`Description`refers to a `name` of any length with detailed description, possibly even formatted MD text.
+`Description` refers to a `name` of any length with detailed description, possibly even formatted MD text.
 
-If there is a domain, described below, id, index, etc all should prepended with it to be eg gadm_id.
+If there is a domain, described below, id, index, etc all should prepended with it to be eg `gadm_id`.
 
 ### Id, Index etc. in the context of vector data
 
-Note that geopandas assumes the vector data are indexed with an FID. This is the order in which the geometries are added to the file and can get wonky when dealing with legacy file types (like ESRI Shapefiles). Additionally, when you write a GPKG to a CSV, it will not include the fid, so you might lose data. To fix this, EE spec requires that any GPKG when saved as a CSV have a new column, `id` added as the first col, which is generated starting at 1 and incrementing up by 1 after having sorted the data on the simplest non-fid label (e.g., iso3_label). See gtap_invest_generate_base_data.py.
+Note that geopandas assumes the vector data are indexed with an FID. This is the order in which the geometries are added to the file and can get wonky when dealing with legacy file types (like ESRI Shapefiles). Additionally, when you write a GPKG to a CSV, it will not include the fid, so you might lose data. To fix this, EE spec requires that any GPKG when saved as a CSV have a new column, `id` added as the first col, which is generated starting at 1 and incrementing up by 1 after having sorted the data on the simplest non-fid label (e.g., iso3_label). See `gtap_invest_generate_base_data.py`.
 
 ## Labels files
 
-Based on how the GTAP database is structured, EE spec defines several file types of files to systemetize how dimensions/sets are defined (and then used in e.g. figure plotting). A single dimension is first defined by a labels file. The labels file has at least 3 columns of domain_id, domain_label, domain_name and optionally a domain_description. If present, a column needs to be fully filled (no missing values). Label files are used in other contexts to, e.g., go from id to name for labeling an axis on a plot, as well as building the correspondence files below.
+Based on how the GTAP database is structured, EE spec defines several file types of files to systemetize how dimensions/sets are defined (and then used in e.g. figure plotting). A single dimension is first defined by a labels file. The labels file has at least 3 columns of `domain_id`, `domain_label`, `domain_name` and *optionally* a `domain_description`. If present, a column needs to be fully filled (no missing values). Label files are used in other contexts to, e.g., go from id to name for labeling an axis on a plot, as well as building the correspondence files below.
 
 ## Correspondences
 
-Model linkages often require mapping many-to-one relationship in a consistent way. Correspondence files define this via a src-to-dst (source and destination). They are named according to a relatively complex pattern. Specifically, using the file path `gadm_r263_gtapv7_r251_r160_r50_correspondence`, we have a domain label `gadm` followed by a src dimension-size pair `r263` (where r is a label, short for region in this case, and 263 is the number of unique entries in that dimension). To be a correspondence,there needs to be at least one other dst dimension-size pair, where in this case there are 3 additional dimension-size pairs (`r251`, `r160`, and `r50`). However, the later three pairs are from a different domain, namely that of `gtapv7`. Each pair is identified with the domain most identified most closely prior. The dst dimension-size pairs are sorted in order of decreasing size. The dst dimension-size pairs are then followed by the word `correspondence`. This example creates a correspondence file that maps from the GADM 263 regions to the GTAPv7 251 regions, which are then mapped to the GTAPv7 160 regions, which are then mapped to the GTAPv7 50 regions.
+Model linkages often require mapping many-to-one relationship in a consistent way. Correspondence files define this via a src-to-dst (source and destination). They are named according to a relatively complex pattern. Specifically, using the file path `gadm_r263_gtapv7_r251_r160_r50_correspondence`, we have a domain label `gadm` followed by
 
-An example of a 2-type correspondence is below. However, in this file, src and dst would have to be replaced with the specific domain names used.
+-   a `src` dimension-size pair `r263` (where r is a label, short for region in this case, and 263 is the number of unique entries in that dimension). To be a correspondence,there needs to be at least one other `dst` dimension-size pair, where in this case there are 3 additional dimension-size pairs (`r251`, `r160`, and `r50`). However, the later three pairs are from a different domain, namely that of `gtapv7`. Each pair is identified with the domain most identified most closely prior.
+-   The `dst` dimension-size pairs are sorted in order of decreasing size. The `dst` dimension-size pairs are then followed by the word `correspondence`. This example creates a correspondence file that maps from the GADM 263 regions to the GTAPv7 251 regions, which are then mapped to the GTAPv7 160 regions, which are then mapped to the GTAPv7 50 regions.
+
+An example of a 2-type correspondence is below. However, in this file, `src` and `dst` would have to be replaced with the specific domain names used.
 
 | src_id | dst_id | src_label | dst_label | src_description | dst_description                |
 |------------|------------|------------|------------|------------|------------|
@@ -52,12 +55,14 @@ If defined exactly right, 2 dimensional correspondence files will work with Haze
 and
 
 ```{python}
+#| eval: false
 p.lulc_correspondence_dict = hb.utils.get_reclassification_dict_from_df(p.lulc_correspondence_path, 'src_id', 'dst_id', 'src_label', 'dst_label')
 ```
 
 which will return a very useful dictionary for various reclassification tasks:
 
 ```{python}
+#| eval: false
 return_dict = {}
 return_dict['dst_to_src_reclassification_dict'] = dst_to_src_reclassification_dict  # Dict of one-to-many keys to lists of what each dst_key should be mapped to from each src_key. Useful when aggrigating multiple layers to a aggregated dest type
 return_dict['src_to_dst_reclassification_dict'] = src_to_dst_reclassification_dict # Useful when going to a specific value.
@@ -75,6 +80,7 @@ return_dict['dst_labels_to_ids'] = {k: v for k, v in zip(return_dict['dst_labels
 Among other possibilities, this could be used for reclassifying LULC geotiffs via
 
 ```{python}
+#| eval: false
 rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict']
 hb.reclassify_raster_hb(raster_path, rules, output_path)
 ```
@@ -82,6 +88,7 @@ hb.reclassify_raster_hb(raster_path, rules, output_path)
 ### Correspondences with geometries
 
 ```{python}
+#| eval: false
 # The rules for naming correspondences are a little different when adding geometry to the data. Because
     # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their
     # members can get confusing, each correspondence file keeps all the labels but then is also saved along
@@ -92,17 +99,18 @@ hb.reclassify_raster_hb(raster_path, rules, output_path)
 
 ## Naming Conventions
 
-The names of project-level variables are carefully defined. For example, in gtapv7_r251_r160_correspondence_input_path, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. In this name, we see two other structures. First, the gtapv7 label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
+The names of project-level variables are carefully defined. For example, in `gtapv7_r251_r160_correspondence_input_path`, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant `XLSX` file. Aslo, path implies that it is a string type that points to a location in a storage device. In this name, we see two other structures. First, the gtapv7 label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
 
-You can have multiple mappings in a single correspondence file. For example, gtapv7_r251_s65_r50_s26_correspondence_input_path, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
+You can have multiple mappings in a single correspondence file. For example, `gtapv7_r251_s65_r50_s26_correspondence_input_path`, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
 
-Appart from correspondence files, we also have **labels** files, such as gtapv7_r251_labels_path. Labels files are for a single set/variable/dimension but map together the synonymous categorizers. Specifically, it must have an id, label, and name, all filled out for every entry. It can optionally have others like description.
+Appart from correspondence files, we also have **labels** files, such as `gtapv7_r251_labels_path`. Labels files are for a single set/variable/dimension but map together the synonymous categorizers. Specifically, it must have an `id`, `label`, and `name`, all filled out for every entry. It can optionally have others like description.
 
-In the filename gtapv7_r251_labels_path we extract from the input_path and write a EE-compliant labels table for the gtapv7 r251 set. In the filename `gtap11_gtapaez11_region_correspondence_path`, we use these regions and then connect it to the gtapaez11 labels. We can infer also that it is from a mapping labeled gtap11 to gtapaez11 and that the variable in question is the regions while the word correspondence then indicates this is a many-to-one mapping file.
+In the filename `gtapv7_r251_labels_path` we extract from the input_path and write a EE-compliant labels table for the gtapv7 r251 set. In the filename `gtap11_gtapaez11_region_correspondence_path`, we use these regions and then connect it to the gtapaez11 labels. We can infer also that it is from a mapping labeled gtap11 to gtapaez11 and that the variable in question is the regions while the word correspondence then indicates this is a many-to-one mapping file.
 
 Note that the file path says "regions" while the column label in the CSV says "region".
 
 ```{python}
+#| eval: false
     p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')
     p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')
     p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')
@@ -114,9 +122,10 @@ Project flow requires a consistent format for tasks. The following is an example
 
 Also note that any project-level attribute defined in between the function start and the `if p.run_this:` component are the "project level variables" that are fair-game for use in other tasks. These paths are critical for high performance because they enable quick-skipping of completed tasks and determiniation of which parts of the task tree need rerunning.
 
-Tasks should be named as a noun (this breaks Python pep8 style) referencing what will be stored in the tasks output dir. This might feel awkward at first, but it means that the resultant file structure is easier to interpret by a non-EE outsider.
+**Tasks should be named as a noun** (this breaks Python pep8 style) referencing what will be stored in the tasks output dir. This might feel awkward at first, but it means that the resultant file structure is easier to interpret by a non-EE outsider.
 
 ```{python}
+#| eval: false
 def gtap_aez_seals_correspondences(p):
     p.current_task_documentation = """
     Create correspondence CSVs from ISO3 countries to GTAPv11 160
@@ -136,9 +145,10 @@ def gtap_aez_seals_correspondences(p):
 
 Hazelbean automatically defines directory organization as a function of the task tree. When the ProjectFlow object is created, it takes a directory as its only required input. This directory defines the root of the project. The other directory that needs to be referenced is the base_data_dir. When you initialize the p object, it notes this:
 
-Created ProjectFlow object at C:\\Users\\jajohns\\Files\\gtap_invest\\projects\\cwon from script C:\\Users\\jajohns\\Files\\gtap_invest\\gtap_invest_dev\\gtap_invest\\run_cwon.py with base_data set at C:\\Users\\jajohns\\Files/base_data
-
-`Created ProjectFlow object at C:\Users\jajohns\Files\gtap_invest\projects\cwon     from script C:\Users\jajohns\Files\gtap_invest\gtap_invest_dev\gtap_invest\run_cwon.py     with base_data set at C:\Users\jajohns\Files/base_data`
+```{python}
+#| eval: false
+Created ProjectFlow object at C:\Users\jajohns\Files\gtap_invest\projects\cwon     from script C:\Users\jajohns\Files\gtap_invest\gtap_invest_dev\gtap_invest\run_cwon.py     with base_data set at C:\Users\jajohns\Files/base_data
+```
 
 In the run file, the following line generates the task tree:
 
@@ -154,28 +164,31 @@ This would generate the following task tree:
 
 Two notations are especially useful within this task tree.
 
-1.  Within the function that defines a task, p.cur_dir points to the directory of that task. So for instance, the last task defined in the image above, in its code, you could reference p.cur_dir, and it would point to `<project_root>/econ_vizualization/econ_lcovercom`
-2.  Outside of a given function's code, you can still refer to paths that were defined from within the functions code, but now (because you are outside the function) it is given a new reference. Using the example above, you could reference the same directory with `p.econ_lcovercom_dir` where the p attribute is named exactly as \<function_name\>\_dir
+1.  Within the function that defines a task, `p.cur_dir` points to the directory of that task. So for instance, the last task defined in the image above, in its code, you could reference `p.cur_dir`, and it would point to `<project_root>/econ_vizualization/econ_lcovercom`
+2.  Outside of a given function's code, you can still refer to paths that were defined from within the functions code, but now (because you are outside the function) it is given a new reference. Using the example above, you could reference the same directory with `p.econ_lcovercom_dir` where the p attribute is named exactly as `\<function_name\>\_dir`
 
 All of this setup enable another useful feature: automatic management of file generation, storage and downloading. This is done via the hazelbean function:
 
-```{python, eval=FALSE}
+```{python}
+#| eval: false
 useful_path = hb.get_path(relative_path)
 ```
 
-This function will iteratively search multiple locations and return the most "useful" one. By default, the relative_path variable will first joined with the p.cur_dir. If the file exists, it returns it. If not, it checks the next location, which is p.input_dir, and then p.base_data_dir. If it doesn't find it anywhere, it will attempt to download it from google cloud (NYI) and save it in the p.cur_dir. If it is not available to download on google cloud, then it treats the path as something we will be generating within the task, and thus, get_path returns the first option above, namely joining the relative_path with p.cur_dir.
+This function will iteratively search multiple locations and return the most "useful" one. By default, the `relative_path` variable will first joined with the `p.cur_dir`. If the file exists, it returns it. If not, it checks the next location, which is p.input_dir, and then p.base_data_dir. If it doesn't find it anywhere, it will attempt to download it from google cloud (NYI) and save it in the `p.cur_dir`. If it is not available to download on google cloud, then it treats the path as something we will be generating within the task, and thus, `get_path` returns the first option above, namely joining the relative_path with `p.cur_dir`.
 
-One exception to this is if you are calling get_path outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
+One exception to this is if you are calling `get_path` outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
 
-```{python, eval=FALSE}
+```{python}
+#| eval: false
 p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_adm0_10sec.gpkg'), possible_dirs=[p.input_dir, p.base_data_dir])
 ```
 
 ## Validation of files
 
-ProjectFlow is designed to calculate very fast while simultaneously validating that everything is approximately correct. It does this by checking for the existence of files (often combined with hb.get_path()). For example
+ProjectFlow is designed to calculate very fast while simultaneously validating that everything is approximately correct. It does this by checking for the existence of files (often combined with `hb.get_path()`). For example
 
 ```{python}
+#| eval: false
 p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'gadm_r263_gtapv7_r251_r160_r50_regions.gpkg'))     
 if not hb.path_exists(p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path):         
     hb.log('Creating ' + p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path)         
@@ -189,30 +202,43 @@ ProjectFlow very carefully defines whether or not you should run something based
 If you have a time consuming task that, or example, writes to
 
 ```{python}
+#| eval: false
 big_file_path = hb.get_path('lulc', 'esa', 'seals7', 'convolutions', '2017', 'convolution_esa_seals7_2017_cropland_gaussian_5.tif' )
 ```
 
-In this example, suppose you needed to create this file via your create_convolutions() task or something. When you first do this, it obviously won't exist yet, so get_path() will join that relative path in the p.cur_dir location. If you run the ProjectFlow again, it will see it's there and then instantly skip recalcualting it.
+In this example, suppose you needed to create this file via your `create_convolutions()` task or something. When you first do this, it obviously won't exist yet, so `get_path()` will join that relative path in the `p.cur_dir` location. If you run the ProjectFlow again, it will see it's there and then instantly skip recalcualting it.
 
 # EE File organization
+
+If you have the same directory structure by putting the 5 folders: `gtap_invest`, `gtappy`, `hazelbean`, `seals`,`global_invest`, and the devstack folder `earth_economy_devstack` folder under your customized `Files` folder, for example like this:
+
+`C:\Users\jajohns\Files\`
+
+Then everytime, you can only change the path `C:\Users\jajohns\` before `Files` without changing the path in the code.
 
 ![](images/paste-23.png)
 
 ![](images/paste-24.png)
 
-In addition to the 5 repos plus the EE repo, there is a managed base data set stored in teh same location
+In addition to the 5 repos plus the EE repo, there is a managed base data set stored in the same location
 
 ![](images/paste-25.png)
 
 ![](images/paste-26.png)
 
-### 
+---
 
-# GTAPpy details
+**NOTE:** If you are developer of one of the five tools, then you should have a `_dev` folder inside of the repo folder. For example, if you are a developer of `gtappy`, then you should have a `gtappy_dev` folder inside of the `gtappy` folder. The `launch.json` file in the EE devstack folder will helps you to open all the corresponding file for the workspace automatically.
 
-## Installation
+![](images/paste-29.png)
 
-### Cython Installation
+---
+
+## GTAPpy details
+
+### Installation
+
+#### Cython Installation
 
 ![](images/paste-3.png)
 
@@ -228,44 +254,47 @@ In addition to the 5 repos plus the EE repo, there is a managed base data set st
 
 ![](images/paste-10.png)
 
-### Run-GTAP installation simple for class
+#### Run-GTAP installation simple for class
 
-Go to <https://www.gtap.agecon.purdue.edu/databases/download.asp>
+**Step 1:**
 
-Follow step 1: 
+-   Install RunGTAP at <https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp>
 
-Install GTAPAgg2: <https://www.gtap.agecon.purdue.edu/private/secured.asp?Sec_ID=1055>
+-   At <https://www.copsmodels.com/gpeidl.htm> download: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe> 
 
-Step 2: extract the .lic file from <https://www.gtap.agecon.purdue.edu/databases/download.asp> step 2. Put this in GTAPAgg2 dir
+    -   OR FOR VERSION 12: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe>
 
-Install the GTAP Database itself from step 3 at : <https://www.gtap.agecon.purdue.edu/databases/download.asp>
-
-Make sure to also get the AEZ version, which will also give a full pkg file.
-
-![](images/paste-11.png)
-
-Put this .pkg file in GTPAg2 dir. 
-
-Launch GTPAg2, identify pkg file for both default and AEZ data
-
-When running aggregations, make sure to choose the right product:
-
-![](images/paste-12.png)
-
-Install RunGTAP at https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp
-
-At <https://www.copsmodels.com/gpeidl.htm> download: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe> 
-
-OR FOR VERSION 12: https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe
-
-Install to default location
+-   Install to default location
 
 ![](images/paste-13.png)
 
 Proceed without selecting a license (to start the 6 month trial).
 
-Running the unaggregated version
+**Step 2:** Install GTAPAgg2: <https://www.gtap.agecon.purdue.edu/private/secured.asp?Sec_ID=1055>
 
+TO PROCEED, YOU NEED TO HAVE A ACCESS TO THE GTAP DATABASE. OR YOU CAN ACCESS IT THROUGH `ee_internal` DATABASE.
+
+---
+**Step 2.1:**
+- Extract the `.lic` file from <https://www.gtap.agecon.purdue.edu/databases/download.asp> step 2. Put this in `GTAPAgg2` dir
+
+**Step 2.2:**
+- Install the GTAP Database itself from at : <https://www.gtap.agecon.purdue.edu/databases/download.asp>
+
+- Make sure to also get the AEZ version, which will also give a full pkg file.
+
+![](images/paste-11.png)
+
+- Put this `.pkg` file in `GTPAg2` dir. 
+
+- Launch GTPAg2, identify pkg file for both default and AEZ data
+
+When running aggregations, make sure to choose the right product:
+
+![](images/paste-12.png)
+
+**Step 2.3:**
+Running the unaggregated version
 -   Open GTPAg2.exe
 
 ![](images/paste-14.png)
@@ -302,13 +331,14 @@ This could also be done by making the .agg file via text editing. 
 
 Note that this creates two versions of the database, one for GTAP code v6.2, one for v7.0. The 7.0 is in a sub zip folder gtapv7.zip. This is the one we want.
 
-“C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7”
+`C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7`
+---
 
 **Getting the v7 code**
 
 -   Extract from RunGTAP (lol)
 
--   Under Version, Change, set to NCORS3x3
+-   Under Version, Change, set to `NCORS3x3`
 
 -   Under Version, New, use wizard using same aggregation and simply copying.
 
@@ -318,7 +348,7 @@ Note that this creates two versions of the database, one for GTAP code v6.2, one
 
 -   Now we will replace the data files in v7all with the fully disaggregated database (in the v7 dir) we created above.
 
--   Notice also in the v7dir we have shock files, e.g. tinc.shk. 
+-   Notice also in the v7dir we have shock files, e.g. `tinc.shk`. 
 
     -   By default, these will be inherited from the old 3x3 version.
 
@@ -328,25 +358,25 @@ Note that this creates two versions of the database, one for GTAP code v6.2, one
 
     -   To check that it worked, go to results, macros. 
 
-    -   Or, could open results in ViewSOL. Use View -\> Results Using ViewSOL
+    -   Or, could open results in `ViewSOL`. Use View -\> Results Using ViewSOL
 
-        -   ViewSOL has the full results, whereas RunGTAP only has a subset by the limited mapping specific to RunGTAP. ViewSOL loads the whole sl4 file.
+        -   `ViewSOL` has the full results, whereas RunGTAP only has a subset by the limited mapping specific to `RunGTAP`. `ViewSOL` loads the whole `sl4` file.
 
-        -   Here you could go to e.g. pgdp to see that prices all went up by 10%, which is the default shock i guess?
+        -   Here you could go to e.g. `pgdp` to see that prices all went up by 10%, which is the default shock i guess?
 
-    -   OR OR, from ViewSOL File, can open in ViewHAR, which gives even more power, such as dimensional sorting.
+    -   OR, from `ViewSOL` File, can open in `ViewHAR`, which gives even more power, such as dimensional sorting.
 
 -   Now we can run a non-trivial shock. So for global ag productivity shock, let’s increase productivity.
 
-    -   In RunGTAP, go to view RunCMFSTART file. Here we will define a new set for the new experiments. (CMFSTART files sets settings for runtime, but also which are the files that should be called, along with sets for the closure).
+    -   In `RunGTAP`, go to view `RunCMFSTART` file. Here we will define a new set for the new experiments. (`CMFSTART` files sets settings for runtime, but also which are the files that should be called, along with sets for the closure).
 
-        -   To do this, go to RuinGTAP, View, Sets, enable advanced editing, Sets, View Set Library
+        -   To do this, go to `RunGTAP-\>View-\>Sets`, enable advanced editing, `Sets-\>View Set Library`
 
-            -   Here click on COMM, copy elements in tablo format). This will get the set definition in tablo format of ALL the commodities. From this you can pare down to which you want to shock,
+            -   Here click on `COMM`, copy elements in `tablo` format. This will get the set definition in `tablo` format of ALL the commodities. From this you can pare down to which you want to shock,
 
-            -   For the moment, we will create two sets, one for ag commodities, and one for a smaller subset of agg commodities.
+            -   For the moment, we will create two sets, one for ag commodities (`ag_comm`), and one for a smaller subset of agg commodities (`ag_comm_sm`).
 
-            -   And will also define wha
+            -   And will also define what is the complementary set (`xag_comm_sm`) of `ag_comm_sm`.
 
 ![](images/paste-20.png)
 
@@ -354,7 +384,7 @@ Now that the sets are defined, can use them in defining the SHOCKS
 
 ![](images/paste-21.png)
 
--   Set the solution method to gragg 2-4-6
+-   Set the solution method to `gragg 2-4-6`
 
 -   Save experiment.
 
@@ -363,6 +393,8 @@ Now that the sets are defined, can use them in defining the SHOCKS
     -   Comment from TOM: If Gragg doesn’t work, use Euler with many steps 20-50
 
 **From second call with Erwin on cmd and rungtap versions**
+
+------------------------------------------------------------------------
 
 -   Note that now we have a tax, we do it on both domestic and imported, then write a new equation that makes them sum up: 
 
@@ -376,27 +408,27 @@ Now that the sets are defined, can use them in defining the SHOCKS
 
 -   In rungtapv7.bat then, 
 
--   Simresults.bat last. Takes the sl4 files and converts it into a har file (.sol), and then combines them into 1 file, then splits to CSV.
+-   Simresults.bat last. Takes the sl4 files and converts it into a har file (`.sol`), and then combines them into 1 file, then splits to CSV.
 
--   RMAC is full dimension, RMCA is aggregated by chosen aggregation simplification.
+-   `RMAC` is full dimension, `RMCA` is aggregated by chosen aggregation simplification.
 
-    -   AggMap.har defines the aggregation.
+    -   `AggMap.har` defines the aggregation.
 
--   Them Allres.CMF is run, which actually does the aggregation.
+-   When `Allres.CMF` is run, which actually does the aggregation.
 
-    -   Allres.cmf calls to allres.tab, which cleans the results. This would need to have new scenarios added to the top
+    -   `Allres.cmf` calls to `allres.tab`, which cleans the results. This would need to have new scenarios added to the top
 
--   Allres.EXP also needs to be updated, along with the scenario EXP files to h
+-   `Allres.EXP` also needs to be updated, along with the scenario `EXP` files to have thecorrect exogenous variables, such as `tpdall`
 
--   ave thecorrect exogenous variables, such as tpdall
+------------------------------------------------------------------------
 
-**alternatively just specify they use hb.get_path() to the private database.**
+**alternatively just specify they use `hb.get_path()` to the private database.**
 
 ## Release notes
 
 ### v2023-12-18
 
-We need to clarify how we go from a erwin-style mapping xlsx to EE spec. Below is what it looks like as downloaded from erwin.
+We need to clarify how we go from a erwin-style mapping xlsx to EE spec. Below is what it looks like as downloaded from Erwin.
 
 GTAP-ctry2reg \[source from erwin converted to EE spec\].xlsx
 
