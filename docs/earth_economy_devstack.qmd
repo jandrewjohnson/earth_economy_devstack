@@ -101,6 +101,7 @@ In order to propose changes to the original SEALS repository, it is recommended 
 In many case, such as a standard GTAPPy run, we will iterate over different aggergations and scenarios (now renamed counterfactuals). This is done as expected with code like this:
 
 ```{python}
+#| eval: false
 for aggregation_label in p.aggregation_labels:
      
     for experiment_label in p.experiment_labels:
@@ -118,6 +119,7 @@ for aggregation_label in p.aggregation_labels:
 But sometimes, this becomes DEEPLY nested and confusing. SEALS implements an API that reads these nested layers from a CSV. This is defined more fully in the SEALS user guide.
 
 ```{python}
+#| eval: false
 for index, row in p.scenarios_df.iterrows():
     seals_utils.assign_df_row_to_object_attributes(p, row)
     
@@ -143,6 +145,7 @@ In this scenarios_df, which was loaded from scenarios_csv_path, there are multip
 Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading it (keeps it up to date as code changes quickly). However, this gets convoluted when you also have to initialize the attributes before you write?!?
 
 ```{python}
+#| eval: false
     # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
     # then you need to add the path to the seals directory to the system path.
     custom_seals_path = None
@@ -203,6 +206,7 @@ Also note that any project-level attribute defined in between the function start
 Tasks should be named as a noun (this breaks Python pep8 style) referencing what will be stored in the tasks output dir. This might feel awkward at first, but it means that the resultant file structure is easier to interpret by a non-EE outsider.
 
 ```{python}
+#| eval: false
 def gtap_aez_seals_correspondences(p):
     p.current_task_documentation = """
     Create correspondence CSVs from ISO3 countries to GTAPv11 160
@@ -222,7 +226,6 @@ def gtap_aez_seals_correspondences(p):
 
 Hazelbean automatically defines directory organization as a function of the task tree. When the ProjectFlow object is created, it takes a directory as its only required input. This directory defines the root of the project. The other directory that needs to be referenced is the base_data_dir. When you initialize the p object, it notes this:
 
-Created ProjectFlow object at C:\\Users\\jajohns\\Files\\gtap_invest\\projects\\cwon from script C:\\Users\\jajohns\\Files\\gtap_invest\\gtap_invest_dev\\gtap_invest\\run_cwon.py with base_data set at C:\\Users\\jajohns\\Files/base_data
 
 `Created ProjectFlow object at C:\Users\jajohns\Files\gtap_invest\projects\cwon     from script C:\Users\jajohns\Files\gtap_invest\gtap_invest_dev\gtap_invest\run_cwon.py     with base_data set at C:\Users\jajohns\Files/base_data`
 
@@ -245,7 +248,8 @@ Two notations are especially useful within this task tree.
 
 All of this setup enable another useful feature: automatic management of file generation, storage and downloading. This is done via the hazelbean function:
 
-```{python, eval=FALSE}
+```{python}
+#| eval: false
 useful_path = hb.get_path(relative_path)
 ```
 
@@ -254,18 +258,21 @@ This function will iteratively search multiple locations and return the most "us
 One important use-case that needs explaining is for tasks that generate files that will eventually be placed in the base_data_dir. The goal is to enable easy generation of it to the intermediate directory in the appropriate task_dir, but then have the ability to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches the desired directory relative to the base data dir. So, for example, we include `'gtappy', 'aggregation_mappings'` at the beginning of the relative path for in the intermediate directory in the appropriate task_dir, but then we also will want to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches that in the base_data_dir, for example `<base_data_dir>/'gtappy/aggregation_mappings/gadm_adm0.gpkg',`
 
 ```{python}
+#| eval: false
 template_path = p.get_path(os.path.join('gtappy', 'aggregation_mappings', 'gadm_adm0.gpkg')) 
 ```
 
 It can be hard deciding what counts as a base_data_generating task or not, but generally if it is a file that will not be used by other projects, you should not treat it as a base_data_generating task. Instead, you should just make it relative to the cur_dir (or wahtever makes sense), as below:
 
 ```{python}
+#| eval: false
 output_path = p.get_path(os.path.join(aggregation_label + '_' + experiment_label + '_' + header + '_stacked_time_series.csv'))
 ```
 
 One additional exception to the above is if you are calling get_path outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
 
-```{python, eval=FALSE}
+```{python}
+#| eval: false
 p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_adm0_10sec.gpkg'), possible_dirs=[p.input_dir, p.base_data_dir])
 ```
 
@@ -274,6 +281,7 @@ p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_ad
 ProjectFlow is designed to calculate very fast while simultaneously validating that everything is approximately correct. It does this by checking for the existence of files (often combined with hb.get_path()). For example
 
 ```{python}
+#| eval: false
 p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'gadm_r263_gtapv7_r251_r160_r50_regions.gpkg'))     
 if not hb.path_exists(p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path):         
     hb.log('Creating ' + p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path)         
@@ -287,6 +295,7 @@ ProjectFlow very carefully defines whether or not you should run something based
 If you have a time consuming task that, or example, writes to
 
 ```{python}
+#| eval: false
 big_file_path = hb.get_path('lulc', 'esa', 'seals7', 'convolutions', '2017', 'convolution_esa_seals7_2017_cropland_gaussian_5.tif' )
 ```
 
@@ -305,7 +314,7 @@ A ProjectFlow object must have a base_data_dir set (I think...). This is because
 For large files that take a long time to load, use a string-\>dataframe/dataset substitution as below. Make a LOCAL variable to contain the loaded object, and have that be assigned to the correct project-level path string. In subsequent usages, check type and if it's still a string, then it hasn't been loaded yet, so do that. I'm debating making it a project level variable trick
 
 ```{python}
-
+#| eval: false
 gadm = p.gadm_adm0_vector_input_path    
 
 # Just load it on first pass
@@ -356,42 +365,46 @@ if type(gadm) is str:
 
 ### Run-GTAP installation simple for class
 
-Go to <https://www.gtap.agecon.purdue.edu/databases/download.asp>
+**Step 1:**
 
-Follow step 1: 
+-   Install RunGTAP at <https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp>
 
-Install GTAPAgg2: <https://www.gtap.agecon.purdue.edu/private/secured.asp?Sec_ID=1055>
+-   At <https://www.copsmodels.com/gpeidl.htm> download: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe> 
 
-Step 2: extract the .lic file from <https://www.gtap.agecon.purdue.edu/databases/download.asp> step 2. Put this in GTAPAgg2 dir
+    -   OR FOR VERSION 12: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe>
 
-Install the GTAP Database itself from step 3 at : <https://www.gtap.agecon.purdue.edu/databases/download.asp>
-
-Make sure to also get the AEZ version, which will also give a full pkg file.
-
-![](images/paste-11.png)
-
-Put this .pkg file in GTPAg2 dir. 
-
-Launch GTPAg2, identify pkg file for both default and AEZ data
-
-When running aggregations, make sure to choose the right product:
-
-![](images/paste-12.png)
-
-Install RunGTAP at https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp
-
-At <https://www.copsmodels.com/gpeidl.htm> download: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe> 
-
-OR FOR VERSION 12: https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe
-
-Install to default location
+-   Install to default location
 
 ![](images/paste-13.png)
 
 Proceed without selecting a license (to start the 6 month trial).
 
-Running the unaggregated version
+**Step 2:** Install GTAPAgg2: <https://www.gtap.agecon.purdue.edu/private/secured.asp?Sec_ID=1055>
 
+TO PROCEED, YOU NEED TO HAVE A ACCESS TO THE GTAP DATABASE. OR YOU CAN ACCESS IT THROUGH `ee_internal` DATABASE.
+
+---
+
+**Step 2.1:**
+- Extract the `.lic` file from <https://www.gtap.agecon.purdue.edu/databases/download.asp> step 2. Put this in `GTAPAgg2` dir
+
+**Step 2.2:**
+- Install the GTAP Database itself from at : <https://www.gtap.agecon.purdue.edu/databases/download.asp>
+
+- Make sure to also get the AEZ version, which will also give a full pkg file.
+
+![](images/paste-11.png)
+
+- Put this `.pkg` file in `GTPAg2` dir. 
+
+- Launch GTPAg2, identify pkg file for both default and AEZ data
+
+When running aggregations, make sure to choose the right product:
+
+![](images/paste-12.png)
+
+**Step 2.3:**
+Running the unaggregated version
 -   Open GTPAg2.exe
 
 ![](images/paste-14.png)
@@ -428,13 +441,14 @@ This could also be done by making the .agg file via text editing. 
 
 Note that this creates two versions of the database, one for GTAP code v6.2, one for v7.0. The 7.0 is in a sub zip folder gtapv7.zip. This is the one we want.
 
-“C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7”
+`C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7`
+---
 
 **Getting the v7 code**
 
 -   Extract from RunGTAP (lol)
 
--   Under Version, Change, set to NCORS3x3
+-   Under Version, Change, set to `NCORS3x3`
 
 -   Under Version, New, use wizard using same aggregation and simply copying.
 
@@ -444,7 +458,7 @@ Note that this creates two versions of the database, one for GTAP code v6.2, one
 
 -   Now we will replace the data files in v7all with the fully disaggregated database (in the v7 dir) we created above.
 
--   Notice also in the v7dir we have shock files, e.g. tinc.shk. 
+-   Notice also in the v7dir we have shock files, e.g. `tinc.shk`. 
 
     -   By default, these will be inherited from the old 3x3 version.
 
@@ -454,25 +468,25 @@ Note that this creates two versions of the database, one for GTAP code v6.2, one
 
     -   To check that it worked, go to results, macros. 
 
-    -   Or, could open results in ViewSOL. Use View -\> Results Using ViewSOL
+    -   Or, could open results in `ViewSOL`. Use View -\> Results Using ViewSOL
 
-        -   ViewSOL has the full results, whereas RunGTAP only has a subset by the limited mapping specific to RunGTAP. ViewSOL loads the whole sl4 file.
+        -   `ViewSOL` has the full results, whereas RunGTAP only has a subset by the limited mapping specific to `RunGTAP`. `ViewSOL` loads the whole `sl4` file.
 
-        -   Here you could go to e.g. pgdp to see that prices all went up by 10%, which is the default shock i guess?
+        -   Here you could go to e.g. `pgdp` to see that prices all went up by 10%, which is the default shock i guess?
 
-    -   OR OR, from ViewSOL File, can open in ViewHAR, which gives even more power, such as dimensional sorting.
+    -   OR, from `ViewSOL` File, can open in `ViewHAR`, which gives even more power, such as dimensional sorting.
 
 -   Now we can run a non-trivial shock. So for global ag productivity shock, let’s increase productivity.
 
-    -   In RunGTAP, go to view RunCMFSTART file. Here we will define a new set for the new experiments. (CMFSTART files sets settings for runtime, but also which are the files that should be called, along with sets for the closure).
+    -   In `RunGTAP`, go to view `RunCMFSTART` file. Here we will define a new set for the new experiments. (`CMFSTART` files sets settings for runtime, but also which are the files that should be called, along with sets for the closure).
 
-        -   To do this, go to RuinGTAP, View, Sets, enable advanced editing, Sets, View Set Library
+        -   To do this, go to `RunGTAP-\>View-\>Sets`, enable advanced editing, `Sets-\>View Set Library`
 
-            -   Here click on COMM, copy elements in tablo format). This will get the set definition in tablo format of ALL the commodities. From this you can pare down to which you want to shock,
+            -   Here click on `COMM`, copy elements in `tablo` format. This will get the set definition in `tablo` format of ALL the commodities. From this you can pare down to which you want to shock,
 
-            -   For the moment, we will create two sets, one for ag commodities, and one for a smaller subset of agg commodities.
+            -   For the moment, we will create two sets, one for ag commodities (`ag_comm`), and one for a smaller subset of agg commodities (`ag_comm_sm`).
 
-            -   And will also define wha
+            -   And will also define what is the complementary set (`xag_comm_sm`) of `ag_comm_sm`.
 
 ![](images/paste-20.png)
 
@@ -480,7 +494,7 @@ Now that the sets are defined, can use them in defining the SHOCKS
 
 ![](images/paste-21.png)
 
--   Set the solution method to gragg 2-4-6
+-   Set the solution method to `gragg 2-4-6`
 
 -   Save experiment.
 
@@ -688,7 +702,8 @@ One key component of Hazelbean is that it manages directories, base_data, etc. u
 
 The simplest way to run SEALS is to clone the repository and then open run_test_seals.py in your preferred editor. Then, update the values in ENVIRONMENT SETTINGS near the top of run_test_seals.py for your local computer (ensuring this points to directories you have write-access for and is not a virtual/cloud directory).
 
-``` python
+```{python}
+#| eval: false
     ### ------- ENVIRONMENT SETTINGS -------------------------------
 
     # Users should only need to edit lines in this ENVIRONMENT SETTINGS section
@@ -714,7 +729,8 @@ The project name and the project dir will define the root directory where all fi
 
 When SEALS is run in this way, it will use the default values for a test run on a small country (Rawanda). All of these values are set (and documented) in the run file (run_test_seals.py) in the SET DEFAULT VARIABLES section. For your first run, it is recommended to use the defaults. When run, a configuration file will be written into your project's input_dir named scenario_definitions.csv. This file is a table where each row is a "scenario" necessary to be defined for SEALS to run. In this minimal run, it must have 2 rows: one for the baseline condition (the starting LULC map) and one for a scenario of change that will indicate how much change of each LU class will happen in some coarse grid-cell or region/zone. Inspecting and/or modifying this file may give insights on how to customize a new run.
 
-``` python
+```{python}
+#| eval: false
 ### ------- SET DEFAULT VARIABLES --------------------------------
 
 # Set the path to the scenario definitions file. This is a CSV file that defines the scenarios to run.
@@ -743,7 +759,8 @@ This computing stack also uses hazelbean to automatically download needed data a
 
 In addition to defining a base_data_dir, you will need to For this to work, you need to also point SEALS to the correct data_credentials_path. If you don't have a credentils file, email jajohns\@umn.edu. The data are freely available but are very, very large (and thus expensive to host), so I limit access via credentials.
 
-``` python
+```{python}
+#| eval: false
 p.base_data_dir = os.path.join('G:/My Drive/Files/base_data')
 
 p.data_credentials_path = '..\\api_key_credentials.json'
@@ -758,6 +775,7 @@ After doing the above steps, you should be ready to run `run_test_seals.py`. Upo
 Once the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:
 
 ![](images/paste-3.png)
+[THIS IS NOT THE CORRECT IMAGE]
 
 Open up the projected one (e.g., lulc_ssp2_rcp45_luh2-message_bau_2045.tif) in QGIS and enjoy your new, high-resolution land-use change projection!
 
@@ -767,7 +785,8 @@ Open up the projected one (e.g., lulc_ssp2_rcp45_luh2-message_bau_2045.tif) in Q
 
 The logic used for paths in SEALS is confusing at first, but it enables efficient processing of very large files (and minimizes re-downloading or re-processing data. When a path to a file is specified in SEALS, often SEALS will call a function in hazelbean that checks multiple places for that file to exist, as in the code below.
 
-``` python
+```{python}
+#| eval: false
 path = hb.get_first_extant_path(path, [p.input_dir, p.base_data_dir])
 ```
 
@@ -779,7 +798,8 @@ If the path given is relative, this function will then iterate through the list 
 
 Test that hazelbean imports correctly. Importing it will trigger compilation of the C files if they are not there.
 
-``` python
+```{python}
+#| eval: false
 import hazelbean as hb
 ```
 
@@ -799,7 +819,8 @@ Project Flow is intended to flow easily into the situation where you have coded 
 
 In run.py, initialize the project flow object. This is the only place where user supplied (possibly absolute but can be relative) path is stated. The p ProjectFlow object is the one global variable used throughout all parts of hazelbean.
 
-``` python
+```{python}
+#| eval: false
 import hazelbean as hb
 
 if __name__ == '__main__':
@@ -808,13 +829,15 @@ if __name__ == '__main__':
 
 In a multi-file setup, in the run.py you will need to import different scripts, such as main.py i.e.:
 
-``` python
+```{python}
+#| eval: false
 import visualizations.main
 ```
 
 The script file mainpy can have whatever code, but in particular can include "task" functions. A task function, shown below, takes only p as an agrument and returns p (potentially modified). It also must have a conditional (if p.run_this:) to specify what always runs (and is assumed to run trivially fast, i.e., to specify file paths) just by nature of having it in the task tree and what is run only conditionally (based on the task.run attribute, or optionally based on satisfying a completed function.)
 
-``` python
+```{python}
+#| eval: false
 def example_task_function(p):
     """Fast function that creates several tiny geotiffs of gaussian-like kernels for later use in ffn_convolve."""
 
@@ -827,7 +850,8 @@ def example_task_function(p):
 
 Importing the script will define function(s) to add "tasks", which take the ProjectFlow object as an argument and returns it after potential modification.
 
-``` python
+```{python}
+#| eval: false
 def add_all_tasks_to_task_tree(p):
     p.generated_kernels_task = p.add_task(example_task_function)
 ```
@@ -885,19 +909,21 @@ Here are the specific labels and corespondence files generated for gtapv7-aez-rd
 
 ![](images/paste-22.png)
 
-If defined exactly right, 2 dimensional correspondence files will work with Hazelbean via
+If defined exactly right, 2 dimensional correspondence files will work with `Hazelbean` via
 
 `seals_utils.set_derived_attributes(p)`
 
 and
 
 ```{python}
+#| eval: false
 p.lulc_correspondence_dict = hb.utils.get_reclassification_dict_from_df(p.lulc_correspondence_path, 'src_id', 'dst_id', 'src_label', 'dst_label')}`
 
 # return a very useful dictionary for various reclassification tasks:
 ```
 
 ```{python}
+#| eval: false
 return_dict = {} return_dict['dst_to_src_reclassification_dict'] = dst_to_src_reclassification_dict  # Dict of one-to-many keys to lists of what each dst_key should be mapped to from each src_key. Useful when aggrigating multiple layers to a aggregated dest type 
 return_dict['src_to_dst_reclassification_dict'] = src_to_dst_reclassification_dict # Useful when going to a specific value. 
 return_dict['dst_to_src_labels_dict'] = dst_to_src_labels_dict # Dictionary of lists of labels that map to each dst label 
@@ -913,7 +939,10 @@ return_dict['dst_labels_to_ids'] = {k: v for k, v in zip(return_dict['dst_labels
 
 Among other possibilities, this could be used for reclassifying LULC geotiffs via
 
-`{python} rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict'] hb.reclassify_raster_hb(raster_path, rules, output_path)}`
+```{python}
+#| eval: false
+rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict'] hb.reclassify_raster_hb(raster_path, rules, output_path)
+```
 
 ### Combined ids
 
@@ -926,6 +955,7 @@ In the event of a combined id, not that the \_id column above has two region-spe
 ### Correspondences with geometries
 
 ```{python}
+#| eval: false
 # The rules for naming correspondences are a little different when adding geometry to the data. Because}     
 # # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their     
 # # members can get confusing, each correspondence file keeps all the labels but then is also saved along     
@@ -936,7 +966,10 @@ p.ee_r264_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundarie
 
 ### More on naming Conventions
 
-The names of project-level variables are carefully defined. For example, in gtapv7_r251_r160_correspondence_input_path, the `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. In this name, we see two other structures. First, the gtapv7 label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
+The names of project-level variables are carefully defined. For example, in `gtapv7_r251_r160_correspondence_input_path`, 
+
+- The `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. 
+- In this name, we see two other structures. First, the `gtapv7` label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
 
 You can have multiple mappings in a single correspondence file. For example, gtapv7_r251_s65_r50_s26_correspondence_input_path, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
 
@@ -947,9 +980,10 @@ In the filename gtapv7_r251_labels_path we extract from the input_path and write
 Note that the file path says "regions" while the column label in the CSV says "region".
 
 ```{python}
+#| eval: false
 p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')     
 p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')     
-p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')}
+p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')
 ```
 
 ## Variable and Scenario Naming Conventions
@@ -994,22 +1028,22 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
 
 -   Together, the labels above mean that the scenarios can be represented by directories as follows:
 
-    -   'ssp2/rcp45/luh2-message/bau/filename_2050.tif'
+    -   `ssp2/rcp45/luh2-message/bau/filename_2050.tif`
         -   Note, the last layer of the hierarchy will be included as a the suffix of the filename start rather than as a directory (also see below for filename conventions)
 
 -   For filenames, there are two possible conventions:
 
     -   Implied: This means that the directory structure above defines all the labels with the exception of year (which is postpended to the filename label) and the current variable name (such as lulc) which appears at the front of the filename.
 
-        -   e.g., project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_2050.tif
+        -   e.g., `project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_2050.tif`
 
     -   Explicit: Even if a file is in a directory which implies its labels, explicit file naming will always include each label (and the variable label stays in front of the filename), so the above example is:
 
-        -   project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif
+        -   `project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif`
 
-        -   And if there are no ES considered, it would be project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif
+        -   And if there are no ES considered, it would be `project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif`
 
--   Because labels have no spaces or underscores, it is possible to convert the nested structure above to a single string, as in filename_ssp2_rcp45_policyname_year.tif.
+-   Because labels have no spaces or underscores, it is possible to convert the nested structure above to a single string, as in `filename_ssp2_rcp45_policyname_year.tif`.
 
 -   Filetypes that supported in this computation environment include
 
@@ -1021,7 +1055,7 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
 
 -   Also we will create a set of tables to analyze results
 
-    -   These will define Regions (shp) for quick result plotting
+    -   These will define Regions (`shp`) for quick result plotting
 
     -   Specifically, we will have a full vertically stacked CSV of results, then for each Report Archetype we would output 1 minimal info CSV and the corresponding Figure.
 
@@ -1032,10 +1066,10 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
 -   Scenario types
 
     -   Three scenario_types are supported: baseline, bau and policy
-        -   Baseline assumes the year has data existing from observations (rather than modelled) and that these years are defined in p.years (and identically defined in p.base_years).
+        -   Baseline assumes the year has data existing from observations (rather than modelled) and that these years are defined in p.years (and identically defined in `p.base_years`).
             -   One exception is when eg GTAP is used to update the base year from 2017 to 2023, and then policies are applied on 2023.
-        -   BAU and policy scenarios assume the results are modelled and that their years are defined in p.years (but not p.base_years)
+        -   BAU and policy scenarios assume the results are modelled and that their years are defined in p.years (but not `p.base_years`)
     -   Clarify what is the naming difference between src dst versus input output. Is the former only for file paths or can it also be e.g. array. OR does this have to do with if it is a function return.
         -   Proposed answer: src/dst is a pointer/reference to a thing and Input/Output is the thing itself. Esp useful for paths.
         -   Similarly, \_path and \_dir imply the string is a reference, so src_path and src_dir are common.
-        -   You might often see e.g. input_array = hb.as_array(src_path), illustrating this difference.
+        -   You might often see e.g. `input_array = hb.as_array(src_path)`, illustrating this difference.
