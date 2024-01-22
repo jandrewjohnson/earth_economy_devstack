@@ -1,0 +1,280 @@
+# Hazelbean Introduction
+
+Hazelbean is a collection of geospatial processing tools based on gdal, numpy, scipy, cython, pygeoprocessing, taskgraph, natcap.invest, geopandas and many others to assist in common spatial analysis tasks in sustainability science, ecosystem service assessment, global integrated modelling assessment, natural capital accounting, and/or calculable general equilibrium modelling.
+
+Note that for all of the features of hazelbean to work, your computer will need to be configured to compile Cython files to C code. This workflow is tested in a Python 3.10, 64 bit Windows environment. It should work on other system environments, but this is not yet tested.
+
+## Installation
+
+Follow the instructions in the Earth-Economy Devstack repository. 
+
+
+## Quickstart
+
+Test that hazelbean imports correctly. Importing it will trigger compilation of the C files if they are not there.
+
+```{python}
+#| eval: false
+import hazelbean as hb
+```
+
+From here, explore examples of the useful spatial, statistical and economic functions in the examples section of this documentation. A good starting example would be the `zonal_statistics` function.
+
+# Project Flow
+
+Project Flow is intended to allow a user to flow easily past the different stages of software complexity. A common situation for an academic or a research software engineer (RES) to find themselves in is that they wrote a quick script to answer a specific quesiton, but it turned out to be useful in other context. This can lead to a the script  grows and grows until complexity hurts its usefulness. A software developer would then think "oops, I should really make this modular." ProjectFlow provides several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. To do this, ProjectFlow manages folders and defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
+
+##  Project complexity level 1: Simple question answered well
+
+Here is an example script that you might write as an Earth-economy researcher. Suppose your adviser asks you "what is the total caloric yield on earth per hectare?" You might write a script like this:
+
+```{python}
+#| eval: false
+
+import os
+import numpy as np
+import gdal
+
+yield_per_hectare_raster_path = os.path.join('data', 'yield_per_cell.tif')
+yield_per_hectare_raster = gdal.Open(yield_per_hectare_raster_path)
+yield_per_hectare_array = yield_per_hectare_raster.ReadAsArray()
+
+sum_of_yield = np.sum(yield_per_hectare_array)
+
+print('The total caloric yield on earth per hectare is: ' + str(sum_of_yield))
+
+```
+
+## Project complexity level 2: Many similar questions. Creates a very long list.
+
+This is where most reserach code goes to die, in my experience. Suppose your advisor now asks okay do this for the a bunch of different datasets on yield. The classic coder response is to make a longer script!
+
+```{python}
+#| eval: false
+
+
+import os
+import numpy as np
+import gdal
+
+yield_per_hectare_raster_path_1 = os.path.join('data', 'yield_per_cell_1.tif')
+yield_per_hectare_raster_1 = gdal.Open(yield_per_hectare_raster_path_1)
+yield_per_hectare_array_1 = yield_per_hectare_raster_1.ReadAsArray()
+
+sum_of_yield_1 = np.sum(yield_per_hectare_array_1)
+
+print('The total caloric yield on earth per hectare for dataset 1 is: ' + str(sum_of_yield_1))
+
+yield_per_hectare_raster_path_2 = os.path.join('data', 'yield_per_cell_2.tif')
+yield_per_hectare_raster_2 = gdal.Open(yield_per_hectare_raster_path_2)
+yield_per_hectare_array_2 = yield_per_hectare_raster_2.ReadAsArray()
+
+sum_of_yield_2 = np.sum(yield_per_hectare_array_2)
+
+print('The total caloric yield on earth per hectare for dataset 2 is: ' + str(sum_of_yield_2))
+
+yield_per_hectare_raster_path_3 = os.path.join('data', 'yield_per_cell_3.tif')
+yield_per_hectare_raster_3 = gdal.Open(yield_per_hectare_raster_path_3)
+yield_per_hectare_array_3 = yield_per_hectare_raster_3.ReadAsArray()
+
+sum_of_yield_3 = np.sum(yield_per_hectare_array_2)
+
+print('The total caloric yield on earth per hectare for dataset 3 is: ' + str(sum_of_yield_3))
+
+yield_per_hectare_raster_path_4 = os.path.join('data', 'yield_per_cell_4.tif')
+yield_per_hectare_raster_4 = gdal.Open(yield_per_hectare_raster_path_4)
+yield_per_hectare_array_4 = yield_per_hectare_raster_4.ReadAsArray()
+
+sum_of_yield_4 = np.sum(yield_per_hectare_array_4)
+
+print('The total caloric yield on earth per hectare for dataset 4 is: ' + str(sum_of_yield_4))
+
+```
+
+This style of coding works, but will quickly cause you to lose your sanity. Who can find the reason the above code will cause your article to be retracted? Also, what if each of those summations takes a long time and you want to make a small change? You have to rerun the whole thing. This is bad.
+
+## Project complexity level 3: Starting to deal with performance and generalization.
+
+Below is a real-life script I created in around 2017 to calculate something for Johnson et al. 2016. Do not even attempt to run this, but just appreciate how awful it is. Please skim past it quickly to save me the personal embarassment!
+
+
+```{python}
+#| eval: false
+#| fold: 1
+
+import logging
+import os
+import csv
+import math, time, random
+
+import numpy
+np = numpy
+from osgeo import gdal, gdalconst
+import geoecon_utils.geoecon_utils as gu
+from gdal import *
+import pyximport
+pyximport.install(setup_args={"script_args":["--compiler=mingw32"],"include_dirs":numpy.get_include()}, reload_support=True)
+import geoecon_utils.geoecon_cython_utils as gcu
+
+log_id = gu.pretty_time()
+LOGGER = logging.getLogger('ag_tradeoffs')
+LOGGER.setLevel(logging.WARN) # warn includes the final output of the whole model, carbon saved.
+file_handler = logging.FileHandler('logs/ag_tradeoffs_log_' + log_id + '.log')
+LOGGER.addHandler(file_handler)
+
+# Set Input files
+workspace = 'E:/bulk_data/reusch_and_gibbs_carbon/data/datasets/c_1km/'
+c_1km_file = 'c_1km.tif'
+c_1km_uri = workspace + c_1km_file
+ha_per_cell_30s_file = 'ha_per_cell_30s.tif'
+ha_per_cell_30s_uri = workspace + ha_per_cell_30s_file
+ha_per_cell_5m_file = 'ha_per_cell_5m.tif'
+ha_per_cell_5m_uri = workspace + ha_per_cell_5m_file
+ha_per_cell_5m = gu.as_array(ha_per_cell_5m_uri)
+
+
+
+# Do the resample, or load from previously made to speed things up.
+#sOLD NOTE: and resample it, then rescale it, then test to make sure teh averageing method doesn't undereestimate on the south shores of london, then use it.'
+do_30s_resample = False
+if do_30s_resample:
+    # Define desired resample details. In this case, I am converting to 10x resolution of 5 min data (30 sec)
+    desired_geotrans = (-180.0, 0.008333333333333, 0.0, 90.0, 0.0, -0.008333333333333)
+    c_30s_unscaled_uri = workspace + 'c_30s_unscaled_' + gu.pretty_time() + '.tif'
+    gu.aggregate_geotiff(c_1km_uri, c_30s_unscaled_uri, desired_geotrans)
+    #print gu.desc(c_30s_unscaled_uri)
+else:
+    c_30s_unscaled_uri = workspace + 'c_30s_unscaled.tif'
+
+do_rescale = False
+if do_rescale:
+    c_30s_pre_uri = workspace + 'c_30s_pre_' + gu.pretty_time() + '.tif'
+    gcu.multiply_two_large_geotiffs(c_30s_unscaled_uri, ha_per_cell_uri, c_30s_pre_uri)
+    c_30s_uri = workspace + 'c_30s_' + gu.pretty_time() + '.tif'
+    gcu.multiply_large_geotiff_by_float(c_30s_pre_uri, c_30s_uri, 0.01)
+    gcu_sum = gcu.sum_geotiff(c_30s_uri)
+else:
+    c_30s_uri = workspace + 'c_30s.tif'
+
+compare_resampled_to_input = False
+if compare_resampled_to_input:
+    c_5m_uri = 'E:/bulk_data/reusch_and_gibbs_carbon/data/datasets/c_5m/w001001.adf'
+    c_5m = gu.as_array(c_5m_uri)
+    c_5m[c_5m<0]=0
+    c_5m_from_30s_uri = 'E:/bulk_data/reusch_and_gibbs_carbon/data/datasets/c_1km/c_5m_from_30s.tif'
+    desired_geotrans = (-180.0, 0.08333333333333, 0.0, 90.0, 0.0, -0.08333333333333)
+    c_5m_from_30s = gu.as_array(c_5m_from_30s_uri)
+    difference = np.where(c_5m_from_30s > 0, (c_5m * gu.as_array('E:/bulk_data/reusch_and_gibbs_carbon/data/datasets/c_1km/ha_per_cell_5m.tif')) / c_5m_from_30s, 0)
+    gu.show_array(difference,output_uri=c_5m_from_30s_uri.replace('.tif','_difference.jpg'), vmin = 0, vmax = 222)
+    print np.sum(c_5m)
+    print np.sum(c_5m * gu.as_array('E:/bulk_data/reusch_and_gibbs_carbon/data/datasets/c_1km/ha_per_cell_5m.tif'))
+
+literal_aggregation_to_5m_cell = False
+if literal_aggregation_to_5m_cell:
+    factor =  10
+    shape = (2160, 4320)
+    c_30s_tr = gu.Tr(c_30s_uri, chunkshape = shape)
+    cell_sum_5m = np.zeros((c_30s_tr.num_rows / factor, c_30s_tr.num_cols / factor))
+    cell_sum_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/c_5m_literal_aggregation_' + gu.pretty_time() + '.tif'
+    for tile in c_30s_tr.tr_frame:
+        tile_array = c_30s_tr.tile_to_array(tile)
+        print 'Aggregating tile', tile
+        for row in range(c_30s_tr.chunkshape[0] / factor):
+            for col in range(c_30s_tr.chunkshape[1] / factor):
+                cell_sum = np.sum(tile_array[row * factor : (row + 1) * factor, col * factor: (col + 1) * factor])
+                cell_sum_5m[tile[0] / factor + row, tile[1] / factor + col] = cell_sum
+    cell_sum_5m /= 100 #because 30s is in c per ha and i want c per 5min gridcell
+    print gu.desc(cell_sum_5m)
+    gu.save_array_as_geotiff(cell_sum_5m, cell_sum_5m_uri, ha_per_cell_5m_uri)
+else:
+    cell_sum_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/c_5m_literal_aggregation.tif'
+
+
+calculate_pnvc = True
+if calculate_pnvc:
+    factor = 10
+    shape = (2160, 4320)
+    c_30s_tr = gu.Tr(c_30s_uri, chunkshape = shape)
+
+    sum_carbon_in_uncultivated_land_5m = np.zeros((c_30s_tr.num_rows / factor, c_30s_tr.num_cols / factor))
+    potential_carbon_if_no_cultivation_5m = np.zeros((c_30s_tr.num_rows / factor, c_30s_tr.num_cols / factor))
+
+    sum_carbon_in_uncultivated_land_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/sum_carbon_in_uncultivated_land_' + gu.pretty_time() + '.tif'
+    potential_carbon_if_no_cultivation_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/potential_carbon_if_no_cultivation_' + gu.pretty_time() + '.tif'
+    carbon_loss_per_new_ha_cultivated_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/carbon_loss_per_new_ha_cultivated_' + gu.pretty_time() + '.tif'
+
+    proportion_cultivated = gu.as_array(workspace + 'proportion_cultivated.tif')
+    ha_cultivated = ha_per_cell_5m * proportion_cultivated
+    for tile in c_30s_tr.tr_frame:
+        chunk = c_30s_tr.tile_to_array(tile)
+        print 'Calculating on tile', tile
+        for row in range(c_30s_tr.chunkshape[0] / factor):
+            for col in range(c_30s_tr.chunkshape[1] / factor):
+
+                # Determine number of cells in a 5m tile of 30s data that are uncultivated by assuming that every cell
+                # not in cultivation is uncultivated.
+                cells_uncultivated = 100 - math.ceil(proportion_cultivated[tile[0] / factor + row, tile[1] / factor + col] * 100)
+
+                # Sort the current chunk
+                sorted_array = np.sort(chunk[row * factor: (row + 1) * factor, col * factor: (col + 1) * factor], axis = None)
+
+                # once the array is sorted, select the N highest ranked cells
+                # where N = the number of uncultivated cells present, based on proportion cultivated.
+                sum_carbon_in_uncultivated_land = np.sum(sorted_array[100 - cells_uncultivated:])
+
+                # The previous step gave the carbon present in uncultivated cells. Now, take teh average of that and fill
+                # in to all the other cells.
+                if cells_uncultivated > 0:
+                    potential_carbon_if_no_cultivation = sum_carbon_in_uncultivated_land + (sum_carbon_in_uncultivated_land / cells_uncultivated) * (100 - cells_uncultivated)
+                else:
+                    # Because some cells have 100% cultivation, and given that this is usually either a data eror or a
+                    # situation of agroforestry or other high-carbon systems (at least, higher than monoculture cereals)
+                    # i set the carbon here to the carbon present in the top 10% highest carbon in the cell. This
+                    # won't be a problem becuase the DeltaC calculation includes the carbon content of the crop in a different
+                    # component.
+                    potential_carbon_if_no_cultivation = np.mean(sorted_array[90:99]) * 100
+
+                # Fill into the appropriate spot of the 5m data
+                sum_carbon_in_uncultivated_land_5m[tile[0] / factor + row, tile[1] / factor + col] = sum_carbon_in_uncultivated_land
+                potential_carbon_if_no_cultivation_5m[tile[0] / factor + row, tile[1] / factor + col] = potential_carbon_if_no_cultivation
+
+    carbon_loss_per_new_ha_cultivated_5m = potential_carbon_if_no_cultivation_5m / ha_per_cell_5m
+
+    gu.save_array_as_geotiff(sum_carbon_in_uncultivated_land_5m, sum_carbon_in_uncultivated_land_5m_uri, ha_per_cell_5m_uri, verbose=True)
+    gu.save_array_as_geotiff(potential_carbon_if_no_cultivation_5m, potential_carbon_if_no_cultivation_5m_uri, ha_per_cell_5m_uri, verbose=True)
+    gu.save_array_as_geotiff(carbon_loss_per_new_ha_cultivated_5m, carbon_loss_per_new_ha_cultivated_5m_uri, ha_per_cell_5m_uri, verbose=True)
+else:
+    sum_carbon_in_uncultivated_land_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/sum_carbon_in_uncultivated_land_.tif'
+    potential_carbon_if_no_cultivation_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/potential_carbon_if_no_cultivation.tif'
+    carbon_loss_per_new_ha_cultivated_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/carbon_loss_per_new_ha_cultivated.tif'
+```
+
+
+**Actually important part of this step**
+
+There are two important things to note:
+
+1. I start to deal with not recomputing things that have already been computed to save time, as in 
+
+```{python}
+#| eval: false
+
+do_30s_resample = False
+if do_30s_resample:
+    'do some stuff'
+```
+
+2. I start to generalize my code on the frequently used functions. For instance: 
+```{python}
+import geoecon_utils.geoecon_utils as gu
+gu.save_array_as_geotiff()
+
+```
+
+## Project complexity level 4: Starting to deal with parallelization and file management.
+
+NYI, so lets' skip to the solution, but I might actually write out all these steps!
+
+## Project complexity level 5: Simple ProjectFlow Implementation
+
+So you would like to contribute to the TEEMs repository. Suppose you say to me or Steve, "I think that the ecosystem services value of urban greenspace is very high" and "I want to calculate it at a global scale." I might respond to you with "Great! Let's add it to GTAP-InVEST as a new ProjectFlow task." Let's talk about this example. Because we actually will be running this, please open the file projectflow_quickstart.ipynb

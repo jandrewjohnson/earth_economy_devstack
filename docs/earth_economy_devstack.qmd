@@ -1,4 +1,4 @@
-# Earth-Economy Devstack
+# DEPRACATED - SEE INDIVIDUAL FILES - Earth-Economy Devstack
 
 This is the documentation for the Earth-Economy Devstack, which is the set of repositories and code tools used by the Johnson-Polasky Lab and NatCap TEEMs. This documentation starts with overall organization of the Earth-Economy Devstack and discusses common coding practices used among the 5 underlying repositories. Next, each of the repositories is discussed in turn.
 
@@ -56,15 +56,21 @@ The earth_economy_devstack.code-workspace configures VS Code so that it includes
 
 ## Version management with Git & GitHub repository
 
-SEALS is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development. However, some basic preferred workflows are outlined in the following.
+SEALS is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development.
+
+There are two different ways to interact with a github repository: 1. making a fork; 2; working on a branch. This section describes both options, however internal members of TEEMs will usually use branches.
+
+### Forking
+
+However, some basic preferred workflows are outlined in the following.
 
 ![](images/git_workflow.png)
 
-### Create a new fork of the original SEALS repo
+#### Create a new fork of the original SEALS repo
 
 Before developing the code it is recommended to create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for - code development or fixes - submitting a pull request to the original SEALS repository.
 
-### Clone fork to your local machine
+#### Clone fork to your local machine
 
 Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). To clone the repository on your local machine via the command line, navigate to the local folder, in which you want to clone the repository, and type
 
@@ -78,9 +84,13 @@ For example, if you want to clone the develop branch of your SEALS fork type
 git clone -b develop https://github.com/<username/seals_dev seals_develop
 ```
 
-### Code changes
+### Branching
 
-For any code development it is recommended to use the clone of the code base at your local machine and an IDE. For larger code developments, a new code branch should also be created by using `git branch <name-of-new-branch>`. To let git know that you want to switch to and work on the new branch use `git checkout <name-of-new-branch>`.
+Wheter you are working on a Fork or on the seals repository itself, we will organize contributions with branches. On the command line, you can create new code branch by using `git branch <name-of-new-branch>`. To let git know that you want to switch to and work on the new branch use `git checkout <name-of-new-branch>`. There are many other graphical user interfaces that help with git commands (so you don't have to memorize all of the commands), including Github Desktop, Sourcetree and others. We also will use a VS Code plug called GitGraph to manage our repository. To install GitGraph, go the the Extensions left tab in VS Code and search for it. Once installed, you will find a button on the status bar to launch it. Using the gtap_invest_dev repository as an example, it should look like this:
+
+![](images/2024-01-20-10-05-43.png)
+
+This is an example that has multiple branches that add new content, but are then merged back into one.
 
 Before making any changes, make sure that your fork and/or your local repository are up-to-date with the original SEALS repository. To pull changes from your fork use `git pull origin <name-of-branch>`. In order to pull the latest changes from the original SEALS repository you can set up a link to the original upstream repository with the command `git remote add upstream https://github.com/jandrewjohnson/seals_dev`. To pull the latest changes from the develop branch in the original upstream repository use `git pull upstream develop`.
 
@@ -226,7 +236,6 @@ def gtap_aez_seals_correspondences(p):
 
 Hazelbean automatically defines directory organization as a function of the task tree. When the ProjectFlow object is created, it takes a directory as its only required input. This directory defines the root of the project. The other directory that needs to be referenced is the base_data_dir. When you initialize the p object, it notes this:
 
-
 `Created ProjectFlow object at C:\Users\jajohns\Files\gtap_invest\projects\cwon     from script C:\Users\jajohns\Files\gtap_invest\gtap_invest_dev\gtap_invest\run_cwon.py     with base_data set at C:\Users\jajohns\Files/base_data`
 
 In the run file, the following line generates the task tree:
@@ -339,9 +348,73 @@ if type(gadm) is str:
 
 `mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm`
 
--   And then finally, install non-conda distributions via pip:
 
-`pip install mglearn pandoc datascience hazelbean`
+
+
+
+# Hazelbean
+
+## Quickstart
+
+Test that hazelbean imports correctly. Importing it will trigger compilation of the C files if they are not there.
+
+```{python}
+#| eval: false
+import hazelbean as hb
+```
+
+## Library of useful functions
+
+Explore examples of the useful spatial, statistical and economic functions in the examples section of this documentation.
+
+## Project Flow
+
+One key component of Hazelbean is that it manages directories, base_data, etc. using a concept called ProjectFlow. ProjectFlow defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
+
+### Project Flow notes
+
+Project Flow is intended to flow easily into the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework.
+
+#### Notes
+
+In run.py, initialize the project flow object. This is the only place where user supplied (possibly absolute but can be relative) path is stated. The p ProjectFlow object is the one global variable used throughout all parts of hazelbean.
+
+```{python}
+#| eval: false
+import hazelbean as hb
+
+if __name__ == '__main__':
+    p = hb.ProjectFlow(r'C:\Files\Research\cge\gtap_invest\projects\feedback_policies_and_tipping_points')
+```
+
+In a multi-file setup, in the run.py you will need to import different scripts, such as main.py i.e.:
+
+```{python}
+#| eval: false
+import visualizations.main
+```
+
+The script file mainpy can have whatever code, but in particular can include "task" functions. A task function, shown below, takes only p as an agrument and returns p (potentially modified). It also must have a conditional (if p.run_this:) to specify what always runs (and is assumed to run trivially fast, i.e., to specify file paths) just by nature of having it in the task tree and what is run only conditionally (based on the task.run attribute, or optionally based on satisfying a completed function.)
+
+```{python}
+#| eval: false
+def example_task_function(p):
+    """Fast function that creates several tiny geotiffs of gaussian-like kernels for later use in ffn_convolve."""
+
+    if p.run_this:
+        for i in computationally_intensive_loop:
+            print(i)
+```
+
+**Important Non-Obvious Note**
+
+Importing the script will define function(s) to add "tasks", which take the ProjectFlow object as an argument and returns it after potential modification.
+
+```{python}
+#| eval: false
+def add_all_tasks_to_task_tree(p):
+    p.generated_kernels_task = p.add_task(example_task_function)
+```
 
 # GTAPPy
 
@@ -383,29 +456,25 @@ Proceed without selecting a license (to start the 6 month trial).
 
 TO PROCEED, YOU NEED TO HAVE A ACCESS TO THE GTAP DATABASE. OR YOU CAN ACCESS IT THROUGH `ee_internal` DATABASE.
 
----
+------------------------------------------------------------------------
 
-**Step 2.1:**
-- Extract the `.lic` file from <https://www.gtap.agecon.purdue.edu/databases/download.asp> step 2. Put this in `GTAPAgg2` dir
+**Step 2.1:** - Extract the `.lic` file from <https://www.gtap.agecon.purdue.edu/databases/download.asp> step 2. Put this in `GTAPAgg2` dir
 
-**Step 2.2:**
-- Install the GTAP Database itself from at : <https://www.gtap.agecon.purdue.edu/databases/download.asp>
+**Step 2.2:** - Install the GTAP Database itself from at : <https://www.gtap.agecon.purdue.edu/databases/download.asp>
 
-- Make sure to also get the AEZ version, which will also give a full pkg file.
+-   Make sure to also get the AEZ version, which will also give a full pkg file.
 
 ![](images/paste-11.png)
 
-- Put this `.pkg` file in `GTPAg2` dir. 
+-   Put this `.pkg` file in `GTPAg2` dir. 
 
-- Launch GTPAg2, identify pkg file for both default and AEZ data
+-   Launch GTPAg2, identify pkg file for both default and AEZ data
 
 When running aggregations, make sure to choose the right product:
 
 ![](images/paste-12.png)
 
-**Step 2.3:**
-Running the unaggregated version
--   Open GTPAg2.exe
+**Step 2.3:** Running the unaggregated version - Open GTPAg2.exe
 
 ![](images/paste-14.png)
 
@@ -441,8 +510,7 @@ This could also be done by making the .agg file via text editing. 
 
 Note that this creates two versions of the database, one for GTAP code v6.2, one for v7.0. The 7.0 is in a sub zip folder gtapv7.zip. This is the one we want.
 
-`C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7`
----
+## `C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7`
 
 **Getting the v7 code**
 
@@ -668,6 +736,12 @@ In order for the above line to work, you will need to set the project directory 
 
 To run a full version of the model, copy run_test_seals.py to a new file (i.e., run_seals.py) and set p.test_mode = False. You may also want to specify a new project directory to keep different runs separate.
 
+![](images/paste-35.png)
+
+images/2024-01-18-08-25-09.png
+
+![](images/paste-36.png)
+
 ## Release Notes
 
 ### Update v0.5.0
@@ -774,8 +848,7 @@ After doing the above steps, you should be ready to run `run_test_seals.py`. Upo
 
 Once the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:
 
-![](images/paste-3.png)
-[THIS IS NOT THE CORRECT IMAGE]
+![](images/paste-3.png) \[THIS IS NOT THE CORRECT IMAGE\]
 
 Open up the projected one (e.g., lulc_ssp2_rcp45_luh2-message_bau_2045.tif) in QGIS and enjoy your new, high-resolution land-use change projection!
 
@@ -791,70 +864,6 @@ path = hb.get_first_extant_path(path, [p.input_dir, p.base_data_dir])
 ```
 
 If the path given is relative, this function will then iterate through the list of possible directories and join the path to each directory, continuing down the list until it finds an existing path. If it never finds it, the function will return the path joined with the first element in the list (presumably for later file creation). This functionality means that if a file is in your base data directory, hazelbean will not download it. As a protip, after the first time it's downloaded, you can move it from the input_dir to your base_data_dir (while keeping the exact same relative directory path) and then Hazelbean will not waste time re-downloading.
-
-# Hazelbean
-
-## Quickstart
-
-Test that hazelbean imports correctly. Importing it will trigger compilation of the C files if they are not there.
-
-```{python}
-#| eval: false
-import hazelbean as hb
-```
-
-## Library of useful functions
-
-Explore examples of the useful spatial, statistical and economic functions in the examples section of this documentation.
-
-## Project Flow
-
-One key component of Hazelbean is that it manages directories, base_data, etc. using a concept called ProjectFlow. ProjectFlow defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
-
-### Project Flow notes
-
-Project Flow is intended to flow easily into the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework.
-
-#### Notes
-
-In run.py, initialize the project flow object. This is the only place where user supplied (possibly absolute but can be relative) path is stated. The p ProjectFlow object is the one global variable used throughout all parts of hazelbean.
-
-```{python}
-#| eval: false
-import hazelbean as hb
-
-if __name__ == '__main__':
-    p = hb.ProjectFlow(r'C:\Files\Research\cge\gtap_invest\projects\feedback_policies_and_tipping_points')
-```
-
-In a multi-file setup, in the run.py you will need to import different scripts, such as main.py i.e.:
-
-```{python}
-#| eval: false
-import visualizations.main
-```
-
-The script file mainpy can have whatever code, but in particular can include "task" functions. A task function, shown below, takes only p as an agrument and returns p (potentially modified). It also must have a conditional (if p.run_this:) to specify what always runs (and is assumed to run trivially fast, i.e., to specify file paths) just by nature of having it in the task tree and what is run only conditionally (based on the task.run attribute, or optionally based on satisfying a completed function.)
-
-```{python}
-#| eval: false
-def example_task_function(p):
-    """Fast function that creates several tiny geotiffs of gaussian-like kernels for later use in ffn_convolve."""
-
-    if p.run_this:
-        for i in computationally_intensive_loop:
-            print(i)
-```
-
-**Important Non-Obvious Note**
-
-Importing the script will define function(s) to add "tasks", which take the ProjectFlow object as an argument and returns it after potential modification.
-
-```{python}
-#| eval: false
-def add_all_tasks_to_task_tree(p):
-    p.generated_kernels_task = p.add_task(example_task_function)
-```
 
 # Global InVEST
 
@@ -966,10 +975,10 @@ p.ee_r264_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundarie
 
 ### More on naming Conventions
 
-The names of project-level variables are carefully defined. For example, in `gtapv7_r251_r160_correspondence_input_path`, 
+The names of project-level variables are carefully defined. For example, in `gtapv7_r251_r160_correspondence_input_path`,
 
-- The `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device. 
-- In this name, we see two other structures. First, the `gtapv7` label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
+-   The `input` when put right before the word path implies it is a raw asset we obtained from an external source but haven't processed it yet. This means that it can be a non-compliant XLSX file. Aslo, path implies that it is a string type that points to a location in a storage device.
+-   In this name, we see two other structures. First, the `gtapv7` label indicates the "domain" of the correspondence defined in all of the following dimensions (until another domain label). Above, this means that it is the 251 regions, as defined by the gtapv7 domain, mapped to the 160 regions in the same domain.
 
 You can have multiple mappings in a single correspondence file. For example, gtapv7_r251_s65_r50_s26_correspondence_input_path, we are mapping r251 to r50 and s (sectors) 65 to s26, all in the gtapv7 domain.
 
@@ -1073,3 +1082,4 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
         -   Proposed answer: src/dst is a pointer/reference to a thing and Input/Output is the thing itself. Esp useful for paths.
         -   Similarly, \_path and \_dir imply the string is a reference, so src_path and src_dir are common.
         -   You might often see e.g. `input_array = hb.as_array(src_path)`, illustrating this difference.
+-   

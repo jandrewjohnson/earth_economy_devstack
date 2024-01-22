@@ -1,0 +1,22 @@
+# Installation
+
+## Python Installation
+
+-   Install Mambaforge from <https://github.com/conda-forge/miniforge#mambaforge>
+-   For convenience, during installation, I select yes for "Add Mambaforge to my PATH environment Variable"
+-   (PC) Open the Miniforge Prompt (search for it in the start menu) or (Mac) just type "mamba init"
+-   Create a new mamba environment with the following commands (here it is named env2023a):
+
+`mamba create -n env2023a -c conda-forge`
+
+-   Activate the environment
+
+`mamba activate research2023a`
+
+-   Install libraries using the mamba command:
+
+`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm`
+
+
+
+

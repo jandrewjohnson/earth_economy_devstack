@@ -1,0 +1,3 @@
+# Earth-Economy Devstack
+
+This is the documentation for the Earth-Economy Devstack, which is the set of repositories and code tools used by the Johnson-Polasky Lab and NatCap TEEMs. This documentation starts with overall organization of the Earth-Economy Devstack and discusses common coding practices used among the multiple releated repositories. 
