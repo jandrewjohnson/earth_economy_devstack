@@ -6,8 +6,7 @@ Note that for all of the features of hazelbean to work, your computer will need 
 
 ## Installation
 
-Follow the instructions in the Earth-Economy Devstack repository. 
-
+Follow the instructions in the Earth-Economy Devstack repository.
 
 ## Quickstart
 
@@ -22,9 +21,9 @@ From here, explore examples of the useful spatial, statistical and economic func
 
 # Project Flow
 
-Project Flow is intended to allow a user to flow easily past the different stages of software complexity. A common situation for an academic or a research software engineer (RES) to find themselves in is that they wrote a quick script to answer a specific quesiton, but it turned out to be useful in other context. This can lead to a the script  grows and grows until complexity hurts its usefulness. A software developer would then think "oops, I should really make this modular." ProjectFlow provides several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. To do this, ProjectFlow manages folders and defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
+Project Flow is intended to allow a user to flow easily past the different stages of software complexity. A common situation for an academic or a research software engineer (RES) to find themselves in is that they wrote a quick script to answer a specific quesiton, but it turned out to be useful in other context. This can lead to a the script grows and grows until complexity hurts its usefulness. A software developer would then think "oops, I should really make this modular." ProjectFlow provides several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. To do this, ProjectFlow manages folders and defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
 
-##  Project complexity level 1: Simple question answered well
+## Project complexity level 1: Simple question answered well
 
 Here is an example script that you might write as an Earth-economy researcher. Suppose your adviser asks you "what is the total caloric yield on earth per hectare?" You might write a script like this:
 
@@ -96,7 +95,6 @@ This style of coding works, but will quickly cause you to lose your sanity. Who 
 ## Project complexity level 3: Starting to deal with performance and generalization.
 
 Below is a real-life script I created in around 2017 to calculate something for Johnson et al. 2016. Do not even attempt to run this, but just appreciate how awful it is. Please skim past it quickly to save me the personal embarassment!
-
 
 ```{python}
 #| eval: false
@@ -249,12 +247,11 @@ else:
     carbon_loss_per_new_ha_cultivated_5m_uri = os.path.split(ha_per_cell_5m_uri)[0] + '/carbon_loss_per_new_ha_cultivated.tif'
 ```
 
-
 **Actually important part of this step**
 
 There are two important things to note:
 
-1. I start to deal with not recomputing things that have already been computed to save time, as in 
+1.  I start to deal with not recomputing things that have already been computed to save time, as in
 
 ```{python}
 #| eval: false
@@ -264,7 +261,8 @@ if do_30s_resample:
     'do some stuff'
 ```
 
-2. I start to generalize my code on the frequently used functions. For instance: 
+2.  I start to generalize my code on the frequently used functions. For instance:
+
 ```{python}
 import geoecon_utils.geoecon_utils as gu
 gu.save_array_as_geotiff()
