@@ -2,7 +2,7 @@
 
 ## Version management with Git & GitHub repository
 
-SEALS is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development.
+The Earth Economy Devstack and all of its published article code is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development.
 
 There are two different ways to interact with a github repository: 1. making a fork; 2; working on a branch. This section describes both options, however internal members of TEEMs will usually use branches.
 
@@ -30,14 +30,6 @@ For example, if you want to clone the develop branch of your SEALS fork type
 git clone -b develop https://github.com/<username/seals_dev seals_develop
 ```
 
-### Branching
-
-Wheter you are working on a Fork or on the seals repository itself, we will organize contributions with branches. On the command line, you can create new code branch by using `git branch <name-of-new-branch>`. To let git know that you want to switch to and work on the new branch use `git checkout <name-of-new-branch>`. There are many other graphical user interfaces that help with git commands (so you don't have to memorize all of the commands), including Github Desktop, Sourcetree and others. We also will use a VS Code plug called GitGraph to manage our repository. To install GitGraph, go the the Extensions left tab in VS Code and search for it. Once installed, you will find a button on the status bar to launch it. Using the gtap_invest_dev repository as an example, it should look like this:
-
-![](images/2024-01-20-10-05-43.png)
-
-This is an example that has multiple branches that add new content, but are then merged back into one.
-
 Before making any changes, make sure that your fork and/or your local repository are up-to-date with the original SEALS repository. To pull changes from your fork use `git pull origin <name-of-branch>`. In order to pull the latest changes from the original SEALS repository you can set up a link to the original upstream repository with the command `git remote add upstream https://github.com/jandrewjohnson/seals_dev`. To pull the latest changes from the develop branch in the original upstream repository use `git pull upstream develop`.
 
 During code development, any changes or fixes that should go back to the fork and/or the original SEALS repository need to be ['staged'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) and then ['commited'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) with a commit message that succinctly describes the changes. By staging changes, **git** is informed that these changes should become part of the next 'commit', which essentially takes a snapshot of all staged changes thus far.
@@ -48,231 +40,89 @@ To commit all staged changes use the command `git commit -m "a short description
 
 After committing the changes, they can be pushed to your fork by using `git push origin <name-of-branch>`.
 
-![](images/git_branches.png) \### Pull requests
+![](images/git_branches.png)
+
+### Pull requests
 
 In order to propose changes to the original SEALS repository, it is recommended to use [pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork). Pull requests inform other users about your code changes and allow them to review these changes by comparing and highlighting the parts of the code that have have been altered. They also highlight potential [merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts), which occur when git is trying to merge branches with competing commits within the same parts of the code. Pull requests can be done directly at GitHub by navigating to either the forked repository or the original SEALS repository and by clicking on 'Pull requests' and then 'New pull request'. This will open a new pull request page where changes can be described in more detail and code reviewers can be specfied. Pull requests should be reviewed by at least one of the main code developers.
 
-## Iterating over many model assumptions
+### Branching
 
-In many case, such as a standard GTAPPy run, we will iterate over different aggergations and scenarios (now renamed counterfactuals). This is done as expected with code like this:
+Wheter you are working on a Fork or on the seals repository itself, we will organize contributions with branches. On the command line, you can create new code branch by using `git branch <name-of-new-branch>`. To let git know that you want to switch to and work on the new branch use `git checkout <name-of-new-branch>`. There are many other graphical user interfaces that help with git commands (so you don't have to memorize all of the commands), including Github Desktop, Sourcetree and others. We also will use a VS Code plug called GitGraph to manage our repository. To install GitGraph, go the the Extensions left tab in VS Code and search for it. Once installed, you will find a button on the status bar to launch it. Using the gtap_invest_dev repository as an example, it should look like this:
 
-```{python}
-#| eval: false
-for aggregation_label in p.aggregation_labels:
-     
-    for experiment_label in p.experiment_labels:
-        
-        for n_years_counter, ending_year in enumerate(p.years):
-            
-            if n_years_counter == 0:
-                starting_year = p.base_year
-            else:
-                starting_year = p.years[n_years_counter - 1]
-                
-            output_dir = p.get_path(os.path.join(aggregation_label, experiment_label, str(ending_year)))
-```
+#### Using Git Graph to make a change
 
-But sometimes, this becomes DEEPLY nested and confusing. SEALS implements an API that reads these nested layers from a CSV. This is defined more fully in the SEALS user guide.
+Suppose you want to make a change to the `hazelbean_dev` repository. We will use this example to explain how we use Git Graph to make this contribution. First, let's take a look at the Git Graph interface.
 
-```{python}
-#| eval: false
-for index, row in p.scenarios_df.iterrows():
-    seals_utils.assign_df_row_to_object_attributes(p, row)
-    
-    if p.scenario_type != 'baseline':
-                            
-        for n_years_counter, ending_year in enumerate(p.years):
+![](images/2024-02-02-12-41-04.png)
 
-            if n_years_counter == 0:
-                starting_year = p.base_year
-            else:
-                starting_year = p.years[n_years_counter - 1]
-                
-            current_run_dirs = os.path.join(p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label)
-            output_dir = p.get_path(current_run_dirs, str(ending_year))
-            expected_sl4_path = os.path.join(output_dir, p.counterfactual_label + '_Y' + str(ending_year) + '.sl4')
+First note the Repo dropdown box indicating we are looking at the hazelbean_dev repo. Here you could switch to other Repos that have been added to your workspace. The next thing to note are the three different branch tages (Blue, Magenta and Green boxes on the Git Graph tree view). These are the three branches that are currently in the hazelbean_dev repository. The blue branch is the `main` branch, the magenta branch is the `develop` branch and the green branch is a branch specific to the user and/or the feature. In this case, it is `develop_justin` branch. The lines and dots indicates the history of how files were edited and then how the different branches were merged back together after an edit. By default, when you clone a repository, you will be on the `main` branch. To switch to another branch, right-click the tag and select `checkout branch`. When you do this, the files on your harddrive will be changed by Git to match the status of the branch you just checked out. In the image below, we can see which is the current branch because it has an open-circle dot in the graph and the name is bold. Other things to notice is that after the name of the branch there is the word `origin`. This indicates that the branch is synced with the remote repository (named origin by convention).
 
-```
+To make a change, you will first want to create your own branch. First, make absolutely certain you currently have checked out the `develop` branch (unless you know why to do otherwise). We will use `main` branch only to contain working "releases". Once `develop` is checked out, use the Command Pallate (`ctrl-shift-p`) and search for `create branch`.
 
-In this scenarios_df, which was loaded from scenarios_csv_path, there are multiple nested for loops implied, for `p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label`, each row has a unique value that would have been iterated over with the for loop above. Now, however, we are iterating just over scenario_df rows. Within each row pass, a project-level attribute is assigned via `seals_utils.assign_df_row_to_object_attributes(p, row)`. This is used instead of the nested for loop.
+![](images/2024-02-02-12-50-59.png)
 
-## Creating scenarios spreadsheets
+Choose the right repository among those loaded in your workspace, hazelbean_dev in this example.
 
-Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading it (keeps it up to date as code changes quickly). However, this gets convoluted when you also have to initialize the attributes before you write?!?
+![](images/2024-02-02-12-52-23.png)
 
-```{python}
-#| eval: false
-    # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
-    # then you need to add the path to the seals directory to the system path.
-    custom_seals_path = None
-    if custom_seals_path is not None: # G:/My Drive/Files/Research/seals/seals_dev/seals
-        sys.path.insert(0, custom_seals_path)
+Then select it and give the new branch a name, either `develop_<your_name>` or `feature_<your_feature_name>`. Below we have created a new feature branch called `feature_test` branched off of the `develop` branch. It should look like this
 
-    # SEALS will run based on the scenarios defined in a scenario_definitions.csv
-    # If you have not run SEALS before, SEALS will generate it in your project's input_dir.
-    # A useful way to get started is to to run SEALS on the test data without modification
-    # and then edit the scenario_definitions.csv to your project needs.
-    # Some of the other test files use different scenario definition csvs 
-    # to illustrate the technique. If you point to one of these 
-    # (or any one CSV that already exists), SEALS will not generate a new one.
-    # The avalable example files in the default_inputs include:
-    # - test_three_scenario_defininitions.csv
-    # - test_scenario_defininitions_multi_coeffs.csvs
-    
-    p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
+![](images/2024-02-02-12-59-34.png)
 
-    # Set defaults and generate the scenario_definitions.csv if it doesn't exist.
-    if not hb.path_exists(p.scenario_definitions_path):
-        # There are several possibilities for what you might want to set as the default.
-        # Choose accordingly by uncommenting your desired one. The set of
-        # supported options are
-        # - set_attributes_to_dynamic_default (primary one)
-        # - set_attributes_to_dynamic_many_year_default
-        # - set_attributes_to_default # Deprecated
+You'll notice that the tag is bold, indicating you have checked it out and it is your current branch. Also notice though that it does not have the tag `origin` after it, indicating that it is not synced with the remote repository. To sync it, you will need to push it to the remote repository. To do this, right-click the tag and select `push branch`. This will push the branch to the remote repository and it will be available to other users.
 
-        gtap_invest_utils.set_attributes_to_dynamic_gtap_default(p) # Default option
+Another way to push the branch is using the Version Control tab in VS Code. Click the Version Control tab on the Lefthand bar. There you will see all of the repos you have loaded into our workspace. For hazelbean_dev, you will see it has a `publish branch` button. Clicking this will have the same effect as the `push branch` command in Git Graph.
 
+![](images/2024-02-02-13-28-31.png)
 
-        # # Optional overrides for us in intitla scenarios
-        # p.aoi = 'RWA'
+Regardless of how you pushed it to the remote repository, you will now see the branch has the 'origin' tag after it, indicating it is synced with the remote repository. It is now also the checked-out branch and so all changes you make will be made to this branch.
 
-        # gtap_invest_utils.set_attributes_to_dynamic_default(p)
-        # Once the attributes are set, generate the scenarios csv and put it in the input_dir.
-        gtap_invest_utils.generate_gtap_invest_scenarios_csv_and_put_in_input_dir(p)
-        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
-    else:
-        # Read in the scenarios csv and assign the first row to the attributes of this object (in order to setup additional 
-        # project attributes like the resolutions of the fine scale and coarse scale data)
-        p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+![](images/2024-02-02-13-29-25.png)
 
-        # Because we've only read the scenarios file, set the attributes
-        # to what is in the first row.
-        for index, row in p.scenarios_df.iterrows():
-            seals_utils.assign_df_row_to_object_attributes(p, row)
-            break # Just get first for initialization.
+Now, we're going to make a small change to the code. In the VS Code file explorer, I will open up file_io.py in the hazelbean module and scroll to the function I want to edit.
 
-```
+![](images/2024-02-02-13-38-53.png)
 
-## Task Format
+On lines 778-779, you'll see VS Code has greyed the variables out indicating they are not used, so I will remove them. Once gone, you'll see a blue bar on the left side of the editor. This is Git and VS Code indicating to you you made a change. Blue indicates a modification where as green indicates a new addition and red indicates a deletion.
 
-Project flow requires a consistent format for tasks. The following is an example of a task that creates a correspondence file from gtap11 regions to gtapaez11 regions. The task itself defined as a function that takes a `p` object as an argument. This `p` object is a `ProjectFlow` object that contains all the project-level variables, manages folders and files, and manages tasks and parallelization. `p` also includes documentation, which will be written directly into the task directory.
+![](images/2024-02-02-13-40-59.png)
 
-Also note that any project-level attribute defined in between the function start and the `if p.run_this:` component are the "project level variables" that are fair-game for use in other tasks. These paths are critical for high performance because they enable quick-skipping of completed tasks and determiniation of which parts of the task tree need rerunning.
+To illustrate a new addition, I will add a line at to space out our for loop. Once I do this, you'll see the green bar on the left side of the editor. In the image you can also see that the file_io.py is now a different color and has an M next to it. This indicates that the file has been modified.
 
-Tasks should be named as a noun (this breaks Python pep8 style) referencing what will be stored in the tasks output dir. This might feel awkward at first, but it means that the resultant file structure is easier to interpret by a non-EE outsider.
+![](images/2024-02-02-13-42-49.png)
 
-```{python}
-#| eval: false
-def gtap_aez_seals_correspondences(p):
-    p.current_task_documentation = """
-    Create correspondence CSVs from ISO3 countries to GTAPv11 160
-    regions, and then to gtapaezv11 50ish regions, also put the classification
-    for seals simplification and luh.  
-    """
-    p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')
-    p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')
-    p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')    
+Another useful thing you can do is click on the Blue or Green edit bar to see more details, as below.
 
-    if p.run_this:
-        
-        "logic here"
-```
+![](images/2024-02-02-13-44-07.png)
 
-## Automatic Directory Organization via Tasks
+Here, you can see the exact changes you made. Additionally, there are buttons at the top of this new box that let you revert the change to go back to how it was before.
 
-Hazelbean automatically defines directory organization as a function of the task tree. When the ProjectFlow object is created, it takes a directory as its only required input. This directory defines the root of the project. The other directory that needs to be referenced is the base_data_dir. When you initialize the p object, it notes this:
+Before we commit our changes, look at the Git Graph view. You'll see that we now have a new grey line coming from the feature_test branch, showing that we have uncommitted changes. You could click on the uncommitted changes link to see the edits we made.
 
-`Created ProjectFlow object at C:\Users\jajohns\Files\gtap_invest\projects\cwon     from script C:\Users\jajohns\Files\gtap_invest\gtap_invest_dev\gtap_invest\run_cwon.py     with base_data set at C:\Users\jajohns\Files/base_data`
+![](images/2024-02-02-13-49-34.png)
 
-In the run file, the following line generates the task tree:
+We are now going to commit our changes. To do this, go to the Version Control Tab. You will now see that there is a change listed under the hazelbean_dev repository. Click on the change to see the details. You will see a more detailed "diff editor" that lets you understand (or change) what was edited. To accept these changes, we will click the commit button. But first write a short commit message. Click Commit (but don't yet click the next button to Sync changes). After committing, look back at the Git Graph view. You'll see that the grey line is now gone and the blue feature_test tag is at the top of our commit tree along with our comitt message.
 
-`gtap_invest_initialize_project.build_extract_and_run_aez_seals_task_tree(p)`
+![](images/2024-02-02-13-51-20.png)
 
-Which points to a builder function in the initialize file, looking something like this:
+Notice though that the tag for origin/feature_test is not yet up at the new location. This is because we have not yet pushed our changes to the remote repository. To do this, click the Sync button in the bottom right of the VS Code window. This will push your changes to the remote repository and update the tag to the new location, like this.
 
-![](images/paste-28.png)
+![](images/2024-02-02-13-52-14.png)
 
-This would generate the following task tree:
+Your code is now on GitHub and other contributors with access could check it out and try it. But, this code will be different than their code and if you made non-trivial changes, it could be hard to keep straight what is going on. To clarify this, we are going to merge our `feature_test` branch back into `develop`.
 
-![](images/paste-27.png)
+To do this, first you must make sure you have the most recent version of the `develop` branch. To do this, first we will use the command palette and search for `git pull`. This will pull the most recent changes from the remote repository and update your local `develop` branch. Next, we want to make sure that any changes in `develop` are merged with what we just did to our `feature_test` branch. If there were no changes, this is not strictly necessary, but it's a good precation to take to avoid future merge conflicts. To do this, right click on the `develop` tag and select `merge into current branch`. A popup will ask you to confirm this, which you do want to (with the default options).
 
-Two notations are especially useful within this task tree.
+![](images/2024-02-02-13-54-50.png)
 
-1.  Within the function that defines a task, p.cur_dir points to the directory of that task. So for instance, the last task defined in the image above, in its code, you could reference p.cur_dir, and it would point to `<project_root>/econ_visualization/econ_lcovercom`
-2.  Outside of a given function's code, you can still refer to paths that were defined from within the functions code, but now (because you are outside the function) it is given a new reference. Using the example above, you could reference the same directory with `p.econ_lcovercom_dir` where the p attribute is named exactly as \<function_name\>\_dir
+Now that we know for sure we have the most up-to-date develop branch details, we can merge our new feature into the develop branch. However, we will protect the develop branch so that only features that pass unit tests can be merged in. Thus, you will make a pull request, as described above, to get me to merge your work in the develop branch. For completeness, here we discuss how one would to that. To do this, first right-click on the `develop` tag and select `Checkout branch`. Our git tree will now show we have `develop` checked out:
 
-All of this setup enable another useful feature: automatic management of file generation, storage and downloading. This is done via the hazelbean function:
+![](images/paste-42.png)
 
-```{python}
-#| eval: false
-useful_path = hb.get_path(relative_path)
-```
+With develop checked out, now right click on `feature_test` and select `merge into current branch`. Select confirm in the popup box. Click Sync Changes in the Version Control Tab.
 
-This function will iteratively search multiple locations and return the most "useful" one. By default, the relative_path variable will first joined with the p.cur_dir. If the file exists, it returns it. If not, it checks the next location, which is p.input_dir, and then p.base_data_dir. If it doesn't find it anywhere, it will attempt to download it from google cloud (NYI) and save it in the p.cur_dir. If it is not available to download on google cloud, then it treats the path as something we will be generating within the task, and thus, get_path returns the first option above, namely joining the relative_path with p.cur_dir.
+![](images/paste-43.png)
 
-One important use-case that needs explaining is for tasks that generate files that will eventually be placed in the base_data_dir. The goal is to enable easy generation of it to the intermediate directory in the appropriate task_dir, but then have the ability to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches the desired directory relative to the base data dir. So, for example, we include `'gtappy', 'aggregation_mappings'` at the beginning of the relative path for in the intermediate directory in the appropriate task_dir, but then we also will want to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches that in the base_data_dir, for example `<base_data_dir>/'gtappy/aggregation_mappings/gadm_adm0.gpkg',`
-
-```{python}
-#| eval: false
-template_path = p.get_path(os.path.join('gtappy', 'aggregation_mappings', 'gadm_adm0.gpkg')) 
-```
-
-It can be hard deciding what counts as a base_data_generating task or not, but generally if it is a file that will not be used by other projects, you should not treat it as a base_data_generating task. Instead, you should just make it relative to the cur_dir (or wahtever makes sense), as below:
-
-```{python}
-#| eval: false
-output_path = p.get_path(os.path.join(aggregation_label + '_' + experiment_label + '_' + header + '_stacked_time_series.csv'))
-```
-
-One additional exception to the above is if you are calling get_path outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
-
-```{python}
-#| eval: false
-p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_adm0_10sec.gpkg'), possible_dirs=[p.input_dir, p.base_data_dir])
-```
-
-## Validation of files
-
-ProjectFlow is designed to calculate very fast while simultaneously validating that everything is approximately correct. It does this by checking for the existence of files (often combined with hb.get_path()). For example
-
-```{python}
-#| eval: false
-p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'gadm_r263_gtapv7_r251_r160_r50_regions.gpkg'))     
-if not hb.path_exists(p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path):         
-    hb.log('Creating ' + p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path)         
-    "computationally expensive thing here."
-```
-
-ProjectFlow very carefully defines whether or not you should run something based on the existence of specific paths. Usually this is just checking for each written path and only executing the code if it's missing, but in some cases where lots of files are created, it's possible to take the shortcut of just checking for the existence of the last-created path.
-
-### Eliminating redundant calculation across projects
-
-If you have a time consuming task that, or example, writes to
-
-```{python}
-#| eval: false
-big_file_path = hb.get_path('lulc', 'esa', 'seals7', 'convolutions', '2017', 'convolution_esa_seals7_2017_cropland_gaussian_5.tif' )
-```
-
-In this example, suppose you needed to create this file via your create_convolutions() task or something. When you first do this, it obviously won't exist yet, so get_path() will join that relative path in the p.cur_dir location. If you run the ProjectFlow again, it will see it's there and then instantly skip recalcualting it.
-
-In addition to the 5 repos plus the EE repo, there is a managed base data set stored in teh same location
-
-![](images/paste-25.png)
-
-A ProjectFlow object must have a base_data_dir set (I think...). This is because the p.get_path() will look in this folder for it, and/or will download to it.
-
-![](images/paste-26.png)
-
-### Python Tips and Conventions
-
-For large files that take a long time to load, use a string-\>dataframe/dataset substitution as below. Make a LOCAL variable to contain the loaded object, and have that be assigned to the correct project-level path string. In subsequent usages, check type and if it's still a string, then it hasn't been loaded yet, so do that. I'm debating making it a project level variable trick
-
-```{python}
-#| eval: false
-gadm = p.gadm_adm0_vector_input_path    
-
-# Just load it on first pass
-if type(gadm) is str:
-    gadm = hb.read_vector(p.gadm_adm0_vector_input_path)
-```
+the feature_test and develop branches are now identical. You could now delete feature_test and nothing would be lost. Now, the develop branch is ready for a user to use and/or make new branches off of.
+# End
