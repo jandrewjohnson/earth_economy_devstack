@@ -252,7 +252,7 @@ This would generate the following task tree:
 
 Two notations are especially useful within this task tree.
 
-1.  Within the function that defines a task, p.cur_dir points to the directory of that task. So for instance, the last task defined in the image above, in its code, you could reference p.cur_dir, and it would point to `<project_root>/econ_vizualization/econ_lcovercom`
+1.  Within the function that defines a task, p.cur_dir points to the directory of that task. So for instance, the last task defined in the image above, in its code, you could reference p.cur_dir, and it would point to `<project_root>/econ_visualization/econ_lcovercom`
 2.  Outside of a given function's code, you can still refer to paths that were defined from within the functions code, but now (because you are outside the function) it is given a new reference. Using the example above, you could reference the same directory with `p.econ_lcovercom_dir` where the p attribute is named exactly as \<function_name\>\_dir
 
 All of this setup enable another useful feature: automatic management of file generation, storage and downloading. This is done via the hazelbean function:

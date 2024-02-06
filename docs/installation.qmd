@@ -1,18 +1,230 @@
 # Installation
 
-## Python Installation
+The Earth Economy Devstack is a specific way of organizing files, VS Code workspaces, local development repositories and preconfigured launch configurations that let a user contribute to NatCap TEEMs projects. This document contains:
 
--   Install Mambaforge from <https://github.com/conda-forge/miniforge#mambaforge>
--   For convenience, during installation, I select yes for "Add Mambaforge to my PATH environment Variable"
--   (PC) Open the Miniforge Prompt (search for it in the start menu) or (Mac) just type "mamba init"
--   Create a new mamba environment with the following commands (here it is named env2023a):
+1.  A quickstark installation guide for installing the Earth Economy Devstack which assumes a basic understanding of the command line and Python.
 
-`mamba create -n env2023a -c conda-forge`
+2.  A detailed step-by-step installation guide of Python, Git, QGIS and other related software.
 
--   Activate the environment
+Both sections will discuss putting files in specific locations relative to your user directory. If followed exactly, this will allow the multiple repositories to work together as intended. Other file organization schemes are possible, but will require manual configuration of the launch configurations and other settings.
 
-`mamba activate research2023a`
+## Quickstart Installation
 
--   Install libraries using the mamba command:
+### Install Git
+
+-   Install and run the installer for your operating system at \<Git-scm.com/downloads\>
+
+### Create a python environment
+
+1.  Install Miniforge from <https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3> - Be sure to select the correct version for your operating system (Windows, Mac, Linux)
+
+    -   If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option). - Install in `C:\Users\<YOUR_USERNAME>\miniforge3` (PC) or `~/miniconda3` (Mac) - During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable" - If you get a “Windows Protected your PC”, click more info then Run Anyway.
+
+2.  Open the Miniforge Prompt (PC only, search for it in the start menu) or just type "mamba init" in a new terminal/command line
+
+3.  Create a new mamba environment with the following commands (putting your desired environment name in place of `<env_name>`):
+
+`mamba create -n <env_name> -c conda-forge`
+
+4.  Activate the environment
+
+`mamba activate <env_name>`
+
+5.  Install libraries using the following mamba command:
 
 `mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm`
+
+-   If you don't add mamba to your path, you can do this manually. On PC, you could use the command
+    -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge;C:\Users\<YOUR_USERNAME>\miniforge;"`
+
+### Clone the Earth Economy Devstack
+
+-   Create a directory for the Earth Economy Devstack at `C:\Users\<YOUR_USERNAME>\Files` (PC) or `~/Files` (Mac)
+    -   We add a Files directory to keep the root directory clean and to make it easier to find the Earth Economy Devstack in the file explorer.
+-   Open a terminal or command prompt and navigate to the directory you created
+-   Run the git clone command to clone the Earth Economy Devstack repository
+    -   `git clone https://github.com/jandrewjohnson/earth_economy_devstack`
+
+### Install Visual Studio Code (VS Code)
+
+-   Install from \<code.visualstudio.com/download\>
+    -   For PC, I recommend selecting the “User Installer”, 64-bit option for windows.
+    -   Use the default install options with the exception of the two that start with “Add Open with Code” action…
+
+### Open the Earth Economy Devstack in VS Code workspace
+
+-   Navigate to the directory where you cloned the Earth Economy Devstack
+    -   In the repository, there is a file called `earth_economy_devstack.code-workspace`. Launch this.
+        -   If configured correctly, the full path would be `C:\Users\<YOUR_USERNAME>\Files\earth_economy_devstack\earth_economy_devstack.code-workspace` (PC) or `~/Files/earth_economy_devstack/earth_economy_devstack.code-workspace` (Mac)
+-   The workspace file adds a bunch of different repositories to the workspace (which you will need to git clone in to where the workspace says they should be)
+-   The workspace also sets up a bunch of launch configurations for debugging and running code using the respositories in your workspace
+
+### Configure VS CODE
+
+-   Install required extensions
+    -   Install the Python extension in VS Code
+        -   Click on the extensions icon in the left sidebar
+        -   Search for Python and install the one by Microsoft
+    -   Install Quarto extension in VS Code
+    -   Install GitGraph extension in VS Code
+-   Sign in to VS Code with your GitHub account
+    -   Click on the account icon in the bottom left corner of the window and follow prompts
+
+## Step by Step Installation
+
+### Install Git
+
+-   Get the git software
+    -   Install and run the installer for your operating system at \<Git-scm.com/downloads\>
+    -   ![](images/2024-02-02-10-18-28.png)
+-   Git vs. GitHub
+    -   Github is a website that hosts code and connects a community of coders.
+    -   Git is a “version control” software tool that records the history of files in a Git repository.
+    -   Nearly every coder uses Git to push their repository of code to GitHub.
+-   Use the default options for everything
+    -   Unless you REALLY know what you’re doing.
+
+#### Verify Git Installation
+
+-   Open up the command prompt and type `git` to test that it’s installed
+    -   (PC) Search for `cmd` in the start menu
+-   This is the OG way of working on computers
+-   ![](images/2024-02-02-10-20-40.png)
+-   All version control tasks can be done via git commands here, but we will be using VS Code instead
+
+### Create a python environment
+
+1.  Install Miniforge from <https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3> - Be sure to select the correct version for your operating system (Windows, Mac, Linux)
+
+    -   ![](images/2024-02-02-10-32-25.png)
+    -   If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option).
+    -   Install in `C:\Users\<YOUR_USERNAME>\miniforge3` (PC) or `~/miniconda3` (Mac)
+        -   ![](images/2024-02-02-10-33-41.png)
+    -   During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable"
+        -   ![](images/2024-02-02-10-34-43.png)
+    -   If you get a “Windows Protected your PC”, click more info then Run Anyway.
+
+2.  Open the Miniforge Prompt (PC only, search for it in the start menu) or just type "mamba init" in a new terminal/command line
+
+-   ![](images/2024-02-02-10-35-25.png)
+-   You’ll know it worked if you see (base) in front of your path
+    -   Base is the default “environment” that you will use.
+
+3.  Create a new mamba environment with the following commands (putting your desired environment name in place of `<env_name>`):
+
+`mamba create -n <env_name> -c conda-forge`
+
+```         
+- When you have lots of projects, most people create multiple environments specific to each project. 
+- For now, we’re going to install everything to the base environment
+```
+
+4.  Activate the environment
+
+`mamba activate <env_name>`
+
+```         
+- You’ll know it worked if you see (env_name) in front of your path
+- You can deactivate the environment with `conda deactivate`
+- ![](images/2024-02-02-10-39-21.png)
+- You can list all environments with `conda env list`
+```
+
+5.  Install libraries using the following mamba command:
+
+`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm`
+
+-   If you don't add mamba to your path, you can do this manually. On PC, you could use the command
+    -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge;C:\Users\<YOUR_USERNAME>\miniforge;"`
+-   This step may take a long time because you are downloading and installing hundreds of libraries
+    -   ![](images/2024-02-02-10-41-29.png)
+-   When you’re done, it should look like the image here.
+    -   ![](images/2024-02-02-10-41-40.png)
+-   Success! You now have a modern scientific computing environment (sometimes called a scientific computing stack) on your computer!
+
+### Clone the Earth Economy Devstack
+
+-   Create a directory for the Earth Economy Devstack at `C:\Users\<YOUR_USERNAME>\Files` (PC) or `~/Files` (Mac)
+    -   We add a Files directory to keep the root directory clean and to make it easier to find the Earth Economy Devstack in the file explorer.
+-   Open a terminal or command prompt and navigate to the directory you created
+    -   By default, your terminal will open in your user directory, so `C:\Users\<YOUR_USERNAME>`
+    -   You can navigate to the directory you created with the command `cd Files`
+        -   See image below.
+-   Run the git clone command to clone the Earth Economy Devstack repository
+    -   `git clone https://github.com/jandrewjohnson/earth_economy_devstack`
+    -   ![](images/2024-02-02-10-47-53.png)
+
+### Install Visual Studio Code (VS Code)
+
+-   Install from \<code.visualstudio.com/download\>
+    -   For PC, I recommend selecting the “User Installer”, 64-bit option for windows.
+        -   ![](images/2024-02-02-10-48-50.png)
+    -   Use the default install options with the exception of the two that start with “Add Open with Code” action…
+        -   ![](images/2024-02-02-10-49-13.png)
+-   You could just open VS Code now, but we're going to open it up with a specific Worspace Configuration file below
+
+### Open the Earth Economy Devstack in VS Code workspace
+
+-   Navigate to the directory where you cloned the Earth Economy Devstack
+    -   In the repository, there is a file called `earth_economy_devstack.code-workspace`. Launch this.
+        -   If configured correctly, the full path would be `C:\Users\<YOUR_USERNAME>\Files\earth_economy_devstack\earth_economy_devstack.code-workspace` (PC) or `~/Files/earth_economy_devstack/earth_economy_devstack.code-workspace` (Mac)
+-   The workspace file adds a bunch of different repositories to the workspace (which you will need to git clone in to where the workspace says they should be)
+    -   ![](images/2024-02-02-10-52-14.png)
+-   The workspace also sets up a bunch of launch configurations for debugging and running code using the respositories in your workspace
+    -   ![](images/2024-02-02-10-53-03.png)
+    -   We'll describe debugging more in future sections
+        -   For now, just know that these launch configurations make sure you're using the repositories that we've added to your workspace
+-   Also note that the other repositories shown in the VS Code file explorer will be empty until you git clone them (described below)
+
+### Configure VS CODE
+
+-   Sign in to VS Code with your GitHub account
+    -   Click on the account icon in the bottom left corner of the window and follow prompts
+-   Install required extensions
+    -   Install the Python extension
+        -   Click on the extensions icon in the left sidebar
+        -   Search for Python and install the one by Microsoft
+        -   ![](images/2024-02-02-10-56-46.png)
+    -   Install Quarto extension in VS Code
+        -   We use Quarto to create reports and documents on .qmd, .md and .ipynb files
+            -   You can edit in source mode:
+                -   ![](images/2024-02-02-10-58-06.png)
+            -   Or you can press ctrl+shift+f4 to use the visual editor
+                -   ![](images/2024-02-02-10-59-17.png)
+    -   Install Git Graph extension in VS Code
+        -   Once installed, click the Git Graph button on the bottom-left status bar to see a visual representation of your git history
+        -   ![](images/2024-02-02-11-00-52.png)
+
+### Organize Directories for the devstack
+
+-   The Earth Economy Devstack organizes repositories in a specific way, described here.
+    -   Recall that our workspace links to e.g. the hazelbean_dev repository, but it currently points to a directory that doesn't yet exist.
+        -   In our Files directory, create a directory named `hazelbean` (not `hazelbean_dev` as that will be the repository's name)
+            -   ![](images/2024-02-02-11-21-00.png)
+        -   Below, we will use git to clone the `hazelbean_dev` into this directory we just created
+            -   ![](images/2024-02-02-11-22-30.png)
+
+### Clone the required repositories
+
+-   Instead of using the command line, we will use Git via VS Code's "Command Pallate"
+    -   The Command Pallate is accessed via <ctrl-shift-p>
+    -   It is a search bar that you can use to run commands in VS Code
+-   Once you've opened the Command Pallate, type "git clone" and it will search for the command
+    -   ![](images/2024-02-02-11-06-51.png)
+-   Once you select the command, it will prompt you if you want to write in your Repo's GitHub URL manually, or you can use VS Code to search the different repositories you have access to
+    -   ![](images/2024-02-02-11-08-06.png)
+-   Searching via GitHub found, for instance, NatCapTEEMs/gep repo
+    -   ![](images/2024-02-02-11-08-54.png)
+-   Once you select that, it will ask you what local directory you want to clone the repository to.
+    -   By default it assumes you want to clone it to your user directory as below
+        -   ![](images/2024-02-02-11-10-18.png)
+    -   We instead want to clone it to the `hazelbean` directory we created earlier, which will put a new folder `hazelbean_dev` in that directory
+    -   To do this, navigate to the hazelbean directory and select it
+        -   ![](images/2024-02-02-11-26-55.png)
+-   After you've cloned a repository, you can now access it in the file explorer
+    -   ![](images/2024-02-02-11-27-57.png)
+
+### Repeat the cloning approach with all the repos you need
+
+-   If you are a member of NatCap TEEMs or the JohnsonPolaskyLab, you should have access to these repositories via our GitHub organization
+-   If you're not a member, you will still be able to clone all of the public repositories (which are all documented in various journal articles)
