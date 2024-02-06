@@ -1,0 +1,58 @@
+project:
+  type: book 
+  output-dir: 'HTML_docs'
+
+book:
+  title: "Justin Andrew Johnson"
+  navbar:
+    left:
+      - text: Index
+        file: index.md
+      - text: installation 
+        file: installation.qmd        
+      - text: earth_economy_devstack
+        file: earth_economy_devstack.qmd
+      # - text: GTAP-InVEST
+      #   menu:
+      #     - text: "GTAP-InVEST Home"
+      #       file: gtap_invest/index.qmd
+      #     - text: "User Guide"
+      #       file: gtap_invest/user_guide/index.qmd
+      #     - text: "Results"
+      #       file: gtap_invest/results/index.qmd
+      - text: projectflow_quickstart
+        file: projectflow_quickstart.ipynb
+      - text: hazelbean
+        file: hazelbean.qmd        
+
+      - text: how_to_contribute   
+        file: how_to_contribute.qmd           
+      - text: seals
+        file: seals.qmd
+   
+
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\project_flow.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\conventions.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\qtap_invest.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\global_invest.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\seals.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\gtappy.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\hazelbean.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\installation.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\how_to_contribute.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\organization.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\introduction.qmd"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\projectflow_quickstart.ipynb"
+# "C:\Users\jajohns\Files\earth_economy_devstack\docs\earth_economy_devstack.qmd"
+
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+editor: visual
+
+
+

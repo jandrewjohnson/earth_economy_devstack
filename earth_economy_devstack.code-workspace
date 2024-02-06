@@ -17,6 +17,14 @@
 		},
 		{
 			"path": "../seals/seals_dev"
+		},
+		{
+			"name": "apec_8601_2022",
+			"path": "../apec_8601/apec_8601_2022"
+		},
+		{
+			"name": "apec_8601_2022-1",
+			"path": "../apec_8601/apec_8601_2022-1"
 		}
 	],
 	"settings": {
