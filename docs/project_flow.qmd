@@ -1,5 +1,4 @@
-
-# Make consistent with projecflow_quickstart
+# ProjectFlow
 
 ## Iterating over many model assumptions
 

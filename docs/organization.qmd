@@ -1,4 +1,4 @@
-# Overall Organization
+# Organization
 
 ## Getting the earth_economy_devstack repository
 

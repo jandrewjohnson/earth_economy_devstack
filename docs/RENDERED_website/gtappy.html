@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Justin Andrew Johnson</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Justin Andrew Johnson</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./gtappy.html" aria-current="page"> 
+<span class="menu-text">gtappy</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./hazelbean.html"> 
+<span class="menu-text">hazelbean</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./how_to_contribute.html"> 
+<span class="menu-text">how_to_contribute</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">index</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./installation.html"> 
+<span class="menu-text">installation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./project_flow.html"> 
+<span class="menu-text">project_flow</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./organization.html"> 
+<span class="menu-text">organization</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./seals.html"> 
+<span class="menu-text">seals</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./conventions.html"> 
+<span class="menu-text">conventions</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#gtappy" id="toc-gtappy" class="nav-link active" data-scroll-target="#gtappy">GTAPPy</a>
+  <ul class="collapse">
+  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">Installation</a>
+  <ul class="collapse">
+  <li><a href="#cython-installation" id="toc-cython-installation" class="nav-link" data-scroll-target="#cython-installation">Cython Installation</a></li>
+  <li><a href="#run-gtap-installation-simple-for-class" id="toc-run-gtap-installation-simple-for-class" class="nav-link" data-scroll-target="#run-gtap-installation-simple-for-class">Run-GTAP installation simple for class</a></li>
+  </ul></li>
+  <li><a href="#cgtpag2aggstoregtap10a_gtap_2014_65x141gtapv7" id="toc-cgtpag2aggstoregtap10a_gtap_2014_65x141gtapv7" class="nav-link" data-scroll-target="#cgtpag2aggstoregtap10a_gtap_2014_65x141gtapv7"><code>C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7</code></a></li>
+  <li><a href="#iterating-over-multiple-aggregations" id="toc-iterating-over-multiple-aggregations" class="nav-link" data-scroll-target="#iterating-over-multiple-aggregations">Iterating over multiple aggregations</a></li>
+  <li><a href="#release-notes" id="toc-release-notes" class="nav-link" data-scroll-target="#release-notes">Release notes</a>
+  <ul class="collapse">
+  <li><a href="#v2023-12-18" id="toc-v2023-12-18" class="nav-link" data-scroll-target="#v2023-12-18">v2023-12-18</a></li>
+  <li><a href="#v2023-12-15" id="toc-v2023-12-15" class="nav-link" data-scroll-target="#v2023-12-15">v2023-12-15</a></li>
+  <li><a href="#v2023-11-01" id="toc-v2023-11-01" class="nav-link" data-scroll-target="#v2023-11-01">v2023-11-01</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="gtappy" class="level1">
+<h1>GTAPPy</h1>
+<section id="installation" class="level2">
+<h2 class="anchored" data-anchor-id="installation">Installation</h2>
+<section id="cython-installation" class="level3">
+<h3 class="anchored" data-anchor-id="cython-installation">Cython Installation</h3>
+<p><img src="images/paste-3.png" class="img-fluid"></p>
+<p><img src="images/paste-4.png" class="img-fluid"></p>
+<p><img src="images/paste-5.png" class="img-fluid"></p>
+<p><img src="images/paste-6.png" class="img-fluid"></p>
+<p><img src="images/paste-8.png" class="img-fluid"></p>
+<p><img src="images/paste-9.png" class="img-fluid"></p>
+<p><img src="images/paste-10.png" class="img-fluid"></p>
+</section>
+<section id="run-gtap-installation-simple-for-class" class="level3">
+<h3 class="anchored" data-anchor-id="run-gtap-installation-simple-for-class">Run-GTAP installation simple for class</h3>
+<p><strong>Step 1:</strong></p>
+<ul>
+<li><p>Install RunGTAP at <a href="https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp" class="uri">https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp</a></p></li>
+<li><p>At <a href="https://www.copsmodels.com/gpeidl.htm" class="uri">https://www.copsmodels.com/gpeidl.htm</a> download: <a href="https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe" class="uri">https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe</a>&nbsp;</p>
+<ul>
+<li>OR FOR VERSION 12: <a href="https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe" class="uri">https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe</a></li>
+</ul></li>
+<li><p>Install to default location</p></li>
+</ul>
+<p><img src="images/paste-13.png" class="img-fluid"></p>
+<p>Proceed without selecting a license (to start the 6 month trial).</p>
+<p><strong>Step 2:</strong> Install GTAPAgg2: <a href="https://www.gtap.agecon.purdue.edu/private/secured.asp?Sec_ID=1055" class="uri">https://www.gtap.agecon.purdue.edu/private/secured.asp?Sec_ID=1055</a></p>
+<p>TO PROCEED, YOU NEED TO HAVE A ACCESS TO THE GTAP DATABASE. OR YOU CAN ACCESS IT THROUGH <code>ee_internal</code> DATABASE.</p>
+<hr>
+<p><strong>Step 2.1:</strong> - Extract the <code>.lic</code> file from <a href="https://www.gtap.agecon.purdue.edu/databases/download.asp" class="uri">https://www.gtap.agecon.purdue.edu/databases/download.asp</a> step 2. Put this in <code>GTAPAgg2</code> dir</p>
+<p><strong>Step 2.2:</strong> - Install the GTAP Database itself from at : <a href="https://www.gtap.agecon.purdue.edu/databases/download.asp" class="uri">https://www.gtap.agecon.purdue.edu/databases/download.asp</a></p>
+<ul>
+<li>Make sure to also get the AEZ version, which will also give a full pkg file.</li>
+</ul>
+<p><img src="images/paste-11.png" class="img-fluid"></p>
+<ul>
+<li><p>Put this <code>.pkg</code> file in <code>GTPAg2</code> dir.&nbsp;</p></li>
+<li><p>Launch GTPAg2, identify pkg file for both default and AEZ data</p></li>
+</ul>
+<p>When running aggregations, make sure to choose the right product:</p>
+<p><img src="images/paste-12.png" class="img-fluid"></p>
+<p><strong>Step 2.3:</strong> Running the unaggregated version - Open GTPAg2.exe</p>
+<p><img src="images/paste-14.png" class="img-fluid"></p>
+<ul>
+<li><p>Use this to aggregate a 1-1 version.</p>
+<ul>
+<li><p>Create a 1-1 mapping</p>
+<ul>
+<li><p>View change regional aggregation, sector aggregation, setting to 1:1</p></li>
+<li><p>For factor aggregation, it defaults to 8-5, can set this to 8:8.</p></li>
+</ul></li>
+<li><p>Read aggregation scheme from file, loa default.agg is 10 by 10</p></li>
+<li><p>For factors, if using AEZ, there is land specified by each AEZ. Erwin is working to fix this. Because didn’t have it ready, went back to standard GTAP package of data.</p></li>
+<li><p>Used full 8 factors, make new things “mobile factors”.</p></li>
+</ul></li>
+</ul>
+<!-- -->
+<ul>
+<li>Save aggregation scheme to file to AggStore</li>
+</ul>
+<p><img src="images/paste-15.png" class="img-fluid"></p>
+<p>Save aggregation scheme to file to AggStore</p>
+<p><img src="images/paste-17.png" class="img-fluid"></p>
+<p>This could also be done by making the .agg file via text editing.&nbsp;</p>
+<ul>
+<li>Then finally Create aggregated database in GTAPAgg</li>
+</ul>
+<p><img src="images/paste-18.png" class="img-fluid"></p>
+<p>Note that this creates two versions of the database, one for GTAP code v6.2, one for v7.0. The 7.0 is in a sub zip folder gtapv7.zip. This is the one we want.</p>
+</section>
+</section>
+<section id="cgtpag2aggstoregtap10a_gtap_2014_65x141gtapv7" class="level2">
+<h2 class="anchored" data-anchor-id="cgtpag2aggstoregtap10a_gtap_2014_65x141gtapv7"><code>C:\\GTPAg2\\AggStore\\GTAP10A_GTAP_2014_65x141\\gtapv7</code></h2>
+<p><strong>Getting the v7 code</strong></p>
+<ul>
+<li><p>Extract from RunGTAP (lol)</p></li>
+<li><p>Under Version, Change, set to <code>NCORS3x3</code></p></li>
+<li><p>Under Version, New, use wizard using same aggregation and simply copying.</p></li>
+</ul>
+<p><img src="images/paste-19.png" class="img-fluid"></p>
+<ul>
+<li><p>This will create a new folder in c:/runGTAP375 named v7all.</p></li>
+<li><p>Now we will replace the data files in v7all with the fully disaggregated database (in the v7 dir) we created above.</p></li>
+<li><p>Notice also in the v7dir we have shock files, e.g.&nbsp;<code>tinc.shk</code>.&nbsp;</p>
+<ul>
+<li><p>By default, these will be inherited from the old 3x3 version.</p></li>
+<li><p>Under Tools, Run Test Simulation. This will rewrite new shk files to match aggregation.</p>
+<ul>
+<li>ALSO NOTE, this is the full run that tested it all worked.</li>
+</ul></li>
+<li><p>To check that it worked, go to results, macros.&nbsp;</p></li>
+<li><p>Or, could open results in <code>ViewSOL</code>. Use View -&gt; Results Using ViewSOL</p>
+<ul>
+<li><p><code>ViewSOL</code> has the full results, whereas RunGTAP only has a subset by the limited mapping specific to <code>RunGTAP</code>. <code>ViewSOL</code> loads the whole <code>sl4</code> file.</p></li>
+<li><p>Here you could go to e.g.&nbsp;<code>pgdp</code> to see that prices all went up by 10%, which is the default shock i guess?</p></li>
+</ul></li>
+<li><p>OR, from <code>ViewSOL</code> File, can open in <code>ViewHAR</code>, which gives even more power, such as dimensional sorting.</p></li>
+</ul></li>
+<li><p>Now we can run a non-trivial shock. So for global ag productivity shock, let’s increase productivity.</p>
+<ul>
+<li><p>In <code>RunGTAP</code>, go to view <code>RunCMFSTART</code> file. Here we will define a new set for the new experiments. (<code>CMFSTART</code> files sets settings for runtime, but also which are the files that should be called, along with sets for the closure).</p>
+<ul>
+<li><p>To do this, go to <code>RunGTAP-\&gt;View-\&gt;Sets</code>, enable advanced editing, <code>Sets-\&gt;View Set Library</code></p>
+<ul>
+<li><p>Here click on <code>COMM</code>, copy elements in <code>tablo</code> format. This will get the set definition in <code>tablo</code> format of ALL the commodities. From this you can pare down to which you want to shock,</p></li>
+<li><p>For the moment, we will create two sets, one for ag commodities (<code>ag_comm</code>), and one for a smaller subset of agg commodities (<code>ag_comm_sm</code>).</p></li>
+<li><p>And will also define what is the complementary set (<code>xag_comm_sm</code>) of <code>ag_comm_sm</code>.</p></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+<p><img src="images/paste-20.png" class="img-fluid"></p>
+<p>Now that the sets are defined, can use them in defining the SHOCKS</p>
+<p><img src="images/paste-21.png" class="img-fluid"></p>
+<ul>
+<li><p>Set the solution method to <code>gragg 2-4-6</code></p></li>
+<li><p>Save experiment.</p></li>
+<li><p>Then Solve!</p>
+<ul>
+<li>Comment from TOM: If Gragg doesn’t work, use Euler with many steps 20-50</li>
+</ul></li>
+</ul>
+<p><strong>From second call with Erwin on cmd and rungtap versions</strong></p>
+<ul>
+<li><p>Note that now we have a tax, we do it on both domestic and imported, then write a new equation that makes them sum up:&nbsp;</p>
+<ul>
+<li>E_tpm (all, c, COMM)(all, r, REG) tmp(c, r) = tpmall + tpreg + tpall</li>
+</ul></li>
+<li><p>Note that we now set the rate% of beef tax to increase 50%. Before we were increasing it by a 50% POWER OF THE tariff.</p></li>
+<li><p>First run testsim.bat.</p></li>
+<li><p>Then run the simulations.</p></li>
+<li><p>In rungtapv7.bat then,&nbsp;</p></li>
+<li><p>Simresults.bat last. Takes the sl4 files and converts it into a har file (.sol), and then combines them into 1 file, then splits to CSV.</p></li>
+<li><p>RMAC is full dimension, RMCA is aggregated by chosen aggregation simplification.</p>
+<ul>
+<li>AggMap.har defines the aggregation.</li>
+</ul></li>
+<li><p>Them Allres.CMF is run, which actually does the aggregation.</p>
+<ul>
+<li>Allres.cmf calls to allres.tab, which cleans the results. This would need to have new scenarios added to the top</li>
+</ul></li>
+<li><p>Allres.EXP also needs to be updated, along with the scenario EXP files to h</p></li>
+<li><p>ave thecorrect exogenous variables, such as tpdall</p></li>
+</ul>
+<p><strong>alternatively just specify they use hb.get_path() to the private database.</strong></p>
+</section>
+<section id="iterating-over-multiple-aggregations" class="level2">
+<h2 class="anchored" data-anchor-id="iterating-over-multiple-aggregations">Iterating over multiple aggregations</h2>
+<p>GTAPPY runs for multiple aggregations and follows the philosophy that for a well-built model, the results will be intuitively similar for different aggregations and thus it serves as a decent check. This is similar to “leave-one-out” testing in regression.</p>
+</section>
+<section id="release-notes" class="level2">
+<h2 class="anchored" data-anchor-id="release-notes">Release notes</h2>
+<section id="v2023-12-18" class="level3">
+<h3 class="anchored" data-anchor-id="v2023-12-18">v2023-12-18</h3>
+<p>We need to clarify how we go from a erwin-style mapping xlsx to EE spec. Below is what it looks like as downloaded from erwin.</p>
+<p>GTAP-ctry2reg [source from erwin converted to EE spec].xlsx</p>
+<p><img src="images/paste-1.png" class="img-fluid"></p>
+<p>Manually renamed to gtapv7_r251_r160_correspondence.xlsx (must be excel cause multi workbook). Also need to put the legend information somewhere else in a well-thought-out place (not attached to regions correspondnce)</p>
+<p>Note that eg No.&nbsp;is used twice where the first is r160 and the second is r251. New input mapping should clarify</p>
+<p>Similar for sectors</p>
+<p><img src="images/paste-2.png" class="img-fluid"></p>
+<p>First note, the word “sector” is specific to the case when you aren’t specifying if you’re talking about COMM (commodities) or ACTS (activities) because I’m not quite sure of the differentiation at this point.</p>
+<p>Notes from Erwin on GTAPPY</p>
+</section>
+<section id="v2023-12-15" class="level3">
+<h3 class="anchored" data-anchor-id="v2023-12-15">v2023-12-15</h3>
+<p>Issues resolved:</p>
+<ol type="1">
+<li><p>In the release’s Data folder, the aggregation label gtapaez11-50 should be renamed v11-s26-r50, correct?</p></li>
+<li><p>Also note that I have decided to have the most recent release always have NO timestamp whereas dated versions of same-named models/aggregations should add on the timestamp of when they were first released</p></li>
+<li><p>Propose changing the names of the cmf files from cwon_bau.cmf to gtapv7-aez-rd_bau.cmf and cwon_bau-es.cmf to gtapv7-aez-rd_bau-es (note difference between hyphens (which imply same-variable) and underscores, which are used to split into list.)</p></li>
+<li><p>Propose not using set PROJ=cwon in the CMF as that is defined by the projectflow object.</p></li>
+<li><p>propose changing SIMRUN to just ‘experiment_name’ ie “bau” rather than “projname” + “bau”</p></li>
+<li><p>Reorganize this so that data is in the base_data_dir and the output is separated from the code release” set MODd=..set CMFd=.</p></li>
+</ol>
+<p>set SOLd=..set DATd=..%AGG%</p>
+<p>THESE TWO STAY OUTSIDE THE RELEASE</p>
+<ol start="7" type="1">
+<li><p>This basic idea now is that there is a release that someone downloads, and they could run it either by calling the bat file or by calling the python run script. This means i’m trying to make the two different file types as similar as possible. However, note that the bat file is only going to be able to replicate a rd run without ES, so technically the python script can contain a bat file but not vice versa.</p></li>
+<li><p>Renamce command line cmf options as tehy’re referenced in the cmf file: # CMF: experiment_label # Rename BUT I understand this one might not be changeable because it appears to be defined by the filename of the CMF? # p1: gtap_base_data_dir # p2: starting_data_file_path # Rename points to the correct starting har # p3: output_dir # Rename # p4: starting_year # Rename # p5: ending_year # Rename</p></li>
+<li><p>Simple question: Is there any way to read the raw GEMPACK output to get a sense of how close to complete you are? I would like to make an approximate progress bar.</p></li>
+</ol>
+<ul>
+<li><p>When you say “automatic accuracy”, you can.</p>
+<p>+++&gt; Beginning subinterval number 4.</p>
+<p>—&gt; Beginning pass number 1 of 2-pass calculation, subinterval 4.</p>
+<p>Beginning pass number 6 of 6-pass calculation, subinterval 6</p></li>
+</ul>
+<ol start="10" type="1">
+<li>Would it be possible to not put a Y in front of years like Y2018? This can mess up string-&gt;int conversions.</li>
+</ol>
+<p>keep Y, gempack can’t have non-numeric characters at the start of a var</p>
+<ol start="11" type="1">
+<li>There is no bau-SUM_Y2050 (but ther is for VOL and WEL). Is this intentional?</li>
+</ol>
+<p>NO! SUM describes the starting database.</p>
+<p>Welfare not possibly in RD because no discount rate eg</p>
+<ol start="12" type="1">
+<li>Question: Is EVERYTHING stored in the SL4? I.e., are the other files redundant?</li>
+</ol>
+<p>No, apparently things like the converting the sl4 to volume terms is not stored in the sl4, so that needs to come in on sltht or in ViewSOL</p>
+</section>
+<section id="v2023-11-01" class="level3">
+<h3 class="anchored" data-anchor-id="v2023-11-01">v2023-11-01</h3>
+<section id="shocks-implemented" class="level4">
+<h4 class="anchored" data-anchor-id="shocks-implemented">Shocks implemented</h4>
+<ol type="1">
+<li>Different population file replacements</li>
+<li>GDP change</li>
+<li>Yield changes?</li>
+</ol>
+</section>
+<section id="example-run-file" class="level4">
+<h4 class="anchored" data-anchor-id="example-run-file">Example run file</h4>
+<p><img src="images/2022-12-12-10-31-05.png" class="img-fluid"></p>
+<p>At the top we create the project flow object. We will add tasks to this.</p>
+</section>
+<section id="example-executable-call" class="level4">
+<h4 class="anchored" data-anchor-id="example-executable-call">Example executable call</h4>
+<p><img src="images/2022-12-12-10-33-44.png" class="img-fluid"></p>
+</section>
+<section id="harder-part-to-do-is-figuring-out-how-to-have-the-shocks-work" class="level4">
+<h4 class="anchored" data-anchor-id="harder-part-to-do-is-figuring-out-how-to-have-the-shocks-work">Harder part to do is figuring out how to have the shocks work</h4>
+<p>Need to create xSets, xSubsets, Shock. Could use READFROMFILE command in tablo cmf.</p>
+</section>
+<section id="what-are-the-different-kinds-of-shocks" class="level4">
+<h4 class="anchored" data-anchor-id="what-are-the-different-kinds-of-shocks">What are the different kinds of shocks</h4>
+<p><strong>Uniform</strong> Shockaoall(AGCOM_SM, reg) = uniform 20;</p>
+<p>Another more</p>
+<p>aoall(ACTS, REG) = file select from file pointing to a list of all regions. 0 is no shock.</p>
+<p>Everything in the exogenous list can be shocks.</p>
+<p>Also can SWAP an initially endogenous with exogenous.</p>
+<p>E.g. swap aoreg with GDP</p>
+<p>What about changing an elasticity?</p>
+<p>those are in gtapparm, so write a new .prm (this is not a shock but is just replacing an input.)</p>
+<p>Notice that there are shocks vs data updates.</p>
+<p>The elasticities are being calibrated??? if you change the basedata to basedata2, then a different default2.prm, with no shock, the model will replicate the initial database.</p>
+<p>If it’s a supply response elasticity (as in PNAS) that WILL affect it (unlike above).</p>
+<p>needs to be percentage change over default POP. In base data. Read this in and process it against Eric’s file.</p>
+<p>Shock pop(REG) = SELECT FROM FILE filename header 4ltr header. Swap QGDP aoreg shock aoall (agcom_sm, reg) = select from yield file.</p>
+
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

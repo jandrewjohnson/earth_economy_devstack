@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Justin Andrew Johnson</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Justin Andrew Johnson</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./gtappy.html"> 
+<span class="menu-text">gtappy</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./hazelbean.html"> 
+<span class="menu-text">hazelbean</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./how_to_contribute.html"> 
+<span class="menu-text">how_to_contribute</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
+<span class="menu-text">index</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./installation.html"> 
+<span class="menu-text">installation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./project_flow.html"> 
+<span class="menu-text">project_flow</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./organization.html"> 
+<span class="menu-text">organization</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./seals.html"> 
+<span class="menu-text">seals</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./conventions.html"> 
+<span class="menu-text">conventions</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./installation.html">Installation</a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Earth-Economy Devstack</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./installation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Installation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./project_flow.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ProjectFlow</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#installation" id="toc-installation" class="nav-link active" data-scroll-target="#installation">Installation</a>
+  <ul class="collapse">
+  <li><a href="#quickstart-installation" id="toc-quickstart-installation" class="nav-link" data-scroll-target="#quickstart-installation">Quickstart Installation</a>
+  <ul class="collapse">
+  <li><a href="#install-git" id="toc-install-git" class="nav-link" data-scroll-target="#install-git">Install Git</a></li>
+  <li><a href="#create-a-python-environment" id="toc-create-a-python-environment" class="nav-link" data-scroll-target="#create-a-python-environment">Create a python environment</a></li>
+  <li><a href="#clone-the-earth-economy-devstack" id="toc-clone-the-earth-economy-devstack" class="nav-link" data-scroll-target="#clone-the-earth-economy-devstack">Clone the Earth Economy Devstack</a></li>
+  <li><a href="#install-visual-studio-code-vs-code" id="toc-install-visual-studio-code-vs-code" class="nav-link" data-scroll-target="#install-visual-studio-code-vs-code">Install Visual Studio Code (VS Code)</a></li>
+  <li><a href="#open-the-earth-economy-devstack-in-vs-code-workspace" id="toc-open-the-earth-economy-devstack-in-vs-code-workspace" class="nav-link" data-scroll-target="#open-the-earth-economy-devstack-in-vs-code-workspace">Open the Earth Economy Devstack in VS Code workspace</a></li>
+  <li><a href="#configure-vs-code" id="toc-configure-vs-code" class="nav-link" data-scroll-target="#configure-vs-code">Configure VS CODE</a></li>
+  </ul></li>
+  <li><a href="#step-by-step-installation" id="toc-step-by-step-installation" class="nav-link" data-scroll-target="#step-by-step-installation">Step by Step Installation</a>
+  <ul class="collapse">
+  <li><a href="#install-git-1" id="toc-install-git-1" class="nav-link" data-scroll-target="#install-git-1">Install Git</a></li>
+  <li><a href="#create-a-python-environment-1" id="toc-create-a-python-environment-1" class="nav-link" data-scroll-target="#create-a-python-environment-1">Create a python environment</a></li>
+  <li><a href="#clone-the-earth-economy-devstack-1" id="toc-clone-the-earth-economy-devstack-1" class="nav-link" data-scroll-target="#clone-the-earth-economy-devstack-1">Clone the Earth Economy Devstack</a></li>
+  <li><a href="#install-visual-studio-code-vs-code-1" id="toc-install-visual-studio-code-vs-code-1" class="nav-link" data-scroll-target="#install-visual-studio-code-vs-code-1">Install Visual Studio Code (VS Code)</a></li>
+  <li><a href="#open-the-earth-economy-devstack-in-vs-code-workspace-1" id="toc-open-the-earth-economy-devstack-in-vs-code-workspace-1" class="nav-link" data-scroll-target="#open-the-earth-economy-devstack-in-vs-code-workspace-1">Open the Earth Economy Devstack in VS Code workspace</a></li>
+  <li><a href="#configure-vs-code-1" id="toc-configure-vs-code-1" class="nav-link" data-scroll-target="#configure-vs-code-1">Configure VS CODE</a></li>
+  <li><a href="#organize-directories-for-the-devstack" id="toc-organize-directories-for-the-devstack" class="nav-link" data-scroll-target="#organize-directories-for-the-devstack">Organize Directories for the devstack</a></li>
+  <li><a href="#clone-the-required-repositories" id="toc-clone-the-required-repositories" class="nav-link" data-scroll-target="#clone-the-required-repositories">Clone the required repositories</a></li>
+  <li><a href="#repeat-the-cloning-approach-with-all-the-repos-you-need" id="toc-repeat-the-cloning-approach-with-all-the-repos-you-need" class="nav-link" data-scroll-target="#repeat-the-cloning-approach-with-all-the-repos-you-need">Repeat the cloning approach with all the repos you need</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="installation" class="level1">
+<h1>Installation</h1>
+<p>The Earth Economy Devstack is a specific way of organizing files, VS Code workspaces, local development repositories and preconfigured launch configurations that let a user contribute to NatCap TEEMs projects. This document contains:</p>
+<ol type="1">
+<li><p>A quickstark installation guide for installing the Earth Economy Devstack which assumes a basic understanding of the command line and Python.</p></li>
+<li><p>A detailed step-by-step installation guide of Python, Git, QGIS and other related software.</p></li>
+</ol>
+<p>Both sections will discuss putting files in specific locations relative to your user directory. If followed exactly, this will allow the multiple repositories to work together as intended. Other file organization schemes are possible, but will require manual configuration of the launch configurations and other settings.</p>
+<section id="quickstart-installation" class="level2">
+<h2 class="anchored" data-anchor-id="quickstart-installation">Quickstart Installation</h2>
+<section id="install-git" class="level3">
+<h3 class="anchored" data-anchor-id="install-git">Install Git</h3>
+<ul>
+<li>Install and run the installer for your operating system at &lt;Git-scm.com/downloads&gt;</li>
+</ul>
+</section>
+<section id="create-a-python-environment" class="level3">
+<h3 class="anchored" data-anchor-id="create-a-python-environment">Create a python environment</h3>
+<ol type="1">
+<li><p>Install Miniforge from <a href="https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3" class="uri">https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3</a> - Be sure to select the correct version for your operating system (Windows, Mac, Linux)</p>
+<ul>
+<li>If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option). - Install in <code>C:\Users\&lt;YOUR_USERNAME&gt;\miniforge3</code> (PC) or <code>~/miniconda3</code> (Mac) - During installation, select yes for “Add Mambaforge/Miniforge to my PATH environment Variable” - If you get a “Windows Protected your PC”, click more info then Run Anyway.</li>
+</ul></li>
+<li><p>Open the Miniforge Prompt (PC only, search for it in the start menu) or just type “mamba init” in a new terminal/command line</p></li>
+<li><p>Create a new mamba environment with the following commands (putting your desired environment name in place of <code>&lt;env_name&gt;</code>):</p></li>
+</ol>
+<p><code>mamba create -n &lt;env_name&gt; -c conda-forge</code></p>
+<ol start="4" type="1">
+<li>Activate the environment</li>
+</ol>
+<p><code>mamba activate &lt;env_name&gt;</code></p>
+<ol start="5" type="1">
+<li>Install libraries using the following mamba command:</li>
+</ol>
+<p><code>mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm</code></p>
+<ul>
+<li>If you don’t add mamba to your path, you can do this manually. On PC, you could use the command
+<ul>
+<li><code>SETX PATH "%PATH%;C:\Users\&lt;YOUR_USERNAME&gt;\miniforge;C:\Users\&lt;YOUR_USERNAME&gt;\miniforge;"</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="clone-the-earth-economy-devstack" class="level3">
+<h3 class="anchored" data-anchor-id="clone-the-earth-economy-devstack">Clone the Earth Economy Devstack</h3>
+<ul>
+<li>Create a directory for the Earth Economy Devstack at <code>C:\Users\&lt;YOUR_USERNAME&gt;\Files</code> (PC) or <code>~/Files</code> (Mac)
+<ul>
+<li>We add a Files directory to keep the root directory clean and to make it easier to find the Earth Economy Devstack in the file explorer.</li>
+</ul></li>
+<li>Open a terminal or command prompt and navigate to the directory you created</li>
+<li>Run the git clone command to clone the Earth Economy Devstack repository
+<ul>
+<li><code>git clone https://github.com/jandrewjohnson/earth_economy_devstack</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="install-visual-studio-code-vs-code" class="level3">
+<h3 class="anchored" data-anchor-id="install-visual-studio-code-vs-code">Install Visual Studio Code (VS Code)</h3>
+<ul>
+<li>Install from &lt;code.visualstudio.com/download&gt;
+<ul>
+<li>For PC, I recommend selecting the “User Installer”, 64-bit option for windows.</li>
+<li>Use the default install options with the exception of the two that start with “Add Open with Code” action…</li>
+</ul></li>
+</ul>
+</section>
+<section id="open-the-earth-economy-devstack-in-vs-code-workspace" class="level3">
+<h3 class="anchored" data-anchor-id="open-the-earth-economy-devstack-in-vs-code-workspace">Open the Earth Economy Devstack in VS Code workspace</h3>
+<ul>
+<li>Navigate to the directory where you cloned the Earth Economy Devstack
+<ul>
+<li>In the repository, there is a file called <code>earth_economy_devstack.code-workspace</code>. Launch this.
+<ul>
+<li>If configured correctly, the full path would be <code>C:\Users\&lt;YOUR_USERNAME&gt;\Files\earth_economy_devstack\earth_economy_devstack.code-workspace</code> (PC) or <code>~/Files/earth_economy_devstack/earth_economy_devstack.code-workspace</code> (Mac)</li>
+</ul></li>
+</ul></li>
+<li>The workspace file adds a bunch of different repositories to the workspace (which you will need to git clone in to where the workspace says they should be)</li>
+<li>The workspace also sets up a bunch of launch configurations for debugging and running code using the respositories in your workspace</li>
+</ul>
+</section>
+<section id="configure-vs-code" class="level3">
+<h3 class="anchored" data-anchor-id="configure-vs-code">Configure VS CODE</h3>
+<ul>
+<li>Install required extensions
+<ul>
+<li>Install the Python extension in VS Code
+<ul>
+<li>Click on the extensions icon in the left sidebar</li>
+<li>Search for Python and install the one by Microsoft</li>
+</ul></li>
+<li>Install Quarto extension in VS Code</li>
+<li>Install GitGraph extension in VS Code</li>
+</ul></li>
+<li>Sign in to VS Code with your GitHub account
+<ul>
+<li>Click on the account icon in the bottom left corner of the window and follow prompts</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="step-by-step-installation" class="level2">
+<h2 class="anchored" data-anchor-id="step-by-step-installation">Step by Step Installation</h2>
+<section id="install-git-1" class="level3">
+<h3 class="anchored" data-anchor-id="install-git-1">Install Git</h3>
+<ul>
+<li>Get the git software
+<ul>
+<li>Install and run the installer for your operating system at &lt;Git-scm.com/downloads&gt;</li>
+<li><img src="images/2024-02-02-10-18-28.png" class="img-fluid"></li>
+</ul></li>
+<li>Git vs.&nbsp;GitHub
+<ul>
+<li>Github is a website that hosts code and connects a community of coders.</li>
+<li>Git is a “version control” software tool that records the history of files in a Git repository.</li>
+<li>Nearly every coder uses Git to push their repository of code to GitHub.</li>
+</ul></li>
+<li>Use the default options for everything
+<ul>
+<li>Unless you REALLY know what you’re doing.</li>
+</ul></li>
+</ul>
+<section id="verify-git-installation" class="level4">
+<h4 class="anchored" data-anchor-id="verify-git-installation">Verify Git Installation</h4>
+<ul>
+<li>Open up the command prompt and type <code>git</code> to test that it’s installed
+<ul>
+<li>(PC) Search for <code>cmd</code> in the start menu</li>
+</ul></li>
+<li>This is the OG way of working on computers</li>
+<li><img src="images/2024-02-02-10-20-40.png" class="img-fluid"></li>
+<li>All version control tasks can be done via git commands here, but we will be using VS Code instead</li>
+</ul>
+</section>
+</section>
+<section id="create-a-python-environment-1" class="level3">
+<h3 class="anchored" data-anchor-id="create-a-python-environment-1">Create a python environment</h3>
+<ol type="1">
+<li><p>Install Miniforge from <a href="https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3" class="uri">https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3</a> - Be sure to select the correct version for your operating system (Windows, Mac, Linux)</p>
+<ul>
+<li><img src="images/2024-02-02-10-32-25.png" class="img-fluid"></li>
+<li>If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option).</li>
+<li>Install in <code>C:\Users\&lt;YOUR_USERNAME&gt;\miniforge3</code> (PC) or <code>~/miniconda3</code> (Mac)
+<ul>
+<li><img src="images/2024-02-02-10-33-41.png" class="img-fluid"></li>
+</ul></li>
+<li>During installation, select yes for “Add Mambaforge/Miniforge to my PATH environment Variable”
+<ul>
+<li><img src="images/2024-02-02-10-34-43.png" class="img-fluid"></li>
+</ul></li>
+<li>If you get a “Windows Protected your PC”, click more info then Run Anyway.</li>
+</ul></li>
+<li><p>Open the Miniforge Prompt (PC only, search for it in the start menu) or just type “mamba init” in a new terminal/command line</p></li>
+</ol>
+<ul>
+<li><img src="images/2024-02-02-10-35-25.png" class="img-fluid"></li>
+<li>You’ll know it worked if you see (base) in front of your path
+<ul>
+<li>Base is the default “environment” that you will use.</li>
+</ul></li>
+</ul>
+<ol start="3" type="1">
+<li>Create a new mamba environment with the following commands (putting your desired environment name in place of <code>&lt;env_name&gt;</code>):</li>
+</ol>
+<p><code>mamba create -n &lt;env_name&gt; -c conda-forge</code></p>
+<pre><code>- When you have lots of projects, most people create multiple environments specific to each project. 
+- For now, we’re going to install everything to the base environment</code></pre>
+<ol start="4" type="1">
+<li>Activate the environment</li>
+</ol>
+<p><code>mamba activate &lt;env_name&gt;</code></p>
+<pre><code>- You’ll know it worked if you see (env_name) in front of your path
+- You can deactivate the environment with `conda deactivate`
+- ![](images/2024-02-02-10-39-21.png)
+- You can list all environments with `conda env list`</code></pre>
+<ol start="5" type="1">
+<li>Install libraries using the following mamba command:</li>
+</ol>
+<p><code>mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm</code></p>
+<ul>
+<li>If you don’t add mamba to your path, you can do this manually. On PC, you could use the command
+<ul>
+<li><code>SETX PATH "%PATH%;C:\Users\&lt;YOUR_USERNAME&gt;\miniforge;C:\Users\&lt;YOUR_USERNAME&gt;\miniforge;"</code></li>
+</ul></li>
+<li>This step may take a long time because you are downloading and installing hundreds of libraries
+<ul>
+<li><img src="images/2024-02-02-10-41-29.png" class="img-fluid"></li>
+</ul></li>
+<li>When you’re done, it should look like the image here.
+<ul>
+<li><img src="images/2024-02-02-10-41-40.png" class="img-fluid"></li>
+</ul></li>
+<li>Success! You now have a modern scientific computing environment (sometimes called a scientific computing stack) on your computer!</li>
+</ul>
+</section>
+<section id="clone-the-earth-economy-devstack-1" class="level3">
+<h3 class="anchored" data-anchor-id="clone-the-earth-economy-devstack-1">Clone the Earth Economy Devstack</h3>
+<ul>
+<li>Create a directory for the Earth Economy Devstack at <code>C:\Users\&lt;YOUR_USERNAME&gt;\Files</code> (PC) or <code>~/Files</code> (Mac)
+<ul>
+<li>We add a Files directory to keep the root directory clean and to make it easier to find the Earth Economy Devstack in the file explorer.</li>
+</ul></li>
+<li>Open a terminal or command prompt and navigate to the directory you created
+<ul>
+<li>By default, your terminal will open in your user directory, so <code>C:\Users\&lt;YOUR_USERNAME&gt;</code></li>
+<li>You can navigate to the directory you created with the command <code>cd Files</code>
+<ul>
+<li>See image below.</li>
+</ul></li>
+</ul></li>
+<li>Run the git clone command to clone the Earth Economy Devstack repository
+<ul>
+<li><code>git clone https://github.com/jandrewjohnson/earth_economy_devstack</code></li>
+<li><img src="images/2024-02-02-10-47-53.png" class="img-fluid"></li>
+</ul></li>
+</ul>
+</section>
+<section id="install-visual-studio-code-vs-code-1" class="level3">
+<h3 class="anchored" data-anchor-id="install-visual-studio-code-vs-code-1">Install Visual Studio Code (VS Code)</h3>
+<ul>
+<li>Install from &lt;code.visualstudio.com/download&gt;
+<ul>
+<li>For PC, I recommend selecting the “User Installer”, 64-bit option for windows.
+<ul>
+<li><img src="images/2024-02-02-10-48-50.png" class="img-fluid"></li>
+</ul></li>
+<li>Use the default install options with the exception of the two that start with “Add Open with Code” action…
+<ul>
+<li><img src="images/2024-02-02-10-49-13.png" class="img-fluid"></li>
+</ul></li>
+</ul></li>
+<li>You could just open VS Code now, but we’re going to open it up with a specific Worspace Configuration file below</li>
+</ul>
+</section>
+<section id="open-the-earth-economy-devstack-in-vs-code-workspace-1" class="level3">
+<h3 class="anchored" data-anchor-id="open-the-earth-economy-devstack-in-vs-code-workspace-1">Open the Earth Economy Devstack in VS Code workspace</h3>
+<ul>
+<li>Navigate to the directory where you cloned the Earth Economy Devstack
+<ul>
+<li>In the repository, there is a file called <code>earth_economy_devstack.code-workspace</code>. Launch this.
+<ul>
+<li>If configured correctly, the full path would be <code>C:\Users\&lt;YOUR_USERNAME&gt;\Files\earth_economy_devstack\earth_economy_devstack.code-workspace</code> (PC) or <code>~/Files/earth_economy_devstack/earth_economy_devstack.code-workspace</code> (Mac)</li>
+</ul></li>
+</ul></li>
+<li>The workspace file adds a bunch of different repositories to the workspace (which you will need to git clone in to where the workspace says they should be)
+<ul>
+<li><img src="images/2024-02-02-10-52-14.png" class="img-fluid"></li>
+</ul></li>
+<li>The workspace also sets up a bunch of launch configurations for debugging and running code using the respositories in your workspace
+<ul>
+<li><img src="images/2024-02-02-10-53-03.png" class="img-fluid"></li>
+<li>We’ll describe debugging more in future sections
+<ul>
+<li>For now, just know that these launch configurations make sure you’re using the repositories that we’ve added to your workspace</li>
+</ul></li>
+</ul></li>
+<li>Also note that the other repositories shown in the VS Code file explorer will be empty until you git clone them (described below)</li>
+</ul>
+</section>
+<section id="configure-vs-code-1" class="level3">
+<h3 class="anchored" data-anchor-id="configure-vs-code-1">Configure VS CODE</h3>
+<ul>
+<li>Sign in to VS Code with your GitHub account
+<ul>
+<li>Click on the account icon in the bottom left corner of the window and follow prompts</li>
+</ul></li>
+<li>Install required extensions
+<ul>
+<li>Install the Python extension
+<ul>
+<li>Click on the extensions icon in the left sidebar</li>
+<li>Search for Python and install the one by Microsoft</li>
+<li><img src="images/2024-02-02-10-56-46.png" class="img-fluid"></li>
+</ul></li>
+<li>Install Quarto extension in VS Code
+<ul>
+<li>We use Quarto to create reports and documents on .qmd, .md and .ipynb files
+<ul>
+<li>You can edit in source mode:
+<ul>
+<li><img src="images/2024-02-02-10-58-06.png" class="img-fluid"></li>
+</ul></li>
+<li>Or you can press ctrl+shift+f4 to use the visual editor
+<ul>
+<li><img src="images/2024-02-02-10-59-17.png" class="img-fluid"></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Install Git Graph extension in VS Code
+<ul>
+<li>Once installed, click the Git Graph button on the bottom-left status bar to see a visual representation of your git history</li>
+<li><img src="images/2024-02-02-11-00-52.png" class="img-fluid"></li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="organize-directories-for-the-devstack" class="level3">
+<h3 class="anchored" data-anchor-id="organize-directories-for-the-devstack">Organize Directories for the devstack</h3>
+<ul>
+<li>The Earth Economy Devstack organizes repositories in a specific way, described here.
+<ul>
+<li>Recall that our workspace links to e.g.&nbsp;the hazelbean_dev repository, but it currently points to a directory that doesn’t yet exist.
+<ul>
+<li>In our Files directory, create a directory named <code>hazelbean</code> (not <code>hazelbean_dev</code> as that will be the repository’s name)
+<ul>
+<li><img src="images/2024-02-02-11-21-00.png" class="img-fluid"></li>
+</ul></li>
+<li>Below, we will use git to clone the <code>hazelbean_dev</code> into this directory we just created
+<ul>
+<li><img src="images/2024-02-02-11-22-30.png" class="img-fluid"></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="clone-the-required-repositories" class="level3">
+<h3 class="anchored" data-anchor-id="clone-the-required-repositories">Clone the required repositories</h3>
+<ul>
+<li>Instead of using the command line, we will use Git via VS Code’s “Command Pallate”
+<ul>
+<li>The Command Pallate is accessed via <ctrl-shift-p></ctrl-shift-p></li>
+<li>It is a search bar that you can use to run commands in VS Code</li>
+</ul></li>
+<li>Once you’ve opened the Command Pallate, type “git clone” and it will search for the command
+<ul>
+<li><img src="images/2024-02-02-11-06-51.png" class="img-fluid"></li>
+</ul></li>
+<li>Once you select the command, it will prompt you if you want to write in your Repo’s GitHub URL manually, or you can use VS Code to search the different repositories you have access to
+<ul>
+<li><img src="images/2024-02-02-11-08-06.png" class="img-fluid"></li>
+</ul></li>
+<li>Searching via GitHub found, for instance, NatCapTEEMs/gep repo
+<ul>
+<li><img src="images/2024-02-02-11-08-54.png" class="img-fluid"></li>
+</ul></li>
+<li>Once you select that, it will ask you what local directory you want to clone the repository to.
+<ul>
+<li>By default it assumes you want to clone it to your user directory as below
+<ul>
+<li><img src="images/2024-02-02-11-10-18.png" class="img-fluid"></li>
+</ul></li>
+<li>We instead want to clone it to the <code>hazelbean</code> directory we created earlier, which will put a new folder <code>hazelbean_dev</code> in that directory</li>
+<li>To do this, navigate to the hazelbean directory and select it
+<ul>
+<li><img src="images/2024-02-02-11-26-55.png" class="img-fluid"></li>
+</ul></li>
+</ul></li>
+<li>After you’ve cloned a repository, you can now access it in the file explorer
+<ul>
+<li><img src="images/2024-02-02-11-27-57.png" class="img-fluid"></li>
+</ul></li>
+</ul>
+</section>
+<section id="repeat-the-cloning-approach-with-all-the-repos-you-need" class="level3">
+<h3 class="anchored" data-anchor-id="repeat-the-cloning-approach-with-all-the-repos-you-need">Repeat the cloning approach with all the repos you need</h3>
+<ul>
+<li>If you are a member of NatCap TEEMs or the JohnsonPolaskyLab, you should have access to these repositories via our GitHub organization</li>
+<li>If you’re not a member, you will still be able to clone all of the public repositories (which are all documented in various journal articles)</li>
+</ul>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

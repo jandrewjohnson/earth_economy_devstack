@@ -1,5 +1,4 @@
-
-# Naming conventions
+# Conventions
 
 ### Id, index, label, name, description
 
@@ -208,4 +207,5 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
         -   Proposed answer: src/dst is a pointer/reference to a thing and Input/Output is the thing itself. Esp useful for paths.
         -   Similarly, \_path and \_dir imply the string is a reference, so src_path and src_dir are common.
         -   You might often see e.g. `input_array = hb.as_array(src_path)`, illustrating this difference.
--   
+
+-

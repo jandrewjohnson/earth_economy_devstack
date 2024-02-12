@@ -1,50 +1,187 @@
 project:
-  type: book 
-  output-dir: 'HTML_docs'
+  type: website 
+  output-dir: 'RENDERED_website'
 
-book:
+execute:
+  python:
+    eval: false
+  
+website:
   title: "Justin Andrew Johnson"
   navbar:
+    background: primary
+    search: true  
     left:
-      - text: Index
-        file: index.md
-      - text: installation 
-        file: installation.qmd        
-      - text: earth_economy_devstack
-        file: earth_economy_devstack.qmd
-      # - text: GTAP-InVEST
+    
+      - text: "gtappy"
+        file: "gtappy.qmd"
+        
+      - text: "hazelbean"
+        file: "hazelbean.qmd"
+        
+      - text: "how_to_contribute"
+        file: "how_to_contribute.qmd"
+        
+      - text: "index"
+        file: "index.qmd"
+        
+      - text: "installation"
+        file: "installation.qmd"
+        
+      - text: "project_flow"
+        file: "project_flow.qmd"
+        
+      - text: "organization"
+        file: "organization.qmd"
+        
+      - text: "seals"
+        file: "seals.qmd"
+        
+      - text: "conventions"
+        file: "conventions.qmd"
+        
+      # - text: "qtap_invest"
+      #   file: "qtap_invest.qmd"
+        
+      # - text: "global_invest"
+      #   file: "global_invest.qmd"
+      # - sidebar:t1
+      # - sidebar:howto
+      # - sidebar:fundamentals
+      # - sidebar:reference
+        
+  sidebar:
+
+    - id: t1
+      title: "Tutorials"
+      style: "docked"
+      background: light
+      collapse-level: 2
+      contents: 
+        - .qmd
+        - qtap_invest.qmd
+        - conventions.qmd 
+
+
+        - text: "Section 1"
+          contents:
+            - text: "Subsection 1.1"
+              href: global_invest.qmd
+              contents:
+                - text: "Page 1.1.1"
+                  href: qtap_invest.qmd
+                - text: "Page 1.1.2"
+                  href: conventions.qmd
+            - text: "Subsection 1.2"
+
+
+
+
+
+
+    - title: "Tutorials"
+      style: "docked"
+      background: light
+      contents:
+        - index.qmd
+        - installation.qmd
+        - project_flow.qmd
+
+    - title: "How-To"
+      contents:
+        - seals.qmd
+        # navigation items
+
+    # - title: "Fundamentals"
+    #   contents:
+    #     - fundamentals.qmd
+    #     # navigation items
+
+    - title: "Reference"
+      contents:
+        - organization.qmd
+        - project_flow.qmd
+
+
+
+        # navigation items
+
+      # - text: Home
+      #   file: index.qmd
+      # - text: Publications
+      #   file: publications/index.qmd 
+      # - text: MESH
+      #   file: mesh/index.qmd        
+      # - text: Teaching 
+      #   file: teaching/index.qmd
+      # - text: Research   
+      #   file: research/index.qmd
+      # - text: Earth-Economy Devstack       
       #   menu:
-      #     - text: "GTAP-InVEST Home"
-      #       file: gtap_invest/index.qmd
-      #     - text: "User Guide"
-      #       file: gtap_invest/user_guide/index.qmd
-      #     - text: "Results"
-      #       file: gtap_invest/results/index.qmd
-      - text: projectflow_quickstart
-        file: projectflow_quickstart.ipynb
-      - text: hazelbean
-        file: hazelbean.qmd        
+      #     - text: "earth_economy_devstack Home"
+      #       file: earth_economy_devstack/index.qmd
+      #     - text: Installation
+      #       file: earth_economy_devstack/installation.qmd
+      #     - text: Conventions
+      #       file: earth_economy_devstack/conventions.qmd
+  # sidebar:
+  #   - id: tutorials
+  #     title: "Tutorials"
+  #     style: "docked"
+  #     background: light
+  #     collapse-level: 2
+  #     contents: 
+  #       earth_economy_devstack/index.qmd
+  #       earth_economy_devstack/installation.qmd
+        
+  #   - id: howto
+  #     title: "How-To"
+  #     contents:
+  #       # navigation items
+        
+  #   - id: fundamentals
+  #     title: "Fundamentals"
+  #     contents: 
+  #       # navigation items
+        
+  #   - id: reference
+  #     title: "Reference"
+  #     contents: 
+  #       # navigation items
+  # sidebar:
+  #   - title: "Tutorials"
+  #     style: "docked"
+  #     background: light
+  #     contents:
+  #       - earth_economy_devstack/index.qmd
+        
+  #       - title: "Tutorials2"
+  #         style: "docked"
+  #         background: light
+  #         contents:
+  #           - gtap_invest/index.qmd
+  #           - earth_economy_devstack/installation.qmd
 
-      - text: how_to_contribute   
-        file: how_to_contribute.qmd           
-      - text: seals
-        file: seals.qmd
-   
+  #   - title: "Tutorials3"
+  #     style: "docked"
+  #     background: light
+  #     contents:
+  #       - earth_economy_devstack/index.qmd
 
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\project_flow.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\conventions.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\qtap_invest.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\global_invest.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\seals.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\gtappy.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\hazelbean.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\installation.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\how_to_contribute.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\organization.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\introduction.qmd"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\projectflow_quickstart.ipynb"
-# "C:\Users\jajohns\Files\earth_economy_devstack\docs\earth_economy_devstack.qmd"
+        
+  #       - title: "Tutorials4"
+  #         style: "docked"
+  #         background: light
+  #         contents:
+  #           - gtap_invest/index.qmd
+  #           - earth_economy_devstack/installation.qmd
 
+        # navigation items        
+      # - text: Open Principles of Microeconomics
+      #   file: open_principles_of_microeconomics/index.html
+      # - text: Bio
+      #   file: bio/index.qmd
+        
 
 format:
   html:
