@@ -49,15 +49,15 @@ If defined exactly right, 2 dimensional correspondence files will work with `Haz
 
 and
 
-```{python}
-#| eval: false
+``` python
+
 p.lulc_correspondence_dict = hb.utils.get_reclassification_dict_from_df(p.lulc_correspondence_path, 'src_id', 'dst_id', 'src_label', 'dst_label')}`
 
 # return a very useful dictionary for various reclassification tasks:
 ```
 
-```{python}
-#| eval: false
+``` python
+
 return_dict = {} return_dict['dst_to_src_reclassification_dict'] = dst_to_src_reclassification_dict  # Dict of one-to-many keys to lists of what each dst_key should be mapped to from each src_key. Useful when aggrigating multiple layers to a aggregated dest type 
 return_dict['src_to_dst_reclassification_dict'] = src_to_dst_reclassification_dict # Useful when going to a specific value. 
 return_dict['dst_to_src_labels_dict'] = dst_to_src_labels_dict # Dictionary of lists of labels that map to each dst label 
@@ -73,8 +73,8 @@ return_dict['dst_labels_to_ids'] = {k: v for k, v in zip(return_dict['dst_labels
 
 Among other possibilities, this could be used for reclassifying LULC geotiffs via
 
-```{python}
-#| eval: false
+``` python
+
 rules = p.lulc_correspondence_dict['src_to_dst_reclassification_dict'] hb.reclassify_raster_hb(raster_path, rules, output_path)
 ```
 
@@ -88,8 +88,8 @@ In the event of a combined id, not that the \_id column above has two region-spe
 
 ### Correspondences with geometries
 
-```{python}
-#| eval: false
+``` python
+
 # The rules for naming correspondences are a little different when adding geometry to the data. Because}     
 # # only 1 geometry can be assigned per file, and becasue membership of aggregated regions and their     
 # # members can get confusing, each correspondence file keeps all the labels but then is also saved along     
@@ -113,8 +113,8 @@ In the filename gtapv7_r251_labels_path we extract from the input_path and write
 
 Note that the file path says "regions" while the column label in the CSV says "region".
 
-```{python}
-#| eval: false
+``` python
+
 p.gtap11_region_correspondence_input_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'GTAP-ctry2reg.xlsx')     
 p.gtap11_region_names_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_region_names.csv')     
 p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'gtappy', 'aggregation_mappings', 'gtap11_gtapaez11_region_correspondance.csv')
@@ -208,4 +208,22 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
         -   Similarly, \_path and \_dir imply the string is a reference, so src_path and src_dir are common.
         -   You might often see e.g. `input_array = hb.as_array(src_path)`, illustrating this difference.
 
--
+# Python tricks
+
+## Setting the environment
+
+- What does this mean?
+  - Let's find the executable we installed with Mamba
+  - ![](images/2024-02-29-09-03-41.png)
+- When we set the interpretter/environment in VS Code, we are essentially telling it to look for this python.exe file in this exact folder.
+  - To get the path, we can right click on the file and select "Copy Path"
+    - ![](images/2024-02-29-09-05-53.png)
+- Why might you need the actual path?
+  - On the command line, when we call `python this_script.py` sometimes it will fail to find (or find the right) python executable to call. We could have been explicit by calling `C:\Users\jajohns\mambaforge\envs\env2023a\python.exe this_script.py` instead.
+  - Additionally, when you are publishing Quarto Books or Jupyter Notebooks, you might want to set the path explicitly
+    - For example, to publish the EE Devstack, I have a line in the `quarto.yml` file like this:
+    - ```yaml
+        execute:
+            engine: python
+            python: C:\Users\jajohns\mambaforge\envs\env2023a\python.exe
+        ```

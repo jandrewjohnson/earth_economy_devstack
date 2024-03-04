@@ -1,11 +1,100 @@
-# ProjectFlow
+# Project Flow
+
+Project Flow is intended to allow a user to flow easily past the different stages of software complexity. A common situation for an academic or a research software engineer (RES) to find themselves in is that they wrote a quick script to answer a specific quesiton, but it turned out to be useful in other context. This can lead to a the script grows and grows until complexity hurts its usefulness. A software developer would then think "oops, I should really make this modular." ProjectFlow provides several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. To do this, ProjectFlow manages folders and defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
+
+Project Flow is intended to flow easily from the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. Similar to the [Stages of Complexity](TODOO) page, we will introduce progressively more complex usages, starting with the simples examples and working towards distributed parallelization on complex task-trees. If you would like to skip the stages and go straight to a full-functioning example, go to [Standard ProjectFlow run file](TODOO).
+
+## Starter code
+
+We will use the third level of complexity from the previous example as the launching point for how to use ProjectFlow. The code below adds a few additional steps we will work with.
+
+``` python
+import os
+import numpy as np
+import gdal
+
+def raster_to_array(raster_input_path):
+    ds = gdal.Open(yield_per_hectare_raster_path_1)
+    print("Reading " + raster_input_path +'. This might take a while!')
+    array = ds.ReadAsArray()
+    return array
+
+# Load the raster
+raster_input_path = 'data/yield.tif' # TODOO[make all these actually point to data in hazelbean]
+array = raster_to_array(raster_input_path)
+
+# Set no data values equal to zero
+
+# Method 1 (creates new array)
+array_ndv_fix = np.where(array == -9999, 0, array)
+
+# Method 2 (inplace)
+array[array == -9999] = 0
+
+# Sum the raster
+sum = np.sum(array_ndv_fix)
+
+# Calculate the average value on >0 cells
+
+## First create a binary map of where there is positive value
+non_zero = np.where(array_ndv_fix > 0, 1, 0) 
+
+## Count those
+n_non_zero = np.sum(non_zero)
+
+## Calculate the average
+mean = sum / n_non_zero
+
+## Write the value to a file
+with open(output_path, rw) as f: # TODOO[fix my no copilot typo]
+    print('Write here.')
+
+print('Sums of layers: ' + str(mean))
+```
+
+## Step 1: Substitute in a few pre-built Hazelbean functions
+
+#  START HERE, copy above with hb.as_array() but actually redo it with a skinned version of hb.read_raster....()
+
+``` python
+import hazelbean as hb
+
+if __name__ == '__main__':
+    p = hb.ProjectFlow(r'C:\Files\Research\cge\gtap_invest\projects\feedback_policies_and_tipping_points')
+```
+
+In a multi-file setup, in the run.py you will need to import different scripts, such as main.py i.e.:
+
+``` python
+import visualizations.main
+```
+
+The script file mainpy can have whatever code, but in particular can include "task" functions. A task function, shown below, takes only p as an agrument and returns p (potentially modified). It also must have a conditional (if p.run_this:) to specify what always runs (and is assumed to run trivially fast, i.e., to specify file paths) just by nature of having it in the task tree and what is run only conditionally (based on the task.run attribute, or optionally based on satisfying a completed function.)
+
+``` python
+def example_task_function(p):
+    """Fast function that creates several tiny geotiffs of gaussian-like kernels for later use in ffn_convolve."""
+
+    if p.run_this:
+        for i in computationally_intensive_loop:
+            print(i)
+```
+
+**Important Non-Obvious Note**
+
+Importing the script will define function(s) to add "tasks", which take the ProjectFlow object as an argument and returns it after potential modification.
+
+``` python
+def add_all_tasks_to_task_tree(p):
+    p.generated_kernels_task = p.add_task(example_task_function)
+```
 
 ## Iterating over many model assumptions
 
 In many case, such as a standard GTAPPy run, we will iterate over different aggergations and scenarios (now renamed counterfactuals). This is done as expected with code like this:
 
-```{python}
-#| eval: false
+``` python
+
 for aggregation_label in p.aggregation_labels:
      
     for experiment_label in p.experiment_labels:
@@ -22,8 +111,8 @@ for aggregation_label in p.aggregation_labels:
 
 But sometimes, this becomes DEEPLY nested and confusing. SEALS implements an API that reads these nested layers from a CSV. This is defined more fully in the SEALS user guide.
 
-```{python}
-#| eval: false
+``` python
+
 for index, row in p.scenarios_df.iterrows():
     seals_utils.assign_df_row_to_object_attributes(p, row)
     
@@ -39,7 +128,6 @@ for index, row in p.scenarios_df.iterrows():
             current_run_dirs = os.path.join(p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label)
             output_dir = p.get_path(current_run_dirs, str(ending_year))
             expected_sl4_path = os.path.join(output_dir, p.counterfactual_label + '_Y' + str(ending_year) + '.sl4')
-
 ```
 
 In this scenarios_df, which was loaded from scenarios_csv_path, there are multiple nested for loops implied, for `p.exogenous_label, p.climate_label, p.model_label, p.counterfactual_label`, each row has a unique value that would have been iterated over with the for loop above. Now, however, we are iterating just over scenario_df rows. Within each row pass, a project-level attribute is assigned via `seals_utils.assign_df_row_to_object_attributes(p, row)`. This is used instead of the nested for loop.
@@ -48,8 +136,8 @@ In this scenarios_df, which was loaded from scenarios_csv_path, there are multip
 
 Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading it (keeps it up to date as code changes quickly). However, this gets convoluted when you also have to initialize the attributes before you write?!?
 
-```{python}
-#| eval: false
+``` python
+
     # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
     # then you need to add the path to the seals directory to the system path.
     custom_seals_path = None
@@ -98,7 +186,6 @@ Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading 
         for index, row in p.scenarios_df.iterrows():
             seals_utils.assign_df_row_to_object_attributes(p, row)
             break # Just get first for initialization.
-
 ```
 
 ## Task Format
@@ -109,8 +196,8 @@ Also note that any project-level attribute defined in between the function start
 
 Tasks should be named as a noun (this breaks Python pep8 style) referencing what will be stored in the tasks output dir. This might feel awkward at first, but it means that the resultant file structure is easier to interpret by a non-EE outsider.
 
-```{python}
-#| eval: false
+``` python
+
 def gtap_aez_seals_correspondences(p):
     p.current_task_documentation = """
     Create correspondence CSVs from ISO3 countries to GTAPv11 160
@@ -151,8 +238,8 @@ Two notations are especially useful within this task tree.
 
 All of this setup enable another useful feature: automatic management of file generation, storage and downloading. This is done via the hazelbean function:
 
-```{python}
-#| eval: false
+``` python
+
 useful_path = hb.get_path(relative_path)
 ```
 
@@ -160,22 +247,22 @@ This function will iteratively search multiple locations and return the most "us
 
 One important use-case that needs explaining is for tasks that generate files that will eventually be placed in the base_data_dir. The goal is to enable easy generation of it to the intermediate directory in the appropriate task_dir, but then have the ability to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches the desired directory relative to the base data dir. So, for example, we include `'gtappy', 'aggregation_mappings'` at the beginning of the relative path for in the intermediate directory in the appropriate task_dir, but then we also will want to copy the files with the exact same relative path to the base_data_dir and have it still be found by p.get_path(). To do this, you will want to choose a path name relative to the tasks' cur_dir that matches that in the base_data_dir, for example `<base_data_dir>/'gtappy/aggregation_mappings/gadm_adm0.gpkg',`
 
-```{python}
-#| eval: false
+``` python
+
 template_path = p.get_path(os.path.join('gtappy', 'aggregation_mappings', 'gadm_adm0.gpkg')) 
 ```
 
 It can be hard deciding what counts as a base_data_generating task or not, but generally if it is a file that will not be used by other projects, you should not treat it as a base_data_generating task. Instead, you should just make it relative to the cur_dir (or wahtever makes sense), as below:
 
-```{python}
-#| eval: false
+``` python
+
 output_path = p.get_path(os.path.join(aggregation_label + '_' + experiment_label + '_' + header + '_stacked_time_series.csv'))
 ```
 
 One additional exception to the above is if you are calling get_path outside of a task/task_tree. One common example is in the run file before you build the task tree. In this case, the default_dirs will not make sense, and so you need to specify it manually as here:
 
-```{python}
-#| eval: false
+``` python
+
 p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_adm0_10sec.gpkg'), possible_dirs=[p.input_dir, p.base_data_dir])
 ```
 
@@ -183,8 +270,8 @@ p.countries_iso3_path = p.get_path(os.path.join('cartographic', 'gadm', 'gadm_ad
 
 ProjectFlow is designed to calculate very fast while simultaneously validating that everything is approximately correct. It does this by checking for the existence of files (often combined with hb.get_path()). For example
 
-```{python}
-#| eval: false
+``` python
+
 p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path = p.get_path(os.path.join('gtap_invest', 'region_boundaries', 'gadm_r263_gtapv7_r251_r160_r50_regions.gpkg'))     
 if not hb.path_exists(p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path):         
     hb.log('Creating ' + p.gadm_r263_gtapv7_r251_r160_r50_correspondence_vector_path)         
@@ -197,8 +284,8 @@ ProjectFlow very carefully defines whether or not you should run something based
 
 If you have a time consuming task that, or example, writes to
 
-```{python}
-#| eval: false
+``` python
+
 big_file_path = hb.get_path('lulc', 'esa', 'seals7', 'convolutions', '2017', 'convolution_esa_seals7_2017_cropland_gaussian_5.tif' )
 ```
 
@@ -216,13 +303,11 @@ A ProjectFlow object must have a base_data_dir set (I think...). This is because
 
 For large files that take a long time to load, use a string-\>dataframe/dataset substitution as below. Make a LOCAL variable to contain the loaded object, and have that be assigned to the correct project-level path string. In subsequent usages, check type and if it's still a string, then it hasn't been loaded yet, so do that. I'm debating making it a project level variable trick
 
-```{python}
-#| eval: false
+``` python
+
 gadm = p.gadm_adm0_vector_input_path    
 
 # Just load it on first pass
 if type(gadm) is str:
     gadm = hb.read_vector(p.gadm_adm0_vector_input_path)
 ```
-
-
