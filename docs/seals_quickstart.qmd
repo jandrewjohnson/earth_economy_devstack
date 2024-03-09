@@ -1,0 +1,5 @@
+# Quickstart
+
+The simplest way to run SEALS is to clone the repository and then open run_test_standard.py in your preferred editor. Then, update the values in ENVIRONMENT SETTINGS near the top of run_test_standard.py for your local computer (ensuring this points to directories you have write-access for and is not a virtual/cloud directory). 
+
+Finally, run seals via the command line with the command `python run_test_standard.py` in the appropriate directory. If configured correctly, SEALS will download the required data at runtime (assuming you point to a data bucket you have access to). The default bucket is publicly available, though other configurations are provided for alternate uses.

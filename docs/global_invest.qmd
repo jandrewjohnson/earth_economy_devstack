@@ -1,3 +1,13 @@
 # Global InVEST
 
-NYI
+The standard version of [InVEST](https://naturalcapitalproject.stanford.edu/software/invest), provided by the Natural Capital Project, is a set of tools for quantifying the values of natural capital in clear, credible, and practical ways. InVEST enables decision-makers to assess the trade-offs associated with alternative management choices and to identify the policies and practices that can best balance human needs with environmental sustainability. InVEST is designed to be accessible to a broad audience, including conservation organizations, governments, development banks, academics, and the private sector.
+
+The InVEST software comprises an easy-to-use [graphical interface version](https://naturalcapitalproject.stanford.edu/software/invest) as well as direct access to the [Python library](https://github.com/natcap/invest) for advanced users. Typical InVEST applications looked at individual watersheds or small administrative regions. Starting with[Chaplin-Kramer et al. (2019](https://www.science.org/doi/full/10.1126/science.aaw3372)), however, a series of global applications of InVEST have developed. These applications have sometimes used the standard InVEST Python library, but in most cases, custom versions were created to enable calculation of the models globally (which was challenging for both computation and data reasons). The term **Global InVEST** refers informally to the multiple code repositories behind these applications. Although the code-base for Global InVEST is still fragmented, we are working to organize and standardize these models.
+
+The three main sources for Global InVEST is
+
+-   Nature's Contributions to People: [Chaplin-Kramer et al. (2019)](https://www.science.org/doi/full/10.1126/science.aaw3372)
+-   GTAP-InVEST: [Johnson et al. (2023)](https://www.pnas.org/doi/10.1073/pnas.2220401120)
+-   Nature's Frontiers: [Damania et al. (2023)](https://www.worldbank.org/en/publication/natures-frontiers)
+
+![](images/paste-44.png)

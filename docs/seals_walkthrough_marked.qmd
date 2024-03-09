@@ -1,0 +1,191 @@
+---
+format: 
+    revealjs:
+        theme: simple
+        margin: 0       
+        self-contained: false
+        scrollable: true
+        code-fold: show
+        slide-number: true  
+        preview-links: auto
+        css: styles.css
+        incremental: true  
+        auto-stretch: false
+---
+# First SEALS run walkthrough
+
+## Getting set up
+
+::: r-fit-text
+-   Make sure you have followed all of the steps in the [installation](installation.qmd) page.
+    -   In particular, Clone the SEALS and Hazelbean repositories in the correct location, as [described here](installation.html#clone-the-required-repositories)
+    -   You will know you've got them installed correctly if your VS Code Explorer tab shows the repositories without an error message (Figure 1)
+
+![](images/paste-45.png){width="201"}
+:::
+
+## Explore the SEALS code
+
+::: r-fit-text
+-   In the VS Code Explorer tab, navigate to your seals_dev directory (Figure 1)
+    -   Quick note about file organization
+        -   The root directory of seals_dev contains more than just the seals library, such as directories for scripts, images, etc.
+        -   The library itself is in the seals subdirectory `seals_dev/seals` which may seem redundant but is necessary for the way Python imports work.
+        -   If you inspect the seals directory, you will see an `__init__.py` file. This make Python able to import the directory as a package.
+    -   You will also see a `seals_main.py` file. This is where most of the actual logic of seals is.
+ 
+
+![](images/2024-03-06-04-41-48.png)
+:::
+
+## Run files 
+
+::: columns 
+::: {.column width="70%"} 
+::: r-fit-text 
+
+
+-   One does not simply run a `main.py` (Figure 1)
+    -   Instead, we're going to have a "run file" that sets up the code and then runs the `seals_main.py` file
+    -   Open up the `run_test_standard.py` file in the seals directory (Figure 2)
+-   We will setup this file and then finally run it (in debug mode via the launch configs in the earth_economy_devstack repository)
+::: 
+::: 
+::: {.column width="30%"}
+
+![](images/2024-03-06-04-53-49.png)
+
+![](images/2024-03-06-04-56-59.png)
+
+:::
+:::
+
+## Setting up the run file
+
+::: r-fit-text
+-   The run file begins with standard python imports
+-   Then in the `if __name__ == '__main__':` block, we define the project directory and initialize the project flow object
+    -   The reason for putting it in this block is so that you don't accidentally run the code when you import the file in another script
+
+``` python
+import os, sys
+import seals_utils
+import seals_initialize_project
+import hazelbean as hb
+import pandas as pd
+from seals_utils import download_google_cloud_blob
+
+main = ''
+if __name__ == '__main__':
+    content = "here"
+```
+:::
+
+## Project directory structure
+
+::: r-fit-text
+-   SEALS (and the EE Devstack) assumes (or softly requires) that you put all code and data somewhere relative to the user's home directory `os.path.expanduser('~')`
+    -   Can put it in suddirectories with `extra_dirs = ['Files', 'seals', 'projects']`
+-   If you followed the EE method, you will have already created the `seals` directory at `<user_dir>/Files/seals`
+    -   In the `seals` directory, your code is in `seals_dev`
+    -   In the `seals` directory, you also will have a `projects` direcotry
+        -   This is created automatically if its not there
+        -   All data and outputs will be saved in this directory
+            -   As a best practice, you should not save data in the `seals_dev` directory
+
+:::
+
+## Project name
+
+-   Set the project name
+    -   This is where your new files will be written
+-   The next line defines the project dir with the above information
+
+
+## Create ProjectFlow object
+
+::: r-fit-text
+-   Create a ProjectFlow object with the project_dir as the only argument
+    -   Python is an object-oriented programming langage
+        -   The hb.ProjectFlow() defines a `class`, which is like a recipe for an object
+        -   When we call it, it generates on `object` of that class, which we assign to the variable `p`
+
+:::
+
+## Using Objects
+
+::: r-fit-text
+-   The `p` object we created will organize input variables (called attributes when assigned to an object)
+    -   Like this: `p.attribute_name = 'ItsName`
+-   The `p` object also has functions tied specificially to it (called methods when assigned to an object)
+    -   Such as: `p.validate_name()`
+    -   Methods operate on the object that defined it
+        -   So `validate_name()` is specifically looking at the `p` object, often doing something to the `p` object, like fixing value of `p.attribute_name`
+:::
+
+# Default Variables
+
+## Inspect default variables
+
+::: r-fit-text
+-   The default variables might not need to be modified from their default values
+    -   But we need to understand them to get what SEALS is doing
+-   Below, we set the attribute for where the `scenario_definitions` csv should be stored
+    -   Note that we never defined `p.input_dir`. It was based on the `project_dir` when we created `p`
+-   The `scenario_definitions` file specifies what defines the many different scenarios you want to run
+    -   Each row will be one scenario
+    -   Each time the model runs a new scenario, it will update its attributes based on this row
+-   If you haven't run SEALS yet, you won't have a `scenario_defintions` file, so it will create a default one on the first run
+
+``` python
+p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
+```
+:::
+
+# IMPORTANT NOTE: If you set a scenario_definitions_path, then the attributes set in this file (such as p.scenario_label below)
+
+# will be overwritten. Conversely, if you don't set a scenario_definitions_path, then the attributes set in this file will be used
+
+# and will be written to a CSV file in your project's input dir.
+
+# If you did not set a p.scenarios_definitions_path, the following default variables will be used
+
+# and will be written to a scenarios csv in your project's input_dir for later use/editing/expansion.
+
+# String that uniquely identifies the scenario. Will be referenced by other scenarios for comparison.
+
+p.scenario_label = 'ssp2_rcp45_luh2-globio_bau'
+
+# Scenario type determines if it is historical (baseline) or future (anything else) as well
+
+# as what the scenario should be compared against. I.e., Policy minus BAU.
+
+::: r-fit-text
+p.scenario_type = 'bau'
+
+```         
+
+This computing stack also uses hazelbean to automatically download needed data at run time. In the code block below, notice the absolute path assigned to p.base_data_dir. Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. This also lets you use the same base data across different projects.
+
+In addition to defining a base_data_dir, you will need to For this to work, you need to also point SEALS to the correct data_credentials_path. If you don't have a credentils file, email jajohns\@umn.edu. The data are freely available but are very, very large (and thus expensive to host), so I limit access via credentials.
+
+``` python
+
+p.base_data_dir = os.path.join('G:/My Drive/Files/base_data')
+
+p.data_credentials_path = '..\\api_key_credentials.json'
+```
+
+NOTE THAT the final directory has to be named base_data to match the naming convention on the google cloud bucket.
+:::
+
+## Running the model
+
+::: r-fit-text
+After doing the above steps, you should be ready to run `run_test_seals.py`. Upon starting, SEALS will report the "task tree" of steps that it will compute in the ProjectFlow environment. To understand SEALS in more depth, inspect each of the functions that define these tasks for more documention in the code.
+
+Once the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:
+
+![](images/paste-3.png) \[THIS IS NOT THE CORRECT IMAGE\]
+
+:::

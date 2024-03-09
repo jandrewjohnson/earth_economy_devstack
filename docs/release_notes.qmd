@@ -1,0 +1,11 @@
+# Release Notes
+
+## Update v0.5.0  
+
+Downloading of base data now works.
+
+## Update v0.4.0
+
+Now all project flow objects can be set via a scenario_definitions.csv file, allowing for iteration over multiple projects.
+
+If no scenario_definitions.csv is present, it will create the file based on the parameters set in the run file.

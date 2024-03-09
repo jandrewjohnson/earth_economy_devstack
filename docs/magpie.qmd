@@ -1,0 +1,22 @@
+# Magpie
+
+## Installation
+
+git clone -b develop https://github.com/magpiemodel/magpie.git magpie_develop
+
+Has input and output folders in gitignore
+
+MAgpie has a config folder
+
+default.cfg
+
+is something huge, so use a start script which takes lines from default and overwrites.
+
+Then in the non-ignored starts folder, has a test_runs.R
+
+
+# To run gams
+
+see start/start_functions.R
+
+

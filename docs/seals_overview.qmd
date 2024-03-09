@@ -1,0 +1,7 @@
+# SEALS
+
+SEALS, the Spatial Economic Allocation Landscape Simulator, is a land-use change model that downscales predictions of land-use change from aggregate (regional or coarse-gridded) inputs to a finer resolution (typically 10-300 meters). The primary comparative advantage of SEALS is fast computation. It is able to downscale to 300 meters globally (~8.4 billion grid-cells) in about an hour on a laptop. It is designed with parallelization in mind, and so scales well to high-performance, cloud or distributed computing. It is written in C++ for all performance-critical functions and uses Python for everything else. SEALS is a part of the Earth Economy Devstack, a software platform supported by NatCap TEEMs (The Earth-Economy Modellers).
+
+## Installation
+
+Full instructions for installing SEALS can be found in the [Installation Steps](installation.qmd). SEALS is under active development and is changing rapidly. We have submitted this code for publication but are waiting on reviews. 
