@@ -12,7 +12,7 @@ Both sections will discuss putting files in specific locations relative to your 
 
 ### Install Git
 
--   Install and run the installer for your operating system at \<Git-scm.com/downloads\>
+-   Install and run the installer for your operating system at <https://Git-scm.com/downloads>
 
 ### Create a python environment
 
@@ -39,11 +39,13 @@ Both sections will discuss putting files in specific locations relative to your 
 
 ### Clone the Earth Economy Devstack
 
--   Create a directory for the Earth Economy Devstack at `C:\Users\<YOUR_USERNAME>\Files` (PC) or `~/Files` (Mac)
-    -   We add a Files directory to keep the root directory clean and to make it easier to find the Earth Economy Devstack in the file explorer.
--   Open a terminal or command prompt and navigate to the directory you created
+-   Clone the Earth Economy devstack into the correct location
+    -   Create a directory for called "Files" at `C:\Users\<YOUR_USERNAME>\Files` (PC) or `~/Files` (Mac)
+        -   We add a Files directory to keep the root directory clean and to make it easier to find the Earth Economy Devstack in the file explorer.
+-   Open a terminal or command prompt and navigate to the Files directory you created
 -   Run the git clone command to clone the Earth Economy Devstack repository
     -   `git clone https://github.com/jandrewjohnson/earth_economy_devstack`
+    -   This will add a new folder `C:\Users\<YOUR_USERNAME>\Files\earth_economy_devstack`
 
 ### Install Visual Studio Code (VS Code)
 
@@ -57,7 +59,7 @@ Both sections will discuss putting files in specific locations relative to your 
     -   In the repository, there is a file called `earth_economy_devstack.code-workspace`. Launch this.
         -   If configured correctly, the full path would be `C:\Users\<YOUR_USERNAME>\Files\earth_economy_devstack\earth_economy_devstack.code-workspace` (PC) or `~/Files/earth_economy_devstack/earth_economy_devstack.code-workspace` (Mac)
 -   The workspace file adds a bunch of different repositories to the workspace (which you will need to git clone in to where the workspace says they should be)
--   The workspace also sets up a bunch of launch configurations for debugging and running code using the respositories in your workspace
+-   The workspace also sets up a bunch of launch configurations for debugging and running code using the repositories in your workspace
 
 ### Configure VS CODE
 
@@ -66,6 +68,7 @@ Both sections will discuss putting files in specific locations relative to your 
         -   Click on the extensions icon in the left sidebar
         -   Search for Python and install the one by Microsoft
     -   Install Quarto extension in VS Code
+        -   For the documentation, I recommend installing the Quarto CLI <https://quarto.org/docs/get-started>
     -   Install GitGraph extension in VS Code
 -   Sign in to VS Code with your GitHub account
     -   Click on the account icon in the bottom left corner of the window and follow prompts
@@ -83,6 +86,9 @@ Both sections will discuss putting files in specific locations relative to your 
     -   Nearly every coder uses Git to push their repository of code to GitHub.
 -   Use the default options for everything
     -   Unless you REALLY know what you’re doing.
+-   Configure your user name via the command prompt with the following commands
+    -   `git config --global user.name "John Doe"`
+    -   `git config --global user.email johndoe@example.com`
 
 #### Verify Git Installation
 
@@ -91,6 +97,12 @@ Both sections will discuss putting files in specific locations relative to your 
 -   This is the OG way of working on computers
 -   ![](images/2024-02-02-10-20-40.png)
 -   All version control tasks can be done via git commands here, but we will be using VS Code instead
+
+### Configure Windows Explorer (optional)
+
+-   Make hidden folders visible
+-   Make sure file extensions are visible
+    -   ![](images/paste-47.png)
 
 ### Create a python environment
 
@@ -187,6 +199,7 @@ Both sections will discuss putting files in specific locations relative to your 
         -   ![](images/2024-02-02-10-56-46.png)
     -   Install Quarto extension in VS Code
         -   We use Quarto to create reports and documents on .qmd, .md and .ipynb files
+            -   Install the Quarto CLI <https://quarto.org/docs/get-started>
             -   You can edit in source mode:
                 -   ![](images/2024-02-02-10-58-06.png)
             -   Or you can press ctrl+shift+f4 to use the visual editor
