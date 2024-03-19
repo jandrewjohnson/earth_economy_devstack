@@ -73,6 +73,21 @@ Both sections will discuss putting files in specific locations relative to your 
 -   Sign in to VS Code with your GitHub account
     -   Click on the account icon in the bottom left corner of the window and follow prompts
 
+### Get the other required repositories and put them in the right directory
+
+-   The Earth Economy Devstack organizes repositories in a specific way, based in the `Files` directory discussed above
+    -   This ensures, among other things, that the Debug Launch configurations in the `.vscode` directory will use locally cloned repositories
+-   For each new repository you want to add, for example Hazelbean, create a new directory in `Files` called `hazelbean`
+    -   In this new directory, Git clone the hazelbean_dev repo, which will create a directory `hazelbean_dev` inside `hazelbean`
+-   This process works (assuming you have permissions) for:
+    -   <https://github.com/jandrewjohnson/hazelbean_dev>
+    -   <https://github.com/jandrewjohnson/seals_dev>
+    -   <https://github.com/jandrewjohnson/seals_beta>
+    -   <https://github.com/jandrewjohnson/seals>
+    -   <https://github.com/jandrewjohnson/gtap_invest_dev>
+    -   <https://github.com/jandrewjohnson/global_invest_dev>
+    -   <https://github.com/jandrewjohnson/gtappy_dev>
+
 ## Step by Step Installation
 
 ### Install Git
