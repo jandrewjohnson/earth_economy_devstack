@@ -131,26 +131,20 @@ if __name__ == '__main__':
 p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
 ```
 
-# IMPORTANT NOTE: If you set a scenario_definitions_path, then the attributes set in this file (such as p.scenario_label below)
+**IMPORTANT NOTE:** 
 
-# will be overwritten. Conversely, if you don't set a scenario_definitions_path, then the attributes set in this file will be used
+- If you set a scenario_definitions_path, then the attributes set in this file (such as p.scenario_label below) will be overwritten. Conversely, if you don't set a scenario_definitions_path, then the attributes set in this file will be used and will be written to a CSV file in your project's input dir.
 
-# and will be written to a CSV file in your project's input dir.
+- If you did not set a p.scenarios_definitions_path, the following default variables will be used and will be written to a scenarios csv in your project's input_dir for later use/editing/expansion. String that uniquely identifies the scenario. Will be referenced by other scenarios for comparison.
 
-# If you did not set a p.scenarios_definitions_path, the following default variables will be used
-
-# and will be written to a scenarios csv in your project's input_dir for later use/editing/expansion.
-
-# String that uniquely identifies the scenario. Will be referenced by other scenarios for comparison.
-
+```python
 p.scenario_label = 'ssp2_rcp45_luh2-globio_bau'
+```
 
-# Scenario type determines if it is historical (baseline) or future (anything else) as well
+Scenario type determines if it is historical (baseline) or future (anything else) as well as what the scenario should be compared against. I.e., Policy minus BAU.
 
-# as what the scenario should be compared against. I.e., Policy minus BAU.
-
+```python
 p.scenario_type = 'bau'
-
 ```         
 
 This computing stack also uses hazelbean to automatically download needed data at run time. In the code block below, notice the absolute path assigned to p.base_data_dir. Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. This also lets you use the same base data across different projects.
@@ -174,4 +168,4 @@ Once the model is complete, go to your project directory, and then the intermedi
 
 ![](images/paste-3.png) \[THIS IS NOT THE CORRECT IMAGE\]
 
-Open up the projected one (e.g., lulc_ssp2_rcp45_luh2-message_bau_2045.tif) in QGIS and enjoy your new, high-resolution land-use change projection!
+Open up the projected one (e.g., `lulc_ssp2_rcp45_luh2-message_bau_2045.tif`) in QGIS and enjoy your new, high-resolution land-use change projection!
