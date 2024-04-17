@@ -32,7 +32,7 @@ Both sections will discuss putting files in specific locations relative to your 
 
 5.  Install libraries using the following mamba command:
 
-`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm sympy gekko`
+`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm sympy gekko python-pptx`
 
 -   If you don't add mamba to your path, you can do this manually. On PC, you could use the command
     -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge;C:\Users\<YOUR_USERNAME>\miniforge;"`
@@ -87,6 +87,29 @@ Both sections will discuss putting files in specific locations relative to your 
     -   <https://github.com/jandrewjohnson/gtap_invest_dev>
     -   <https://github.com/jandrewjohnson/global_invest_dev>
     -   <https://github.com/jandrewjohnson/gtappy_dev>
+
+### Optional Cython Installation steps
+
+If you run any part of the code that uses compiled C++ code (mostly SEALS and the optimized raster functions in Hazelbean), then you will need to have a C++ compiler on your system.
+
+
+#### Windows Cython Installation
+
+You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
+
+![](images/paste-48.png)
+
+However, the following command line in the preferred way. Enter the following command in the Terminal:
+
+`winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"`
+
+This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
+
+![](images/paste-50.png)
+
+#### Mac Cython Installation
+
+Xcode Command Line Tools: macOS users can install these tools by running xcode-select --install in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
 
 ## Step by Step Installation
 
