@@ -8,7 +8,7 @@ Project Flow is intended to flow easily from the situation where you have coded 
 
 We will use the third level of complexity from the previous example as the launching point for how to use ProjectFlow. The code below adds a few additional steps we will work with.
 
-``` python
+```python
 import os
 import numpy as np
 import gdal
@@ -46,15 +46,24 @@ n_non_zero = np.sum(non_zero)
 mean = sum / n_non_zero
 
 ## Write the value to a file
-with open(output_path, rw) as f: # TODOO[fix my no copilot typo]
+with open(output_path, rw) as f: 
     print('Write here.')
 
 print('Sums of layers: ' + str(mean))
 ```
 
+## What is the ProjectFlow and the Task Tree?
+
+ProjectFlow is a Python class that manages a project's file structure and task tree. It is designed to be a drop-in solution for researchers who have a script that has grown too large and complex to manage. The ProjectFlow object is initialized with a directory, and it will create a file structure within that directory that is designed to be easy to navigate and understand. The ProjectFlow object also manages a task tree, which is a tree of tasks that need to be run in order to complete the project. The task tree is defined by the user, and the ProjectFlow object will manage the execution of the tasks, ensuring that they are run in the correct order and that any dependencies between tasks are satisfied.
+
+To create a task tree NOT FINISHED. Just look at the example.py in docs/examples
+
+``` python
+
+```
+
 ## Step 1: Substitute in a few pre-built Hazelbean functions
 
-#  START HERE, copy above with hb.as_array() but actually redo it with a skinned version of hb.read_raster....()
 
 ``` python
 import hazelbean as hb
