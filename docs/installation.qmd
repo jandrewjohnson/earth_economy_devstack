@@ -92,8 +92,7 @@ Both sections will discuss putting files in specific locations relative to your 
 
 If you run any part of the code that uses compiled C++ code (mostly SEALS and the optimized raster functions in Hazelbean), then you will need to have a C++ compiler on your system.
 
-
-#### Windows Cython Installation
+#### Windows Cython Installation   
 
 You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
 
