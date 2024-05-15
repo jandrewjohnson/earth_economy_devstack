@@ -8,7 +8,7 @@ Project Flow is intended to flow easily from the situation where you have coded 
 
 We will use the third level of complexity from the previous example as the launching point for how to use ProjectFlow. The code below adds a few additional steps we will work with.
 
-```python
+``` python
 import os
 import numpy as np
 import gdal
@@ -59,11 +59,9 @@ ProjectFlow is a Python class that manages a project's file structure and task t
 To create a task tree NOT FINISHED. Just look at the example.py in docs/examples
 
 ``` python
-
 ```
 
 ## Step 1: Substitute in a few pre-built Hazelbean functions
-
 
 ``` python
 import hazelbean as hb
@@ -320,3 +318,117 @@ gadm = p.gadm_adm0_vector_input_path
 if type(gadm) is str:
     gadm = hb.read_vector(p.gadm_adm0_vector_input_path)
 ```
+
+### Common example of promoting one project-level output to the base_data
+
+Here we document the case where you've run a project which involved generating an output you want to use in a subsequent project.
+
+For this example, we will consider the project IUCN, which among other things pre-processed some key data, like kbas.tif and star_threat.tif. There are large global rasters and it would slow down our script to run them again in each new project. Thus, we want to promote them to the base_data_dir. Looking at the folders in the IUCN project, we see a pyramidal output `star_threat.tif`. We want to promote this to the base_data_dir and use it in other project.
+
+![](images/2024-05-03-09-47-29.png)
+
+Our goal now is to clone the IUCN project into a new project we can modify. First, let us create the new project directory called `test_iucn_30by30`. In that folder, also create a new folder called `input`. Here, you will copy over the scenario_definitions file used in the IUCN project, which was named `scenario_definitions_iucn_all.csv`. After copying, rename it something sensible in the new location like `scenario_definitions_iucn_30by30.csv`, as shown below.
+
+![](images/paste-51.png)
+
+Now create a new Python run file. Go back to the code directory (Files/seals/seals_dev) and copy `run_iucn.py` in the same directory and rename it `run_test_iucn_30by30.py`. Note the word test her which means it is going to be a non-global, fast running script to prove the new code works. Eventually a new run file `run_iucn_30by30.py` will be created when we know it works. In the new file, rename `project_name = 'test_iucn_30by30'`. Also in the code, edit the line below to match the name of your new scenario_definitions file.
+
+``` python
+p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions_iucn_30by30.csv')
+```
+
+By copying the `run_iucn.py` file, we have ensured that we load the set of tasks we built for that project, specifically:
+
+``` python
+seals_initialize_project.build_iucn_task_tree(p)
+```
+
+Besides these two changes, the code will be identical to the standard SEALS run, except for the extra IUCN-specific tasks. You can inspect that function to see the logic of an IUCN-style SEALS run:
+
+``` python
+def build_iucn_task_tree(p):
+
+    # Define the project AOI
+    p.project_aoi_task = p.add_task(project_aoi)
+    
+    # Process the IUCN-specific data to be used in SEALS
+    p.biodiversity_task = p.add_task(seals_generate_base_data.biodiversity)
+    p.kbas_task = p.add_task(seals_generate_base_data.kba, parent=p.biodiversity_task)
+    p.star_task = p.add_task(seals_generate_base_data.star, parent=p.biodiversity_task)
+
+    ##### FINE PROCESSED INPUTS #####    
+
+    # Make folder for all generated data.
+    p.fine_processed_inputs_task = p.add_task(seals_generate_base_data.fine_processed_inputs)
+
+    # Generate some simple gaussian kernels for later convolutions
+    p.generated_kernels_task = p.add_task(seals_generate_base_data.generated_kernels, parent=p.fine_processed_inputs_task, creates_dir=False)
+
+    # Clip the fine LULC to the project AOI
+    p.lulc_clip_task = p.add_task(seals_generate_base_data.lulc_clip, parent=p.fine_processed_inputs_task, creates_dir=False)
+```
+
+Without any other modifications, run this new run file. It will (intentionally) fail and give an error message like this:
+
+![](images/paste-52.png)
+
+We're going to use this example to learn about the debugger, the "call stack", and ALSO what's going on with our new project. First, look in the upper left of the image at the call stack. When you run in debug mode and it hits an exception, it will report the error message (red text) but also will freeze execution at the point it stopped and report the exact set of (potentially nested) functions that were called right before it stopped. These nested functions are the call stack. You can click on any one to see the code corresponding to different layers of what was called. The topmost function is often the most relevant one to what went wrong (like in this case `get_geotransform_path()` didn't find the path it was given) but sometimes a deeper function gives you more information about what's actually wrong.
+
+With this information, we can understand what's going on with our new project. We see in the error message that it is not finding star_threat_input.tif in the project's input directory. This is desired because our point of this exercise is to NOT have to reprocess that input (and instead have our new project use the output of the task that would have called this). One would be tempted at this point to simply change the task tree to not call this function, but we actually do want this project to have access to this file, and moreover, we want it to work whether or not someone has generated the file. ProjectFlow is designed to solve this type of situation because any time a computationally-intensive function is called, it will check if the output has already been generated (and thus will skip the computation). To make this logic **work across projects, we simply move the outputs of the task to our base data dir.** Specifically, copy the file referenced, along with its containing folders relative to the intermediate directory and place those files/folders in the base data. If your tasks were defined correctly, these extra directories also define the canonical file location in the base data (and also the remote server for when we get to that!).
+
+To do this, we need to figure out what file our code was actually looking to recreate. For this, we actually need to use the call stack to go one level deeper. Click on the `star` element in the call stack. Here we will see the following code which led to the actual error.
+
+``` python
+def star(p):
+    star_threat_input_path = p.get_path('biodiversity', 'star', 'star_threat_input.tif')
+    star_threat_path = p.get_path('star_threat.tif') 
+    
+    if not hb.path_exists(star_threat_path):
+        # WTF apparently this was all shifted by a random amount.?
+        shift = 90.0 - 83.6361111111106226
+        
+        
+        geotransform_input = hb.get_geotransform_path(star_threat_input_path)
+        geotransform = list(geotransform_input)
+        
+        # Write a new file that corrects the weird shift without modifying the original file.
+        star_threat_shifted_path = p.get_path('star_threat_shifted.tif')
+        
+        if geotransform[3] == 90.0:
+            geotransform[3] -= shift        
+            if not hb.path_exists(star_threat_shifted_path):
+                hb.set_geotransform_to_tuple(star_threat_input_path, geotransform, output_path=star_threat_shifted_path)
+        
+        # INTERSTING IMPLICATION: Because the cur_dir is already representing the base_data nesting location, adding it again doesn't work makes it be repeated 2x
+        star_threat_padded_path = p.get_path('star_threat_padded.tif')
+        if not hb.path_exists(star_threat_padded_path):
+            hb.fill_to_match_extent(star_threat_shifted_path, p.aoi_ha_per_cell_fine_path, output_path=star_threat_padded_path, fill_value=-9999., remove_temporary_files=False)
+        
+        star_threat_path = p.get_path('star_threat.tif') 
+        if not hb.path_exists(star_threat_path):
+            hb.make_path_global_pyramid(star_threat_padded_path, output_path=star_threat_path, verbose=True)
+```
+
+In the above, we see several things. First, the p.get_path() function defines the same set of "indexed data" directories you saw above pointing to the input raster. We also see the expected output file, defined in:
+
+``` python
+star_threat_path = p.get_path('star_threat.tif')
+```
+
+This get_path() function doesn't define any indexed data directories **because it is defined by the task tree!** Specifically, p.cur_dir will already be defined to be in the 'biodiversity/star' subdirectories. We can see this in the task_tree printout.
+
+![](images/paste-55.png)
+
+In ProjectFlow, all computationally intensive tasks must be inside of a check to see if it's already been run (and sometimes, that the output validates). This happens in this task because everything besides just defining file paths is inside of following conditional:
+
+``` python
+if not hb.path_exists(star_threat_path):
+```
+
+Regardless, we can see that this file, `star_threat.tif` will be (one of) the outputs of this task. This is the one that we want to move into the base data so future functions can find it. Go into the project's intermediate directory and navigate to the right task. Here we see the file we want to promote. Copy this file, along with all of the indexed folders (in this case, 'biodiversity/star') into the root of the base_data_dir. This means relative to the two different file roots of base_data_dir and intermediate_dir will have the same relative file structure thereafter. This can be seen in the image below which shows the file copied into base_data. Notice that I didn't copy any of the intermediate files produced by the task.
+
+![](images/paste-56.png)
+
+Now, with this file in place, you can rerun the `run_test_iucn_30by30.py` file and the p.get_path() functions will find the desired file when it is checking in the base_data! There will be a new directory created for the task at `intermediate/biodiversity/star` but that will be empty. The project should run much faster now by not having to create the file while still ensuring the user has access to it. 
+
+Now that you have a new working project. Your likely next step is to create a new task tree builder function, perhaps named `build_test_iucn_30by30_task_tree(p)`. This function will define the tasks that are unique to this project. You can copy the tasks from the IUCN project and modify them as needed. You can also add new tasks that are unique to this project.
