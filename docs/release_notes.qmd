@@ -1,5 +1,51 @@
 # Release Notes
 
+## Update v4.0.0
+
+- Changed versioning to match the GTAP-InVEST project to which its development was associated. In this, we had:
+  - 1.0 WWF, 141 regions, no AEZs
+  - 2.0 ECN, 36 regions, 18 aez, endogenous LUC
+  - 3.0 PNAS, 36 regions, 18 aez, endogenous LUC, new policies
+  - 4.0 CWON, 50 regions, 18 aez, endogenous LUC, GTAP v11 data, recursive dynamic
+- New feature: 2-stage downscaling is now default (rather than implemented in the GTAP-InVEST code). Users can optionally give either (but at least one) coarse_projections_input_path or regional_projections input path. The two different downscaling scales are referred to as regional, where we assume a vector-file of regions that have corresponding LUC for different classes, or coarse, where we assume a raster file of LUC classes. 
+- Added documentation of different sceanrio_definition.csv paramters: 
+
+  - scenario_label: User-defined string to identify the scenario. Will be referenced (NYI) by automatic plotting calls according to baseline_reference_label or comparison_counterfactual_labels
+  - scenario_type: One of ['baseline', 'bau', 'policy']. 
+    - Baseline scenarios aren't downscaled (because they have been observed), but they still need a line in the scenarios file to define which model defined them and in what year they have data.
+    - BAU scenarios are downscaled, relative either to the baseline sceanrio or the previous year if not the first year. Technically bau scenarios are no different than policy scenarios except insofar as they have different interpretation about if e.g. a policy is effective relative to BAU.
+    - Policy scenarios are downscaled, relative to the baseline scenario or the previous year if not the first year and might be compared to BAU (NYI)
+  - aoi: One of ['global', <ISO3_CODE>, or canonical_path to a gpkg vector file]
+  - exogenous_label: String representing some set of exogenous drivers, typically defined by the SSP database for population, TFP growth, GDP, etc. By convention, if its an SSP, format it as e.g. ssp3
+  - climate_label: String representing the RCP in use. Format as e.g. rcp45
+  - model_label: String representing the model used to generate the scenario. Format as e.g. luh2-message.
+  - counterfactual_label: String representing some counterfactual. For example, in the latest release, we have a new test file that has 3 counterfactuals:
+    - bau: defined just by the luh2 results
+    - bau_shift: shift the luh2 results by the values in regional_projections_path
+    - just_shift: downscale only the shift using a proportional coarse downscaling
+  - years: space-delimited list of years that will be downscaled.
+  - baseline_reference_label: scenario_label to which dowscaled scenarios might be compared (NYI)
+  - base_years: space-delimited list of years that are in the observed data. If not calabrating the algorithm, these will just be a single year (which will be identical to key_base_year), but when calibrating, these are the years that define the training set. For future applications, these years could also be the validation/backcasting years
+  - key_base_year: The final base year from which the model transitions from "oberved" to "projected" data. 
+  - comparison_counterfactual_labels: scenario_label to which policy scenarios might be compared (e.g., the bau), NYI.
+  - coarse_projections_input_path: canonical path to a file that contains the coarse gridcells of how much each changing class will change. Typically this is a netcdf file with a layer for each year and each proportional LULC class as a variable, but there is great variation on HOW these are defined. This, the task tree must define a task that is capable of converting this file into the next step, which is geotiffs per class.
+  - lulc_src_label: There are two different correspondences currently idntified. The first is a correspondence between src and simplification labels. Currently implemented, src is usually 'esa' 
+  - lulc_simplification_label: Simplification label is what it gets simplified into, currently implemented to be 'seals7'. IN PROCESS OF DEPRECATING. Use just the correspondence's src and dst id column headers to define these.
+  - lulc_correspondence_path: Path to a correspondence file. Defines lulc src and lulc dst labels.
+  - coarse_src_label: IN PROCESS OF DEPRECATING. 
+  - coarse_simplification_label: IN PROCESS OF DEPRECATING. 
+  - coarse_correspondence_path: Path to a correspondence of the coarse_gridded to lulc dst
+  - lc_class_varname: attempt at making netcdf work for all possible organizations. not sure if we should keep this.
+  - dimensions: attempt at making netcdf work for all possible organizations. not sure if we should keep this.
+  - time_dim_adjustment: attempt at making netcdf work for all possible organizations. not sure if we should keep this.
+  - calibration_parameters_source: file path to a csv file that contains the calibration parameters. Could also be directory i think for when there are zone-specific ones.
+  - base_year_lulc_path: path to LULC used for the key_base_year. 
+  - regional_projections_input_path: path to a region_id and region_label mapped to different class changes.
+- In simplifying lulc_src_label etc, we have clarified a few terms:
+  - correspondence: a one to many mapping with no extra information. Contains src_id, dst_id, src_label, dst_label at minimum No additional information is stored in this file. The src and dst labels are defined in the file columns. So for instance in esa_seals7_correspondnece.csv, the file name could have been anything, but the actual src_label and dst_label strings themselves are defined in the columns esa_id and seals7_id. 
+  - structured_mapping: contains multiple one to many relationships, but also requires that the first src listed is unique. Note that if you groupby, you have to drop the previously disaggregate label (or perhaps nyi list it in a curled-up dimension with cat-ears?).
+  - unstructured_mapping: like structured_mapping but doesn't require that the first src listed is unique. If you take a structured_mapping and groupby on it, it will necessarily result in an unstructured_mapping.
+- NOTE: The proposed changes to correspondences etc. haven't been incorporated into the GTAP-InVEST code yet. do it.
 ## Update v0.5.0  
 
 Downloading of base data now works.

@@ -37,6 +37,10 @@ Both sections will discuss putting files in specific locations relative to your 
 -   If you don't add mamba to your path, you can do this manually. On PC, you could use the command
     -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge;C:\Users\<YOUR_USERNAME>\miniforge;"`
 
+6. Install more with pip using the following command:
+7. 
+`pip install winshell`
+
 ### Clone the Earth Economy Devstack
 
 -   Clone the Earth Economy devstack into the correct location
