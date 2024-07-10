@@ -4,7 +4,7 @@
 
 In programming, `id` and `index` are two different concepts that are used in different contexts.
 
-`id` refers to the unique identifier of an object. In this specification, it is an integer that is sorted by the ONE in the many-to-one correspondence, sorted alphabetically at generation time (though not necessarily to remain sorted given downstream correspondences).
+`id` refers to the unique identifier of an object. In this specification, it is an integer that is sorted by the ONE in the many-to-one correspondence, sorted alphabetically at generation time (though not necessarily to remain sorted given downstream correspondences). In the devstack (though not in programming in general), we will assume that id is an integer greater or equal to 1 where 0 denotes NDV. This enables faster computation with e.g. id_raster and reclassify_raster.
 
 `index` refers to the position of an element in a sequence (e.g. a list or a string). In the context of a correspondence file, this is the position of the row within the sorted spreadsheet, but is not assumed to be stable and shouldn't generally be used.
 
