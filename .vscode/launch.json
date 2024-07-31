@@ -2,7 +2,40 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "internalConsole, Current File",
+            "name": "internalConsole, Current File (Unix)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "internalConsole",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+        },
+        {
+            "name": "internalTerminal, Current File (Unix)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+        },
+        {
+            "name": "externalConsole, Current File (Unix)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+        },
+        {
+            "name": "internalConsole, Current File (Windows)",
             "type": "python",
             "request": "launch",
             "program": "${file}",
@@ -13,7 +46,7 @@
                 "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
         {
-            "name": "internalTerminal, Current File",
+            "name": "internalTerminal, Current File (Windows)",
             "type": "python",
             "request": "launch",
             "program": "${file}",
@@ -24,7 +57,7 @@
                 "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
         {
-            "name": "externalConsole, Current File",
+            "name": "externalConsole, Current File (Windows)",
             "type": "python",
             "request": "launch",
             "program": "${file}",
@@ -35,5 +68,6 @@
                 "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
 
-    ]
+    }
+]
 }
