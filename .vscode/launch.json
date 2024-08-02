@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "internalConsole, Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "internalConsole",
@@ -14,7 +14,7 @@
         },
         {
             "name": "internalTerminal, Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal",
@@ -25,7 +25,7 @@
         },
         {
             "name": "externalConsole, Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal",
