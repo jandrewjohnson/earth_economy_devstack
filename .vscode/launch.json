@@ -2,8 +2,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "internalConsole, Current File (Unix)",
-            "type": "python",
+            "name": "internalConsole, Current File (Mac/Unix)",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "internalConsole",
@@ -13,8 +13,8 @@
                 "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
         },
         {
-            "name": "internalTerminal, Current File (Unix)",
-            "type": "python",
+            "name": "internalTerminal, Current File (Mac/Unix)",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal",
@@ -24,8 +24,8 @@
                 "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
         },
         {
-            "name": "externalConsole, Current File (Unix)",
-            "type": "python",
+            "name": "externalConsole, Current File (Mac/Unix)",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal",
@@ -36,7 +36,7 @@
         },
         {
             "name": "internalConsole, Current File (Windows)",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "internalConsole",
@@ -47,7 +47,7 @@
         },
         {
             "name": "internalTerminal, Current File (Windows)",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal",
@@ -58,7 +58,7 @@
         },
         {
             "name": "externalConsole, Current File (Windows)",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal",
