@@ -16,7 +16,6 @@
         -   The library itself is in the seals subdirectory `seals_dev/seals` which may seem redundant but is necessary for the way Python imports work.
         -   If you inspect the seals directory, you will see an `__init__.py` file. This make Python able to import the directory as a package.
     -   You will also see a `seals_main.py` file. This is where most of the actual logic of seals is.
- 
 
 ![](images/2024-03-06-04-41-48.png)
 
@@ -36,6 +35,10 @@
 -   The run file begins with standard python imports
 -   Then in the `if __name__ == '__main__':` block, we define the project directory and initialize the project flow object
     -   The reason for putting it in this block is so that you don't accidentally run the code when you import the file in another script
+-   This file then creates a ProjectFlow objected, assigned to the variable p.
+    -   Python is an object-oriented programming langage
+        -   The hb.ProjectFlow() defines a `class`, which is like a recipe for an object
+        -   When we call it, it generates on `object` of that class, which we assign to the variable `p`
 
 ``` python
 import os, sys
@@ -43,122 +46,84 @@ import seals_utils
 import seals_initialize_project
 import hazelbean as hb
 import pandas as pd
-from seals_utils import download_google_cloud_blob
 
 main = ''
 if __name__ == '__main__':
-    content = "here"
+    
+    # Create a ProjectFlow Object to organize directories and enable parallel processing.
+    p = hb.ProjectFlow()
 ```
 
-## Project directory structure
+## Directories and project name
 
 -   SEALS (and the EE Devstack) assumes (or softly requires) that you put all code and data somewhere relative to the user's home directory `os.path.expanduser('~')`
-    -   Can put it in suddirectories with `extra_dirs = ['Files', 'seals', 'projects']`
+    -   Can put it in sub-directories with `extra_dirs = ['Files', 'seals', 'projects']`
 -   If you followed the EE method, you will have already created the `seals` directory at `<user_dir>/Files/seals`
     -   In the `seals` directory, your code is in `seals_dev`
-    -   In the `seals` directory, you also will have a `projects` direcotry
+    -   In the `seals` directory, you also will have a `projects` directory
         -   This is created automatically if its not there
         -   All data and outputs will be saved in this directory
             -   As a best practice, you should not save data in the `seals_dev` directory
+-   Given the directory structure above, p.project_name will also be use
 
 ``` python
-    ### ------- ENVIRONMENT SETTINGS -------------------------------
-    # Users should only need to edit lines in this ENVIRONMENT SETTINGS section
+# Assign project-level attributes to the p object (such as in p.base_data_dir = ... below)
+# including where the project_dir and base_data are located.
+# The project_name is used to name the project directory below. If the directory exists, each task will not recreate
+# files that already exist. 
+p.user_dir = os.path.expanduser('~')        
+p.extra_dirs = ['Files', 'seals', 'projects']
+p.project_name = 'test_examples'
+p.project_name = p.project_name + '_' + hb.pretty_time() # If don't you want to recreate everything each time, comment out this line.
 
-    # A ProjectFlow object is created from the Hazelbean library to organize directories and enable parallel processing.
-    # project-level variables are assigned as attributes to the p object (such as in p.base_data_dir = ... below)
-    # The only agrument for a project flow object is where the project directory is relative to the current_working_directory.
-    # This organization, defined with extra dirs relative to the user_dir is the EE-spec.
-    user_dir = os.path.expanduser('~')        
-    extra_dirs = ['Files', 'seals', 'projects']
-```
-
-## Project name
-
--   Set the project name
-    -   This is where your new files will be written
--   The next line defines the project dir with the above information
-
-``` python
-    # The project_name is used to name the project directory below. Also note that
-    # ProjectFlow only calculates tasks that haven't been done yet, so adding 
-    # a new project_name will give a fresh directory and ensure all parts
-    # are run.
-    project_name = 'test_standard'
-
-    # The project-dir is where everything will be stored, in particular in an input, intermediate, or output dir
-    # IMPORTANT NOTE: This should not be in a cloud-synced directory (e.g. dropbox, google drive, etc.), which
-    # will either make the run fail or cause it to be very slow. The recommended place is (as coded above)
-    # somewhere in the users's home directory.
-    project_dir = os.path.join(user_dir, os.sep.join(extra_dirs), project_name)
-```
-
-## Create ProjectFlow object
-
--   Create a ProjectFlow object with the project_dir as the only argument
-    -   Python is an object-oriented programming langage
-        -   The hb.ProjectFlow() defines a `class`, which is like a recipe for an object
-        -   When we call it, it generates on `object` of that class, which we assign to the variable `p`
-
-``` python
-    # Create the ProjectFlow Object
-    p = hb.ProjectFlow(project_dir)
+# Based on the paths above, set the project_dir. All files will be created in this directory.
+p.project_dir = os.path.join(p.user_dir, os.sep.join(p.extra_dirs), p.project_name)
+p.set_project_dir(p.project_dir) 
 ```
 
 ## Using Objects
 
 -   The `p` object we created will organize input variables (called attributes when assigned to an object)
-    -   Like this: `p.attribute_name = 'ItsName`
+    -   Like this: `p.attribute_name = 'ItsName'`
 -   The `p` object also has functions tied specificially to it (called methods when assigned to an object)
     -   Such as: `p.validate_name()`
     -   Methods operate on the object that defined it
         -   So `validate_name()` is specifically looking at the `p` object, often doing something to the `p` object, like fixing value of `p.attribute_name`
 
-# Default Variables
+# Scenario Definitions
 
-## Inspect default variables
+## Scenario definitions CSV
 
--   The default variables might not need to be modified from their default values
-    -   But we need to understand them to get what SEALS is doing
--   Below, we set the attribute for where the `scenario_definitions` csv should be stored
-    -   Note that we never defined `p.input_dir`. It was based on the `project_dir` when we created `p`
 -   The `scenario_definitions` file specifies what defines the many different scenarios you want to run
     -   Each row will be one scenario
     -   Each time the model runs a new scenario, it will update its attributes based on this row
--   If you haven't run SEALS yet, you won't have a `scenario_defintions` file, so it will create a default one on the first run
+-   If you haven't run SEALS yet, you won't have a `scenario_defintions` file, so it will download the default one on the first run
 
 ``` python
-p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions.csv')
+    p.scenario_definitions_filename = 'test_standard_scenarios.csv' 
+    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
+    seals_initialize_project.initialize_scenario_definitions(p)
 ```
 
-**IMPORTANT NOTE:** 
+## Scenario types
 
-- If you set a scenario_definitions_path, then the attributes set in this file (such as p.scenario_label below) will be overwritten. Conversely, if you don't set a scenario_definitions_path, then the attributes set in this file will be used and will be written to a CSV file in your project's input dir.
+-   Scenario type determines if it is historical (baseline) or future (anything else) as well as what the scenario should be compared against. I.e., Policy minus BAU.
 
-- If you did not set a p.scenarios_definitions_path, the following default variables will be used and will be written to a scenarios csv in your project's input_dir for later use/editing/expansion. String that uniquely identifies the scenario. Will be referenced by other scenarios for comparison.
-
-```python
-p.scenario_label = 'ssp2_rcp45_luh2-globio_bau'
-```
-
-Scenario type determines if it is historical (baseline) or future (anything else) as well as what the scenario should be compared against. I.e., Policy minus BAU.
-
-```python
+``` python
 p.scenario_type = 'bau'
-```         
-
-This computing stack also uses hazelbean to automatically download needed data at run time. In the code block below, notice the absolute path assigned to p.base_data_dir. Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. This also lets you use the same base data across different projects.
-
-In addition to defining a base_data_dir, you will need to For this to work, you need to also point SEALS to the correct data_credentials_path. If you don't have a credentils file, email jajohns\@umn.edu. The data are freely available but are very, very large (and thus expensive to host), so I limit access via credentials.
-
-``` python
-
-p.base_data_dir = os.path.join('G:/My Drive/Files/base_data')
-
-p.data_credentials_path = '..\\api_key_credentials.json'
 ```
 
-NOTE THAT the final directory has to be named base_data to match the naming convention on the google cloud bucket.
+## Automatically downloading data
+
+-   This computing stack also uses hazelbean to automatically download needed data at run time.
+    -   In the code block below, we set p.base_data_dir to a location where we want to store lots of very large files.
+    -   Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. T
+    -   This also lets you use the same base data across different projects.
+-   The final directory has to be named base_data to match the naming convention on the google cloud bucket.
+
+``` python
+p.base_data_dir = os.path.join('Files/base_data')
+```
 
 ## Running the model
 
@@ -166,6 +131,6 @@ After doing the above steps, you should be ready to run `run_test_seals.py`. Upo
 
 Once the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:
 
-![](images/paste-3.png) \[THIS IS NOT THE CORRECT IMAGE\]
+\[THIS IS NOT THE CORRECT IMAGE\]
 
 Open up the projected one (e.g., `lulc_ssp2_rcp45_luh2-message_bau_2045.tif`) in QGIS and enjoy your new, high-resolution land-use change projection!

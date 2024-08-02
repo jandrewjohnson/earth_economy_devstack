@@ -1,0 +1,15 @@
+# Steps
+
+-   Install Github Pull Requests VS Code extension
+
+-   In the left-hand sidebar, click on the Github Pull Requests icon
+
+![](images/paste-57.png)
+
+-   Right-click and select "Checkout Pull Request"
+
+    ![](images/paste-58.png)
+
+-   Now your local files will be those of the PR.
+
+-   Run all relevant tests in the test suite.
