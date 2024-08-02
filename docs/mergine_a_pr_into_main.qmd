@@ -13,3 +13,7 @@
 -   Now your local files will be those of the PR.
 
 -   Run all relevant tests in the test suite.
+
+![](images/Screenshot 2024-08-02 092520.png)
+
+![](images/Screenshot%202024-08-02%20093258.png)
