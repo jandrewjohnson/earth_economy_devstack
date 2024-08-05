@@ -14,6 +14,6 @@
 
 -   Run all relevant tests in the test suite.
 
-![](images/Screenshot 2024-08-02 092520.png)
+![](images/Screenshot%202024-08-02%20092520.png)
 
 ![](images/Screenshot%202024-08-02%20093258.png)
