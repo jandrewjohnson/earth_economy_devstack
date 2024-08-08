@@ -11,3 +11,116 @@ The three main sources for Global InVEST is
 -   Nature's Frontiers: [Damania et al. (2023)](https://www.worldbank.org/en/publication/natures-frontiers)
 
 ![](images/paste-44.png)
+
+## Setting Up Global InVEST Models
+
+To run the Global InVEST models within the Earth Economy Dev Stack standard, you first need to follow the installation steps in the [`earth_economy_devstack`](installation.qmd) guide to include `global_invest` and `hazelbean` in your workspace.
+
+## Folder Structure of Global InVEST
+
+Within the `global_invest_dev/global_invest` directory, you will find the following structure:
+
+```bash
+global_invest
+│-- ecosystem_services_subfolders
+│-- global_invest_main.py
+│-- ecosystem_services_functions.py
+│-- ecosystem_services_tasks.py
+│-- example_run_file.py
+│-- example_execute_invest_ES.py
+│-- run_global_ES.py
+```
+
+-   `ecosystem_services_subfolders` contains the scripts for the specific ecosystem service models. Currently, it includes folders like `pollination_sufficiency` and `cnc_global_cv`.
+
+-   `global_invest_main.py` is the primary script for running the global InVEST models.
+
+-   `ecosystem_services_functions.py` includes general functions used by the global InVEST models. Files ending in **`_functions.py`** are not project-specific and contain general utility functions.
+
+-   `ecosystem_services_tasks.py` includes tasks specific to the global InVEST models. Files ending in **`_tasks.py`** are project-specific and include the project object `p`, which is handled by `Project Flow` in `hazelbean`.
+
+-   `example_run_file.py` is a script to run an example at the global level. This script demonstrates how to run a carbon storage model for a specific area of interest (AOI). The default AOI is `RWA`.
+
+-   `example_execute_invest_ES.py` is similar to the run script created by InVEST but uses different paths.
+
+-   `run_global_ES.py` is the script for running the global InVEST models for a specific Ecosystem Service. Files ending in **`_ES.py`** are provided as examples, such as the Global-InVEST-Carbon Storage model (`run_global_carbon.py`).
+
+## Run Global InVEST Models
+
+To have a testing run of Global InVEST Model, you can run the `example_run_file.py` script. This script runs the carbon storage model for a specific AOI (Rwanda). The script will download the necessary data, run the model, and save the results in the `workspace` directory. It is well-documented script with the following major steps:
+
+1. Create a `Project` object `p`, and set up corresponding project-directories.
+
+```{python, eval=FALSE}
+# Create the project flow object
+p = hb.ProjectFlow()
+
+# Set project-directories
+p.user_dir = os.path.expanduser('~') # EE Devstack is defined relative to the user's directory, but could be overwritten if running not for the Devstack.    
+p.extra_dirs = ['Files', 'global_invest', 'projects'] # Extra directories used inside the user_dir
+p.project_name = 'test_global_invest' # Name of the project, which will be used to create the project_dir
+p.project_name = p.project_name + '_' + hb.pretty_time() # Comment this line out if you want it to use an existing project. Will skip recreation of files that already exist.
+p.project_dir = os.path.join(p.user_dir, os.sep.join(p.extra_dirs), p.project_name) # Combines above to set the user_dir. 
+p.set_project_dir(p.project_dir) # Based on the project_dir, create all other relevant dirs, like input, intermediate, and output.
+
+# Set basa_data_dir. Will download required files here.
+p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data') # Could be anywhere, including external storage. But, should not be cloud-controlled (like Google Drive). 
+```
+
+2. Define the test and paths for the LULC, region_ids, and global_regions_vector. By default, the AOI is set to Rwanda. The paths are set to the `catographic/ee` folder in the base data directory.
+```{python, eval=FALSE}
+# Set model-paths and details
+p.aoi = 'RWA'
+p.base_year_lulc_path = p.get_path('lulc/esa/lulc_esa_2017.tif') # Defines the fine_resolution
+p.region_ids_coarse_path = p.get_path('cartographic/ee/id_rasters/eemarine_r566_ids_900sec.tif') # Defines the coarse_resolution
+p.global_regions_vector_path = p.get_path('cartographic/ee/eemarine_r566_correspondence.gpkg') # Will be used to create the aoi vector
+```
+
+3. Create your own tasks trees and execute the task tree.
+
+For example, in the following task tree, the project object `p` has 4 tasks:
+
+-  `project_aoi_task`: Clips the global regions vector to the AOI selected.
+-  `aoi_inputs_task`: Clips global inputs based on the AOI.
+-  `ecosystem_services_task`: Empty task just to contain all the other ES tasks (by being set as their parent task).
+-  `carbon_storage_biophysical_task`: Actually implements the model logic.
+
+Note: if `parent=p.ecosystem_services_task` is not set for `carbon_storage_biophysical_task`, the task will not be set as the child-task of the `ecosystem_services_task`.
+
+```{python, eval=FALSE}
+def build_task_tree(p):
+    p.project_aoi_task = p.add_task(ecosystem_services_tasks.project_aoi) # Clips the global_regions_vector to the aoi selected   
+    p.aoi_inputs_task = p.add_task(ecosystem_services_tasks.aoi_inputs) # Clips global inputs based on the aoi
+    p.ecosystem_services_task = p.add_task(ecosystem_services_tasks.ecosystem_services) # Empty task just to contain all the other ES tasks (by being set as their parent task)
+    p.carbon_storage_biophysical_task = p.add_task(ecosystem_services_tasks.example_ecosystem_services_invest_task, parent=p.ecosystem_services_task) # Actually implements the model logic
+
+# Build the task tree and excute it!
+build_task_tree(p)
+p.execute()
+```
+
+## Customizing `_tasks`, `_functions`, and `run_` Files in Global InVEST
+
+If you are a new user who has forked the `global_invest_dev` repository and want to add a new ecosystem service model, you can follow these steps:
+
+1. Copy and paste the `example_run_file.py`, then rename it to `run_global_<new_es>.py`. In the newly created file, ensure you define your own `p.<new_es>_biophysical_task` in the `ecosystem_services_tasks.py` file. For instance, if your new ecosystem service model is `sediment_retention`, in your `run_global_sdr.py`, you should define your own task tree as follows:
+
+```{python, eval=FALSE}
+def build_task_tree(p):
+    p.project_aoi_task = p.add_task(ecosystem_services_tasks.project_aoi) # Clips the global_regions_vector to the selected AOI
+    p.aoi_inputs_task = p.add_task(ecosystem_services_tasks.aoi_inputs) # Clips global inputs based on the AOI
+    p.ecosystem_services_task = p.add_task(ecosystem_services_tasks.ecosystem_services) # Empty task to contain all other ES tasks (set as their parent task)
+    p.sediment_retention_biophysical_task = p.add_task(ecosystem_services_tasks.sediment_retention_invest_task, parent=p.ecosystem_services_task) # CHANGED FROM CARBON STORAGE TO SEDIMENT RETENTION
+```
+
+2. In the `ecosystem_services_tasks.py` file, add a new task for the new ecosystem service model. For example:
+
+```{python, eval=FALSE}
+def sediment_retention_invest_task(p):
+    """Iterate over a scenarios file to calculate SDR from LULC maps."""
+
+    if p.run_this:
+        ecosystem_services_functions.sdr_biophysical(current_lulc_path, current_sdr_path, p.exhaustive_sdr_path, sdr_output_path)
+```
+
+3. Any functions used in the `sediment_retention_invest_task` in the `ecosystem_services_tasks.py` file should be called from the `ecosystem_services_functions.py` file. For example, the `sdr_biophysical` function called in the `def sediment_retention_invest_task(p):` function should be defined in `ecosystem_services_functions.py`. Alternatively, you can save this function in a separate Python or C script compiled by Cython for faster calculation, similar to `carbon_storage_ipcc_tier_1_cython.pyx`. However, keep the main calculation core in a single Cython file and retain the main body of the function in the `ecosystem_services_functions.py` file.
