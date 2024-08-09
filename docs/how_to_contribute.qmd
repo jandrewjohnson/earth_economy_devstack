@@ -48,9 +48,119 @@ After committing the changes, they can be pushed to your fork by using `git push
 
 ![](images/git_branches.png)
 
+
+#### Updating Your Fork with Changes from the Original Repository
+
+To update your fork with the latest changes from the original repository, follow these steps:
+
+**1. Configure the Original Repository as a Remote**
+
+If you haven't already, add the original repository as a remote. You typically name it `upstream`.
+
+```sh
+git remote add upstream <URL of the original repository>
+```
+
+**2. Fetch the Latest Changes from the Original Repository**
+
+Fetch the branches and their respective commits from the `upstream` repository. Commits to `main` will be stored in the local branch `upstream/main`.
+
+```sh
+git fetch upstream
+```
+
+**3. Merge or Rebase the Changes**
+
+**Option A: Merge the Changes**
+
+1. Switch to your local `main` branch (or the branch you want to update).
+
+    ```sh
+    git checkout main
+    ```
+
+2. Merge the changes from `upstream/main` into your local `main` branch.
+
+    ```sh
+    git merge upstream/main
+    ```
+
+3. Resolve any merge conflicts if they arise, commit the merge, and push the updated branch to your fork.
+
+    ```sh
+    git push origin main
+    ```
+
+**Option B: Rebase the Changes**
+
+1. Switch to your local `main` branch (or the branch you want to update).
+
+    ```sh
+    git checkout main
+    ```
+
+2. Rebase your local changes on top of the upstream changes.
+
+    ```sh
+    git rebase upstream/main
+    ```
+
+3. Resolve any rebase conflicts if they arise, continue the rebase, and push the updated branch to your fork.
+
+    ```sh
+    git push origin main --force
+    ```
+
+**4. Ensure Your Fork is Up-to-Date**
+
+If you have other branches, you may need to repeat the merge or rebase process for each branch.
+
+**Summary of Commands**
+
+```sh
+git remote add upstream <URL of the original repository>
+git fetch upstream
+git checkout main
+git merge upstream/main  # or git rebase upstream/main
+git push origin main  # use --force with rebase
+```
+
+By following these steps, you will incorporate the latest changes from the original repository into your fork.
+
+
+
+
 ### Pull requests
 
 In order to propose changes to the original SEALS repository, it is recommended to use [pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork). Pull requests inform other users about your code changes and allow them to review these changes by comparing and highlighting the parts of the code that have have been altered. They also highlight potential [merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts), which occur when git is trying to merge branches with competing commits within the same parts of the code. Pull requests can be done directly at GitHub by navigating to either the forked repository or the original SEALS repository and by clicking on 'Pull requests' and then 'New pull request'. This will open a new pull request page where changes can be described in more detail and code reviewers can be specfied. Pull requests should be reviewed by at least one of the main code developers.
+
+Here is an example where you think some functions in `seals_process_coarse_timeseries.py` within the `seals_dev` project should be removed and relocated to a project-specific repository, rather than remaining in the core `seals_dev` repository. In your **forked** `seals_dev` repository:
+
+![](images/pull_request_example_step1.png)
+
+This example shows that you have made changes in `seals_process_coarse_timeseries.py`. You need to "Stage Changes" (as indicated by the red circle) and "Commit Changes" before you can create a pull request.
+
+![](images/pull_request_example_step2.png)
+
+Next, `commit and sync` the changes to the forked repository.
+
+![](images/pull_request_example_step3.png)
+
+To create a pull request, please go to your forked repository on GitHub.
+
+![](images/pull_request_example_step4.png)
+
+You will see your commit message should match the information you typed in the commit box when you committed and synced the changes. Then, click on the `Contribute` button and select `Open pull request`.
+
+![](images/pull_request_example_step5.png)
+
+On the pull request page, which appears on the `upstream` repository, you can add more information about the changes you made. Before clicking on the `Create pull request` button, **test your changes again** and ensure they pass all tests before proceeding to ensure that the changes work as expected.
+
+![](images/pull_request_example_step6.png)
+
+Finally, the pull request will appear in the `upstream` repository. The main developers will review your changes and, if approved, will merge them into the `upstream` repository.
+
+
 
 ### Branching
 
