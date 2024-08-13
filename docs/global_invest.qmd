@@ -51,7 +51,7 @@ To have a testing run of Global InVEST Model, you can run the `example_run_file.
 
 1. Create a `Project` object `p`, and set up corresponding project-directories.
 
-```{python, eval=FALSE}
+``` python
 # Create the project flow object
 p = hb.ProjectFlow()
 
@@ -68,7 +68,7 @@ p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data') # Could be anyw
 ```
 
 2. Define the test and paths for the LULC, region_ids, and global_regions_vector. By default, the AOI is set to Rwanda. The paths are set to the `catographic/ee` folder in the base data directory.
-```{python, eval=FALSE}
+``` python
 # Set model-paths and details
 p.aoi = 'RWA'
 p.base_year_lulc_path = p.get_path('lulc/esa/lulc_esa_2017.tif') # Defines the fine_resolution
@@ -87,7 +87,7 @@ For example, in the following task tree, the project object `p` has 4 tasks:
 
 Note: if `parent=p.ecosystem_services_task` is not set for `carbon_storage_biophysical_task`, the task will not be set as the child-task of the `ecosystem_services_task`.
 
-```{python, eval=FALSE}
+``` python
 def build_task_tree(p):
     p.project_aoi_task = p.add_task(ecosystem_services_tasks.project_aoi) # Clips the global_regions_vector to the aoi selected   
     p.aoi_inputs_task = p.add_task(ecosystem_services_tasks.aoi_inputs) # Clips global inputs based on the aoi
@@ -105,7 +105,7 @@ If you are a new user who has forked the `global_invest_dev` repository and want
 
 1. Copy and paste the `example_run_file.py`, then rename it to `run_global_<new_es>.py`. In the newly created file, ensure you define your own `p.<new_es>_biophysical_task` in the `ecosystem_services_tasks.py` file. For instance, if your new ecosystem service model is `sediment_retention`, in your `run_global_sdr.py`, you should define your own task tree as follows:
 
-```{python, eval=FALSE}
+``` python
 def build_task_tree(p):
     p.project_aoi_task = p.add_task(ecosystem_services_tasks.project_aoi) # Clips the global_regions_vector to the selected AOI
     p.aoi_inputs_task = p.add_task(ecosystem_services_tasks.aoi_inputs) # Clips global inputs based on the AOI
@@ -115,7 +115,7 @@ def build_task_tree(p):
 
 2. In the `ecosystem_services_tasks.py` file, add a new task for the new ecosystem service model. For example:
 
-```{python, eval=FALSE}
+``` python
 def sediment_retention_invest_task(p):
     """Iterate over a scenarios file to calculate SDR from LULC maps."""
 
