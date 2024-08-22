@@ -48,7 +48,6 @@ After committing the changes, they can be pushed to your fork by using `git push
 
 ![](images/git_branches.png)
 
-
 #### Updating Your Fork with Changes from the Original Repository
 
 To update your fork with the latest changes from the original repository, follow these steps:
@@ -57,7 +56,7 @@ To update your fork with the latest changes from the original repository, follow
 
 If you haven't already, add the original repository as a remote. You typically name it `upstream`.
 
-```sh
+``` sh
 git remote add upstream <URL of the original repository>
 ```
 
@@ -65,7 +64,7 @@ git remote add upstream <URL of the original repository>
 
 Fetch the branches and their respective commits from the `upstream` repository. Commits to `main` will be stored in the local branch `upstream/main`.
 
-```sh
+``` sh
 git fetch upstream
 ```
 
@@ -73,41 +72,41 @@ git fetch upstream
 
 **Option A: Merge the Changes**
 
-1. Switch to your local `main` branch (or the branch you want to update).
+1.  Switch to your local `main` branch (or the branch you want to update).
 
-    ```sh
+    ``` sh
     git checkout main
     ```
 
-2. Merge the changes from `upstream/main` into your local `main` branch.
+2.  Merge the changes from `upstream/main` into your local `main` branch.
 
-    ```sh
+    ``` sh
     git merge upstream/main
     ```
 
-3. Resolve any merge conflicts if they arise, commit the merge, and push the updated branch to your fork.
+3.  Resolve any merge conflicts if they arise, commit the merge, and push the updated branch to your fork.
 
-    ```sh
+    ``` sh
     git push origin main
     ```
 
 **Option B: Rebase the Changes**
 
-1. Switch to your local `main` branch (or the branch you want to update).
+1.  Switch to your local `main` branch (or the branch you want to update).
 
-    ```sh
+    ``` sh
     git checkout main
     ```
 
-2. Rebase your local changes on top of the upstream changes.
+2.  Rebase your local changes on top of the upstream changes.
 
-    ```sh
+    ``` sh
     git rebase upstream/main
     ```
 
-3. Resolve any rebase conflicts if they arise, continue the rebase, and push the updated branch to your fork.
+3.  Resolve any rebase conflicts if they arise, continue the rebase, and push the updated branch to your fork.
 
-    ```sh
+    ``` sh
     git push origin main --force
     ```
 
@@ -117,7 +116,7 @@ If you have other branches, you may need to repeat the merge or rebase process f
 
 **Summary of Commands**
 
-```sh
+``` sh
 git remote add upstream <URL of the original repository>
 git fetch upstream
 git checkout main
@@ -126,9 +125,6 @@ git push origin main  # use --force with rebase
 ```
 
 By following these steps, you will incorporate the latest changes from the original repository into your fork.
-
-
-
 
 ### Pull requests
 
@@ -159,8 +155,6 @@ On the pull request page, which appears on the `upstream` repository, you can ad
 ![](images/pull_request_example_step6.png)
 
 Finally, the pull request will appear in the `upstream` repository. The main developers will review your changes and, if approved, will merge them into the `upstream` repository.
-
-
 
 ### Branching
 

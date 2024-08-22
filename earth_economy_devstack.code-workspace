@@ -17,20 +17,11 @@
 		},
 		{
 			"path": "../seals/seals_dev"
-		},
-		{
-			"name": "apec_8601_2022",
-			"path": "../apec_8601/apec_8601_2022"
-		},
-		{
-			"path": "../Teaching/apec_8601/apec_8601_2024"
-		},
-		{
-			"path": "../seals/seals_beta"
 		}
 	],
 	"settings": {
 		"files.autoSave": "onFocusChange",
+
 		"python.analysis.extraPaths": [
 			"${workspaceFolder}/../../../global_invest/global_invest_dev",
 			"${workspaceFolder}/../../global_invest/global_invest_dev",
