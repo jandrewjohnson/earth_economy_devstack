@@ -1,0 +1,65 @@
+[
+  {
+    "objectID": "seals_walkthrough_marked.html#getting-set-up",
+    "href": "seals_walkthrough_marked.html#getting-set-up",
+    "title": "",
+    "section": "Getting set up",
+    "text": "Getting set up\n\n\nMake sure you have followed all of the steps in the installation page.\n\nIn particular, Clone the SEALS and Hazelbean repositories in the correct location, as described here\nYou will know you’ve got them installed correctly if your VS Code Explorer tab shows the repositories without an error message (Figure 1)"
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#explore-the-seals-code",
+    "href": "seals_walkthrough_marked.html#explore-the-seals-code",
+    "title": "",
+    "section": "Explore the SEALS code",
+    "text": "Explore the SEALS code\n\n\nIn the VS Code Explorer tab, navigate to your seals_dev directory (Figure 1)\n\nQuick note about file organization\n\nThe root directory of seals_dev contains more than just the seals library, such as directories for scripts, images, etc.\nThe library itself is in the seals subdirectory seals_dev/seals which may seem redundant but is necessary for the way Python imports work.\nIf you inspect the seals directory, you will see an __init__.py file. This make Python able to import the directory as a package.\n\nYou will also see a seals_main.py file. This is where most of the actual logic of seals is."
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#run-files",
+    "href": "seals_walkthrough_marked.html#run-files",
+    "title": "",
+    "section": "Run files",
+    "text": "Run files\n\n\n\n\nOne does not simply run a main.py (Figure 1)\n\nInstead, we’re going to have a “run file” that sets up the code and then runs the seals_main.py file\nOpen up the run_test_standard.py file in the seals directory (Figure 2)\n\nWe will setup this file and then finally run it (in debug mode via the launch configs in the earth_economy_devstack repository)"
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#setting-up-the-run-file",
+    "href": "seals_walkthrough_marked.html#setting-up-the-run-file",
+    "title": "",
+    "section": "Setting up the run file",
+    "text": "Setting up the run file\n::: r-fit-text - The run file begins with standard python imports - Then in the if __name__ == '__main__': block, we define the project directory and initialize the project flow object - The reason for putting it in this block is so that you don’t accidentally run the code when you import the file in another script - This file then creates a ProjectFlow objected, assigned to the variable p. - Python is an object-oriented programming langage - The hb.ProjectFlow() defines a class, which is like a recipe for an object - When we call it, it generates on object of that class, which we assign to the variable p\nimport os, sys\nimport seals_utils\nimport seals_initialize_project\nimport hazelbean as hb\nimport pandas as pd\n\nmain = ''\nif __name__ == '__main__':\n:::\n\n## Directories and project name\n\n::: r-fit-text\n-   SEALS (and the EE Devstack) assumes (or softly requires) that you put all code and data somewhere relative to the user's home directory `os.path.expanduser('~')`\n    -   Can put it in sub-directories with `extra_dirs = ['Files', 'seals', 'projects']`\n-   If you followed the EE method, you will have already created the `seals` directory at `&lt;user_dir&gt;/Files/seals`\n    -   In the `seals` directory, your code is in `seals_dev`\n    -   In the `seals` directory, you also will have a `projects` directory\n        -   This is created automatically if its not there\n        -   All data and outputs will be saved in this directory\n            -   As a best practice, you should not save data in the `seals_dev` directory\n-   Given the directory structure above, p.project_name will also be use\n\n:::\n\n\n\n\n# files that already exist. \np.user_dir = os.path.expanduser('~')        \n::: r-fit-text\np.extra_dirs = ['Files', 'seals', 'projects']\np.project_name = 'test_examples'\np.project_name = p.project_name + '_' + hb.pretty_time() # If don't you want to recreate everything each time, comment out this line.\n:::\n\n# Based on the paths above, set the project_dir. All files will be created in this directory.\np.project_dir = os.path.join(p.user_dir, os.sep.join(p.extra_dirs), p.project_name)\np.set_project_dir(p.project_dir)"
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#using-objects",
+    "href": "seals_walkthrough_marked.html#using-objects",
+    "title": "",
+    "section": "Using Objects",
+    "text": "Using Objects\n\n\nThe p object we created will organize input variables (called attributes when assigned to an object)\n\nLike this: p.attribute_name = 'ItsName'\n\nThe p object also has functions tied specificially to it (called methods when assigned to an object)\n\nSuch as: p.validate_name()\nMethods operate on the object that defined it\n\nSo validate_name() is specifically looking at the p object, often doing something to the p object, like fixing value of p.attribute_name"
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#scenario-definitions-csv",
+    "href": "seals_walkthrough_marked.html#scenario-definitions-csv",
+    "title": "",
+    "section": "Scenario definitions CSV",
+    "text": "Scenario definitions CSV\n\n\nThe scenario_definitions file specifies what defines the many different scenarios you want to run\n\nEach row will be one scenario\nEach time the model runs a new scenario, it will update its attributes based on this row\n\nIf you haven’t run SEALS yet, you won’t have a scenario_defintions file, so it will download the default one on the first run\n\n    p.scenario_definitions_filename = 'test_standard_scenarios.csv' \n    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)\n    seals_initialize_project.initialize_scenario_definitions(p)"
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#scenario-types",
+    "href": "seals_walkthrough_marked.html#scenario-types",
+    "title": "",
+    "section": "Scenario types",
+    "text": "Scenario types\n\nScenario type determines if it is historical (baseline) or future (anything else) as well as what the scenario should be compared against. I.e., Policy minus BAU.\n\np.scenario_type = 'bau'"
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#automatically-downloading-data",
+    "href": "seals_walkthrough_marked.html#automatically-downloading-data",
+    "title": "",
+    "section": "Automatically downloading data",
+    "text": "Automatically downloading data\n\n\nThis computing stack also uses hazelbean to automatically download needed data at run time.\n\nIn the code block below, we set p.base_data_dir to a location where we want to store lots of very large files.\nHazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. T\nThis also lets you use the same base data across different projects.\n\nThe final directory has to be named base_data to match the naming convention on the google cloud bucket.\n\np.base_data_dir = os.path.join('Files/base_data')"
+  },
+  {
+    "objectID": "seals_walkthrough_marked.html#running-the-model",
+    "href": "seals_walkthrough_marked.html#running-the-model",
+    "title": "",
+    "section": "Running the model",
+    "text": "Running the model\n\nAfter doing the above steps, you should be ready to run run_test_seals.py. Upon starting, SEALS will report the “task tree” of steps that it will compute in the ProjectFlow environment. To understand SEALS in more depth, inspect each of the functions that define these tasks for more documention in the code.\nOnce the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:\n[THIS IS NOT THE CORRECT IMAGE]"
+  }
+]
