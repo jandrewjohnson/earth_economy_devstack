@@ -12,6 +12,19 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
+
+        {
+            "name": "internalConsole JUST MY CODE, Current File (Windows)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+        
         {
             "name": "integratedTerminal, Current File (Windows)",
             "type": "debugpy",
