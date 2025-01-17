@@ -2,70 +2,74 @@
 
 The Earth Economy Devstack is a specific way of organizing files, VS Code workspaces, local development repositories and preconfigured launch configurations that let a user contribute to NatCap TEEMs projects. This document contains three possible installation methods:
 
-1.  Standard: A quickstart guide for users who are already familiar with Python, Git, and using pip to install github-based packages.
-2.  Workspace: Uses VS Code Workspaces and launch configs to integrate many related repos from the Economy Devstack. Assumes a good understanding of the command line, Python, VS Code configuration and related skills.
-3.  Workspace with guide: A detailed step-by-step installation guide of Python, Git, QGIS and other related software for someone with little to no experience with Python, Git, VS Code, etc.
-
+1.  Standard: A quick-start guide for users who are already familiar with Python, Git, and using pip to install github-based packages.
+2.  Standard Detailed: Like 1 but with more step-by-step guidance.
+3.  Worskpace: All the steps to configure Python, Git, QGIS and other related software for someone with little to no experience with Python, Git, VS Code, etc.
+4.  Workspace Detailed: Like 3 but with step-by-step installation guidance.
 
 ## Standard Installation
+
 1.  Install git: <https://Git-scm.com/downloads>
 2.  Install Miniforge3 from <https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3> - Be sure to select the correct version for your operating system (Windows, Mac, Linux)
-    1.  If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option). - Install in `C:\Users\<YOUR_USERNAME>\miniforge3` (PC) or `~/miniconda3` (Mac)
+    1.  Install just for your User Account (you can do for All Users, but you will need to manually set paths to conda)
+        1.  If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option). - Install in `C:\Users\<YOUR_USERNAME>\miniforge3` (PC) or `~/miniconda3` (Mac)
     2.  During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable" - If you get a “Windows Protected your PC”, click more info then Run Anyway.
-3.  Use conda to install packages with the following command
-    1.  `conda install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm sympy gekko python-pptx`
-    2.  If you don't add conda to your path, you can do this manually. On PC, you could use the command
-        -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge3;C:\Users\<YOUR_USERNAME>\miniforge3;"`
-4.  Install C/C++ compiler
-    1.  If you run any part of the code that uses compiled C++ code (mostly SEALS and the optimized raster functions in Hazelbean), then you will need to have a C++ compiler on your system.
-        1.  Windows:
-            1.  Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
-            2.  Option 2: Enter the following command in the Terminal:
-                `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"`
-                This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
-        2.  Mac can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
-            1.  Xcode Command Line Tools: macOS users can install these tools by running xcode-select --install in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
-5.  Clone and install required git repos
+        1.  If you don't add conda to your path, you can do this manually. On PC, you could use the command
+            -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge3;C:\Users\<YOUR_USERNAME>\miniforge3;"`
+3.  Create a new conda environment and install required packages with the following mamba command (you *could* use the conda command instead, but this is MUCH slower).
+    1.  `mamba install hazelbean cython libgdal-hdf5`
+4.  Clone and install required git repos
     1.  To run SEALS, you will need to clone the following two repos. Put these wherever you want, but if you want to switch to a Workspace configuration later, we recommend installing them in /Users/<YOUR_USERNAME>/Files/<toolname>/<repo_name> which using the SEALS example on my machine would be C:/Users/jajohns/Files/seals/seals_dev.
         1.  https://github.com/jandrewjohnson/seals_dev
         2.  https://github.com/jandrewjohnson/hazelbean_dev
     2.  Once cloned use pip to install them. You can do this by navigating to the directory where the setup.py file is located and running the following command:
         1.  `pip install -e .`
             1.  Note, the 'e' option makes this an "editable" install, which means the code will live in the repository you cloned, but it will still be importable through normal python methods (a symlink is created in the site-packages directory).
+5.  OPTIONAL STEP: Install C/C++ compiler. This is only necessary if you want to edit the underlying C/Cython/.pyx files.
+    1.  If you run any part of the code that uses compiled C++ code (mostly SEALS and the optimized raster functions in Hazelbean), then you will need to have a C++ compiler on your system.
+        1.  Windows:
+            1.  Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
+            2.  Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
+        2.  Mac can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
+            1.  Xcode Command Line Tools: macOS users can install these tools by running xcode-select --install in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
+
+**Common problems:**
+
+If Windows PowerShell isn't working with Conda, follow these steps to resolve the issue:
+
+`conda init powershell`
 
 ## Workspace Installation
+
+This installation is like above but organizes your repositories so that you can edit/contribute to them via a VS Code Workspace.
 
 ### Install Git
 
 -   Install and run the installer for your operating system at <https://Git-scm.com/downloads>
 
-### Create a python environment
+### Install Miniforge
 
-1.  Install Miniforge from <https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3> - Be sure to select the correct version for your operating system (Windows, Mac, Linux)
+-   Install Miniforge from <https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge3> - Be sure to select the correct version for your operating system (Windows, Mac, Linux)
 
-    -   If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option). 
-    -   Install in `C:\Users\<YOUR_USERNAME>\miniforge3` (PC) or `~/miniconda3` (Mac) 
-    -   During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable" 
+    -   Install just for your user account (rather than "all users").
+        -   If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option).
+        -   Install in `C:\Users\<YOUR_USERNAME>\miniforge3` (PC) or `~/miniconda3` (Mac)
+    -   During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable"
     -   If you get a “Windows Protected your PC”, click more info then Run Anyway.
-    -   Conda can be very slow at solving complex environments. The previous solution was to install mambaforge, which was much faster. Now, mamba is included in miniforge, so you can use mamba to install packages instead of conda. However, if the conda command is still unmodified, so you still have to explicitly call mamba.
+        -   Conda can be very slow at solving complex environments. The previous solution was to install mambaforge, which was much faster. Now, mamba is included in miniforge, so you can use mamba to install packages instead of conda. However, if the conda command is still unmodified, so you still have to explicitly call mamba.
+        -   If you don't add mamba to your path, you can do this manually. On PC, you could use the command
+            -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge;C:\Users\<YOUR_USERNAME>\miniforge;"`
 
-2.  Create a new conda environment with the following commands (putting your desired environment name in place of `<env_name>`):
+### Create a new Python environment
 
-`mamba create -n <env_name> -c conda-forge`
-
-4.  Activate the environment
-
-`mamba activate <env_name>`
-
-5.  Install libraries using the following mamba command:
-
-`mamba install -c conda-forge natcap.invest geopandas rasterstats netCDF4 cartopy xlrd markdown qtpy qtawesome plotly descartes pygeoprocessing taskgraph cython rioxarray dask google-cloud-datastore google-cloud-storage aenum anytree statsmodels openpyxl seaborn twine pyqt ipykernel imageio pandoc conda numba intake more-itertools google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 gdown tqdm sympy gekko python-pptx`
-
--   If you don't add mamba to your path, you can do this manually. On PC, you could use the command
-    -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge;C:\Users\<YOUR_USERNAME>\miniforge;"`
-
-6.  Install more with pip using the following command:
-    - `pip install winshell`
+-   Create a new mamba environment with the following commands (putting your desired environment name in place of `<env_name>`):
+    -   `mamba create -n <env_name>`
+-   Activate the environment
+    -   `mamba activate <env_name>`
+-   Install libraries using the following mamba command:
+    -   `mamba install hazelbean cython libgdal-hdf5`
+-   Install more with pip using the following command:
+    -   `pip install winshell`
 
 ### Clone the Earth Economy Devstack
 
@@ -109,36 +113,28 @@ The Earth Economy Devstack is a specific way of organizing files, VS Code worksp
     -   This ensures, among other things, that the Debug Launch configurations in the `.vscode` directory will use locally cloned repositories
 -   For each new repository you want to add, for example Hazelbean, create a new directory in `Files` called `hazelbean`
     -   In this new directory, Git clone the hazelbean_dev repo, which will create a directory `hazelbean_dev` inside `hazelbean`
--   This process works (assuming you have permissions) for:
+-   Repeat the previous step for all the repositories you want (assuming you have permissions, though most are public):
     -   <https://github.com/jandrewjohnson/hazelbean_dev>
     -   <https://github.com/jandrewjohnson/seals_dev>
-    -   <https://github.com/jandrewjohnson/seals_beta>
-    -   <https://github.com/jandrewjohnson/seals>
     -   <https://github.com/jandrewjohnson/gtap_invest_dev>
     -   <https://github.com/jandrewjohnson/global_invest_dev>
     -   <https://github.com/jandrewjohnson/gtappy_dev>
+-   These repos do NOT need to be installed via pip because they are referenced in the debug launch.json
+    -   However, this approach assumes you can compile the C/Cython files, so you must do the following
 
-### Optional Cython Installation steps
+### Install a Compiler
 
-If you run any part of the code that uses compiled C++ code (mostly SEALS and the optimized raster functions in Hazelbean), then you will need to have a C++ compiler on your system.
-
-#### Windows Cython Installation
-
-You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
-
-![](images/paste-48.png)
-
-However, the following command line in the preferred way. Enter the following command in the Terminal:
-
-`winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"`
-
-This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
-
-![](images/paste-50.png)
-
-#### Mac Cython Installation
-
-Xcode Command Line Tools: macOS users can install these tools by running xcode-select --install in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
+-   Install C/C++ compiler. This is necessary to edit the underlying C/Cython/.pyx files.
+    -   If you run any part of the code that uses compiled C++ code (mostly SEALS and the optimized raster functions in Hazelbean), then you will need to have a C++ compiler on your system.
+        -   Windows:
+            -   Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
+            -   Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
+        -   Mac can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
+            -   Xcode Command Line Tools: macOS users can install these tools by running xcode-select --install in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
+-   Run the appropriate setup.py to trigger the Cython compilation
+    -   Most libraries will auto-compile when you first import them (or change the underlying .pyx file)
+    -   Alternatively, you can manually compile them by running the corresponding compile_cython_files.py in the repo's
+        -   Navigate to the scripts directory and use the terminal to run `python compile_cython_files.py build_ext --inplace`
 
 ## Workspace Step by Step Installation
 
@@ -308,3 +304,25 @@ Xcode Command Line Tools: macOS users can install these tools by running xcode-s
 
 -   If you are a member of NatCap TEEMs or the JohnsonPolaskyLab, you should have access to these repositories via our GitHub organization
 -   If you're not a member, you will still be able to clone all of the public repositories (which are all documented in various journal articles)
+
+### Optional Cython Installation steps
+
+If you run any part of the code that uses compiled C++ code (mostly SEALS and the optimized raster functions in Hazelbean), then you will need to have a C++ compiler on your system.
+
+#### Windows Cython Installation
+
+You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
+
+![](images/paste-48.png)
+
+However, the following command line in the preferred way. Enter the following command in the Terminal:
+
+`winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"`
+
+This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
+
+![](images/paste-50.png)
+
+#### Mac Cython Installation
+
+Xcode Command Line Tools: macOS users can install these tools by running xcode-select --install in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
