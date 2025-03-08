@@ -1,4 +1,4 @@
-# How to contribute
+# Contributing code to the Earth Economy Devstack
 
 ## Adding your own repository
 
@@ -235,3 +235,39 @@ With develop checked out, now right click on `feature_test` and select `merge in
 ![](images/paste-43.png)
 
 the feature_test and develop branches are now identical. You could now delete feature_test and nothing would be lost. Now, the develop branch is ready for a user to use and/or make new branches off of. \# End
+
+# Contributing to Devstack's Base Data
+
+Our base data is becoming a valuable asset that accelerates our shared work. Towards that, I wanted to document how **you** could contribute (if you want) your project's data so that it works seamlessly with the rest of the devstack
+
+To make one's project fully replicable, it obviously needs to have an open git repo. The challenge, though, is that git is not good for managing data, so if someone clones your code, it will fail because it doesn't (and shouldn't if the data is \> 5MB), include the data in the repo. The way our Devstack manages base_data is that it is automatically downloaded via p.get_path() when it is needed. Thus, if you want your project to "just work", we need to figure out how to create a good system for proposing new contributions to the base data and then cleaning/curating them so they work well. 
+
+**Proposed contribution process:**
+
+1\. Move your data into our TEEMs drive in the base_data submissions folder in a single folder. I've populated this already with the 4 projects that I think we could incorporate right now, pictured below, for air_quality, natures_frontiers, manage_invest , urban_cooling.
+
+![](images/paste-60.png)
+
+2\. Change your git repo so that that ALL (ABSOLUTELY ALL) data are referenced via a relative path into this submissions base_data folder. So, for instance, if sumil had a file "emissions_factors.csv", his code would reference it as
+
+`base_data_dir = "G:/Shared drives/NatCapTEEMs/Files/base_data/submissions"`
+
+`data_filename = "emissions_factors.csv"`
+
+`data_path = os.path.join(base_data_dir, data_filename)`
+
+3\. Ensure that your repo has a readme.md in the base of the repo (this is automatically visualised in github when someone visits your repo. Additionally, copy/paste readme doc to a google doc in the your projects' base_data root, as pictured:
+
+![](images/paste-61.png)
+
+4\. I then test your repo and code by cloning the repo, modifying ONLY the base_data_dir, and then check that everything runs. I will then further clean the data (to be compliant with the conventions defined here <https://justinandrewjohnson.com/earth_economy_devstack/conventions.html>
+
+I'm happy to do the cleaning, but if you want, you might want to consider following the conventions earlier in your project rather than later. 
+
+5\. I'll write "unittests" that ensure your code and data work, which will be automatically run when there's a new release of the devstack repo.
+
+6\. If everything passes, the data get "promoted" to base_data by eliminating the word "submissions" in their file path (e.g., G:\\Shared drives\\NatCapTEEMs\\Files\\base_data\\submissions\\emissions_factors.csv becomes G:\\Shared drives\\NatCapTEEMs\\Files\\base_data\\emissions_factors.csv)
+
+7\. You make a new repo commit to your repository that  changes the  `base_data_dir`   reference.
+
+8\. Profit! Now your code can be run seamlessly by anyone with access to our TEEMs drive. This also means it is a small task to make accessible to anyone (done by me putting it on our google cloud bucket for fast and public download).
