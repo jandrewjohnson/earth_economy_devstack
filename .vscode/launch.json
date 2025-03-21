@@ -1,5 +1,6 @@
 {
     "version": "0.2.0",
+    "debugpy.justMyCode": false,
     "configurations": [
         {
             "name": "internalConsole, Current File (Windows)",
