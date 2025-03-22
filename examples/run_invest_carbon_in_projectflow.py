@@ -2,8 +2,11 @@ import os, sys
 import hazelbean as hb
 import pandas as pd
 
-import ecosystem_services_tasks
-import ecosystem_services_functions
+import example_tasks
+import example_functions
+
+from global_invest import ecosystem_services_tasks
+from global_invest import ecosystem_services_functions
 
 # Create the project flow object
 p = hb.ProjectFlow()

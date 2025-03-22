@@ -96,8 +96,9 @@ def post_processing(p):
     ## Calculate the average
     mean = sum / n_non_zero
 
+    output_path = 'this'
     ## Write the value to a file
-    with open(output_path, rw) as f: 
+    with open(output_path, 'rw') as f: 
         print('Write here.')
 
     print('Sums of layers: ' + str(mean))

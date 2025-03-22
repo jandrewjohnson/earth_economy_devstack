@@ -3,7 +3,7 @@ import pygeoprocessing
 from osgeo import ogr, gdal
 from pathlib import Path
 import pandas as pd
-from rapidfuzz import process  # Import fuzzy matching from rapidfuzz
+# from rapidfuzz import process  # Import fuzzy matching from rapidfuzz
 
 base_data_dir = 'G:/Shared drives/NatCapTEEMs/Projects/Global GEP/Ecosystem Services SubFolders/Pollination'
 
@@ -136,10 +136,10 @@ for _, row in df.iterrows():
         price_df['Item_lower'] = price_df['Item'].str.lower()
 
         # Find the best match for the crop using either crop_filenm or commodity_name
-        best_match = process.extractOne(crop_filenm_lower, price_df['Item_lower'], score_cutoff=80)
-        if not best_match:
-            best_match = process.extractOne(commodity_name_lower, price_df['Item_lower'], score_cutoff=80)
-
+        # best_match = process.extractOne(crop_filenm_lower, price_df['Item_lower'], score_cutoff=80)
+        # if not best_match:
+        #     best_match = process.extractOne(commodity_name_lower, price_df['Item_lower'], score_cutoff=80)
+        best_match = 'broke'
         if best_match:
             matched_item = best_match[0]
             print(f"Best match for {crop_filenm} or {commodity_name}: {matched_item}")
