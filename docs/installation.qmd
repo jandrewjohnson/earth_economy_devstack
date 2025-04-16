@@ -17,7 +17,7 @@ The Earth Economy Devstack is a specific way of organizing files, VS Code worksp
         1.  If you don't add conda to your path, you can do this manually. On PC, you could use the command
             -   `SETX PATH "%PATH%;C:\Users\<YOUR_USERNAME>\miniforge3;C:\Users\<YOUR_USERNAME>\miniforge3;"`
 3.  Create a new mamba environment and install required packages with the following mamba command (you *could* use the conda command instead, but this is MUCH slower).
-    1.  `mamba install hazelbean cython libgdal-hdf5`
+    1.  `mamba install hazelbean`
 4.  Clone all desired repos
     1.  To run e.g. seals, you start by cloning the repo at <https://github.com/jandrewjohnson/seals_dev>. You can clone it to whatever folder you want, but if you want to switch to a Workspace configuration later, we recommend installing it in /Users/<YOUR_USERNAME>/Files/<toolname>/<repo_name> which using the SEALS example on my machine would be C:/Users/jajohns/Files/seals/seals_dev.
     2.  Other supported repositories include
@@ -25,7 +25,7 @@ The Earth Economy Devstack is a specific way of organizing files, VS Code worksp
         2.  <https://github.com/jandrewjohnson/gtap_invest_dev>
         3.  <https://github.com/jandrewjohnson/global_invest_dev>
         4.  <https://github.com/jandrewjohnson/gtappy_dev>
-5.  OPTIONAL, but required for seals or recompilation of hazelbean. Install C/C++ compiler.
+5.  OPTIONAL, but required for seals or recompilation of hazelbean if you change the cython/pyx files. Install C/C++ compiler.
     1.  Windows:
         1.  Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
         2.  Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
@@ -44,6 +44,8 @@ If Windows PowerShell isn't working with Conda, follow these steps to resolve th
 `conda init powershell`
 
 ## Workspace Installation
+
+Note, this is slightly out of date. Please use the standard install if you get confused.
 
 This installation is like above but organizes your repositories so that you can edit/contribute to them via a VS Code Workspace.
 

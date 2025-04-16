@@ -16,7 +16,4 @@ Test that hazelbean imports correctly. Importing it will trigger compilation of 
 import hazelbean as hb
 ```
 
-From here, explore examples of the useful spatial, statistical and economic functions in the examples section of this documentation. A good starting example would be the `zonal_statistics` function. These functions are documented in their code declarations and in the Hazelbean Spatial Algorithms section. #TODOO[Make Link]. Anothr good starting point would be to understand the `ProjectFlow()` object, which is described in the project_flow page #TODOO[make link]
-
-
-
+From here, explore examples of the useful spatial, statistical and economic functions in the examples section of this documentation. A good starting example would be the `zonal_statistics` function. These functions are documented in their code declarations and in the Hazelbean Spatial Algorithms section. #TODOO\[Make Link\]. Anothr good starting point would be to understand the `ProjectFlow()` object, which is described in the project_flow page #TODOO\[make link\]
