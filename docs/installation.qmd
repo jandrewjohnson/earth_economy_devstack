@@ -4,9 +4,10 @@
 2.  Install Miniforge3 from <https://conda-forge.org/download/>
     -   Install just for your User Account
     -   During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable"
-3.  Create a new conda environment and install required packages with the following 2 mamba commands. The second command will take quite a while (10+ minutes).
+3.  Create a new conda environment, activate it, and then install required packages with the following 3 mamba commands. The third command will take quite a while (10+ minutes).
     1.  `mamba create -n environment_name`
-    2.  `mamba install hazelbean`
+    2.  `mamba activate environment_name`
+    3.  `mamba install hazelbean`
 4.  Clone all desired repos
     -   To install one of our repositories, for example SEALS, you start by cloning the repo at <https://github.com/jandrewjohnson/seals_dev>.
         -   You can clone it to whatever folder you want, but if you want to switch to a Workspace configuration later, we recommend installing it in /Users/<YOUR_USERNAME>/Files/<toolname>/<repo_name> which using the SEALS example on my machine would be C:/Users/jajohns/Files/seals/seals_dev.
