@@ -1,0 +1,29 @@
+---
+title: "NatCap TEEMs Skill Sessions"
+---
+
+## Intro to High Performance Computing at MSI
+
+<small><em>Matt Braaksma</em></small>
+
+<small><em>University of Minnesota, March 2025</em></small>
+
+```{=html}
+<style>
+.slide-deck {
+    border: 3px solid #dee2e6;
+    width: 100%;
+    height: 475px;
+}
+</style>
+```
+
+<div>
+
+```{=html}
+<iframe class="slide-deck" src="slides/msi_intro.html"></iframe>
+```
+
+</div>
+
+<small>[Github Repo](https://github.com/m-braaksma/msi_intro)</small>
