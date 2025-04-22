@@ -1,5 +1,5 @@
 # Earth-Economy Devstack
 
-This is the documentation for the Earth-Economy Devstack, which is the set of repositories and code tools used by the Johnson-Polasky Lab and NatCap TEEMs. This documentation starts with overall organization of the Earth-Economy Devstack and discusses common coding practices used among the multiple releated repositories. 
+This is the documentation for the Earth-Economy Devstack, which is the set of repositories and code tools used by [NatCap TEEMs](https://natcapteems.umn.edu/). This documentation starts with installation instructions, overall organization of the Earth-Economy Devstack and discusses common coding practices used among the multiple releated repositories. See my [YouTube channel](https://www.youtube.com/@justinandrewjohnson) or specifically the most up-to-date [Earth-Economy Devstack Training playlist](https://www.youtube.com/playlist?list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf).
 
 ![](images/2024-03-05-03-50-26.png)
