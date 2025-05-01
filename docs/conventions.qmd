@@ -1,5 +1,9 @@
 # Conventions
 
+### Slashes vs backslashes
+
+On windows, for historical sillyness reasons, paths at the most bare-metal level separate levels with backslash \\. However, nearly everything else within windows correctly interprets a forward slash / as a backslash at the os level. Thus, although we can't control how OTHER programs process or report out on backslashes, we follow the basic rule that if we are inputting it as text into our repos, **always use forward slash**, no matter what (\$5 bounty: argue a case where this needs an exception within our devstack). Linux/mac always uses forward slash (henceforth, aka slash), so this should work well.
+
 ### Id, index, label, name, description
 
 In programming, `id` and `index` are two different concepts that are used in different contexts.
@@ -111,7 +115,7 @@ Appart from correspondence files, we also have **labels** files, such as gtapv7_
 
 In the filename gtapv7_r251_labels_path we extract from the input_path and write a EE-compliant labels table for the gtapv7 r251 set. In the filename `gtap11_gtapaez11_region_correspondence_path`, we use these regions and then connect it to the gtapaez11 labels. We can infer also that it is from a mapping labeled gtap11 to gtapaez11 and that the variable in question is the regions while the word correspondence then indicates this is a many-to-one mapping file.
 
-Note that the file path says "regions" while the column label in the CSV says "region".
+Note that the file path says "regions" while the column label in the CSV says "region". Almost always, a table should never have column indices that are plural. The file path can, because it contains many of the thing and can't on its own refer to a single entry of itself.
 
 ``` python
 
@@ -130,7 +134,7 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
 
 -   The word name refers to a longer string that describes a specific label with a 1:1 correspondence. Will usually be defined via a correspondence dictionary.
 
--   The words index, indices or id refers to numerical data that describes a label with a 1:1 correspondence. Will usually be defined via a correspondence dictionary. If both are used, index/indices refer to a unique, ordered list of ints while an id/ids refer are unique but not necessarily ordered.
+-   The words index, indices or id refers to numerical data that describes a label with a 1:1 correspondence. Will usually be defined via a correspondence dictionary. If both are used, index/indices refer to a unique, ordered list of ints while an id/ids refer are unique but not necessarily ordered. It's best to use index/indices and never id/ids.
 
 -   The word class refers to LULC class. Consider renaming this to lc-class?
 
@@ -154,7 +158,9 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
 
             -   If singular, do str(value), int(value) or float(value) as appropriate when reading from the df into a python variable.
 
-            -   If plural, assume the df value is a space-delimited string that needs to be split, e.g. as \[int(i) for i in value.split(' ')\], or' '.join(values) if going into the DF
+            -   If plural, assume the df value is a space-delimited string that needs to be split, e.g. as \[int(i) for i in value.split(' ')\], or' '.join(values) if going into the DF.
+
+                -   TODO: This needs to be updated with the json-style parsing added to scenarios.csv files.
 
         -   Three types of years exist, including
 
@@ -176,6 +182,14 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
         -   `project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif`
 
         -   And if there are no ES considered, it would be `project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif`
+
+    -   notice that in both examples, the variable still starts with the variable name "lulc" before the scenario information (if it's included).
+
+-   For defining variable names (like "lulc" above), you might have multiple nested layers of the variable definition. These can be (or ARE) distinct from the nesting implied by scenarios. So for example, consider the base data path:
+
+    -   `C:\Users\jajohns\Files\base_data\lulc\esa\seals7\binaries\2014\lulc_esa_seals7_binary_2014_cropland.tif`
+
+    -   Here, lulc is the variable label, but it then has sub nests for esa to denote its origin. seals7 to denote it has been recategorized, binaries to denote the seals7 has been processed into binary format (is-class vs is-not-class), and the year comes last. I haven't figured out a standard that sets the order of the subnests, but it should be consistent. It probably depends on which element you're going to iterate over, so years should probably be last? Actually no, once you're in a year, you'd then iterate over class labels.
 
 -   Because labels have no spaces or underscores, it is possible to convert the nested structure above to a single string, as in `filename_ssp2_rcp45_policyname_year.tif`.
 
