@@ -3,3 +3,9 @@
 This is the documentation for the Earth-Economy Devstack, which is the set of repositories and code tools used by [NatCap TEEMs](https://natcapteems.umn.edu/). This documentation starts with installation instructions, overall organization of the Earth-Economy Devstack and discusses common coding practices used among the multiple releated repositories. See my [YouTube channel](https://www.youtube.com/@justinandrewjohnson) or specifically the most up-to-date [Earth-Economy Devstack Training playlist](https://www.youtube.com/playlist?list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf).
 
 ![](images/2024-03-05-03-50-26.png)
+
+Most of my Youtube playlists are publicly available but unlisted, so to access the rest of my videos, see the following links:
+
+-   Previous version of my Big Data class. [APEC 8222, Spring 2023](https://www.youtube.com/playlist?list=PLir2vw2cQ_NsgumvBeIq_Cy9QrXsGHUKK)
+
+-   A [comprehensive ](https://www.youtube.com/playlist?list=PLir2vw2cQ_NsE6dLL7KDjav0WayF6cB1E)list of videos without any editing/cutting. Only useful if you want to hear inane babbling from me when I'm waiting for something to download or are really interested in what I do after class when I forget to turn off the zoom recording...
