@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File (env2025d Debug)", // Renamed for clarity
+            "type": "debugpy",                         // Correct type for Python extension debugging
+            "request": "launch",                      // This means "start debugging"
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,                      // Allows stepping into library code if needed
+            "cwd": "${fileDirname}",
+            //"pythonPath": "C:/Users/jajohns/miniforge3/envs/env2025d/python.exe", // Explicit interpreter
+            "envFile": "${workspaceFolder}/.env",    // Load PATH from .env for DLLs
+            "env": {
+                // Your existing PYTHONPATH
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev"
+            }
+        }
+    ]
+}
