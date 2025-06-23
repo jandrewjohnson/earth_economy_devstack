@@ -1,34 +1,47 @@
-# Installation
+# Basic Installation
+
+Hazelbean can be installed using condaforge following these steps.
 
 1.  Install git: <https://Git-scm.com/downloads>
 2.  Install Miniforge3 from <https://conda-forge.org/download/>
     -   Install just for your User Account
     -   During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable"
 3.  Create a new conda environment, activate it, and then install required packages with the following 3 mamba commands. The third command will take quite a while (10+ minutes).
-    1.  `mamba create -n environment_name`
-    2.  `mamba activate environment_name`
-    3.  `mamba install hazelbean`
-4.  Clone all desired repos
+    1.  `mamba init`
+    2.  `mamba create -n environment_name`
+    3.  `mamba activate environment_name`
+    4.  `mamba install hazelbean`
+
+You can now import hazelbean and it will have precompiled binaries already working for your operating system for geospatial operations using ProjectFlow!
+
+# Repository Installation
+
+If you want to run SEALS, edit hazelbean, or run our global_invest models, you will need to have a C compiler and have editable installs of our git repositories. First, do the basic installation above and then follow these steps:
+
+1.  Install C/C++ compiler
+    1.   Windows:
+        -   Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
+        -   Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
+        -   Option 3: Run the install.bat file in the Earth Economy Devestack repo's root. This just runs the winget command above. - Mac:
+    2.  Mac/Linux
+        1.  You can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
+            -   If you don't have Xcode, you can get it by running `xcode-select --install` in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
+2.  Clone all desired repositories
     -   To install one of our repositories, for example SEALS, you start by cloning the repo at <https://github.com/jandrewjohnson/seals_dev>.
         -   You can clone it to whatever folder you want, but if you want to switch to a Workspace configuration later, we recommend installing it in /Users/<YOUR_USERNAME>/Files/<toolname>/<repo_name> which using the SEALS example on my machine would be C:/Users/jajohns/Files/seals/seals_dev.
         -   From with your command prompt pointing at that directory, run your git command
             -   `git clone https://github.com/jandrewjohnson`
-    -   Supported repositories include
+    -   Supported repositories include the below
         -   <https://github.com/jandrewjohnson/seals_dev>
         -   <https://github.com/jandrewjohnson/gtap_invest_dev>
         -   <https://github.com/jandrewjohnson/global_invest_dev>
         -   <https://github.com/jandrewjohnson/gtappy_dev>
-5.  Install C/C++ compiler. OPTIONAL, but required for seals or recompilation of hazelbean if you change the cython/pyx files. - Windows:
-    -   Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
-    -   Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
-    -   Option 3: Run the install.bat file in the Earth Economy Devestack repo's root. This just runs the winget command above. - Mac:
-    -   You can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
-        -   If you don't have Xcode, you can get it by running `xcode-select --install` in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
-6.  Install the cloned repositories.
-    -   Note that you probably don't want to install hazelbean this way (from the repository via pip) but instead you'll want to keep the version that came via Anaconda/Mamba.
-    -   Open a command prompt in the directory where you cloned the additional repos. For the SEALS example, this would be C:\\Users\\jajohns\\Files\\seals\\seals_dev
+3.  Install the cloned repositories using an "editable" install with pip
     -   Activate the conda environment in this command prompt with the following command
         -   `mamba activate environment_name`
+    -   Remove from your environment any previously installed devstack software, INCLUDING HAZELBEAN. It is still necessary to install hazelbean as a first step from the Basic install steps above to get all required dependencies.
+        -   With your environment activated, run e.g. `pip uninstall hazelbean` or similar for other previously installed models.
+    -   Navigate in you command prompt to the directory where you cloned the additional repos. For the SEALS example, this would be C:\\Users\\jajohns\\Files\\seals\\seals_dev
     -   Use pip to install the repo you as an "editable install" with the following command
         -   `pip install -e .`
 
