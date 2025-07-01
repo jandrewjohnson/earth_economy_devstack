@@ -1,4 +1,6 @@
-# Basic Installation
+# Installation
+
+## Basic Installation
 
 Hazelbean can be installed using condaforge following these steps.
 
@@ -6,23 +8,20 @@ Hazelbean can be installed using condaforge following these steps.
 2.  Install Miniforge3 from <https://conda-forge.org/download/>
     -   Install just for your User Account
     -   During installation, select yes for "Add Mambaforge/Miniforge to my PATH environment Variable"
-3.  Create a new conda environment, activate it, and then install required packages with the following 3 mamba commands. The third command will take quite a while (10+ minutes).
-    1.  `mamba init`
-    2.  `mamba create -n environment_name`
-    3.  `mamba activate environment_name`
+3.  Create a new conda environment, activate it, and then install required packages with the following 3 mamba commands. The third command will take quite a while (10+ minutes). The `conda init` command may not be needed depending on how you configured your shell.
+    1.  `conda init`
+    2.  `conda create -n environment_name`
+    3.  `conda activate environment_name`
     4.  `mamba install hazelbean`
 
 You can now import hazelbean and it will have precompiled binaries already working for your operating system for geospatial operations using ProjectFlow!
 
-# Repository Installation
+## Repository Installation
 
-If you want to run SEALS, edit hazelbean, or run our global_invest models, you will need to have a C compiler and have editable installs of our git repositories. First, do the basic installation above and then follow these steps:
+If you want to run SEALS, edit Hazelbean, or run our global_invest models, you will need to have a C compiler and have editable installs of our git repositories. First, do the basic installation above and then follow these steps:
 
 1.  Install C/C++ compiler
-    1.   Windows:
-        -   Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
-        -   Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
-        -   Option 3: Run the install.bat file in the Earth Economy Devestack repo's root. This just runs the winget command above. - Mac:
+    1.  Windows: - Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools. - Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools). - Option 3: Run the install.bat file in the Earth Economy Devestack repo's root. This just runs the winget command above. - Mac:
     2.  Mac/Linux
         1.  You can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
             -   If you don't have Xcode, you can get it by running `xcode-select --install` in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
@@ -33,6 +32,8 @@ If you want to run SEALS, edit hazelbean, or run our global_invest models, you w
             -   `git clone https://github.com/jandrewjohnson`
     -   Supported repositories include the below
         -   <https://github.com/jandrewjohnson/seals_dev>
+        -   <https://github.com/jandrewjohnson/hazelbean_dev>
+            -   NOTE: Hazelbean is a little different than the other repos because you have already installed it via Condaforge and that might not need updating. However, if you want to have the very latest version of hazelbean and/or modify it, you will need to install directly from the repository. Note, however, that you should `pip uninstall hazelbean` before doing the `pip install -e .` command below.
         -   <https://github.com/jandrewjohnson/gtap_invest_dev>
         -   <https://github.com/jandrewjohnson/global_invest_dev>
         -   <https://github.com/jandrewjohnson/gtappy_dev>
@@ -47,7 +48,7 @@ If you want to run SEALS, edit hazelbean, or run our global_invest models, you w
 
 One installed, the cloned repositories are all importable by python. For SEALS, you might want to start by poking around run_seals_standard.py.
 
-**Common problems:**
+## **Common problems:**
 
 -   You MUST have administrator rights to your computer.
 
