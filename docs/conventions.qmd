@@ -270,3 +270,31 @@ The key difference between `utf-8` and `utf-8-sig` is the presence of a 3-byte s
 Excel causes problems when it encounters UTF-8 files without the BOM because it assumes the file uses Windows-1252 encoding (or your system's default). When Excel tries to interpret UTF-8 bytes using the wrong encoding, single international characters get split and displayed as multiple garbled characters. For example, "Å" (stored as bytes C3 85 in UTF-8) gets interpreted as "Ã…" because Excel reads each byte separately using Windows-1252.
 
 For most data analysis workflows, using `utf-8-sig` everywhere is the safest approach. While it adds 3 bytes to your files, this overhead is negligible, and you'll avoid encoding issues when sharing data or opening files in different applications. Only use plain `utf-8` when you're specifically working in environments that expect it (like certain Unix command-line tools) or when you know the consuming application handles UTF-8 correctly without needing the BOM signature.
+
+## Docstrings
+
+We use "Google style docstrings" , which work well with Quarto.
+
+Example:
+
+```` python
+def fibonacci(n):
+    """Generate the nth Fibonacci number.
+    
+    Args:
+        n (int): The position in the Fibonacci sequence.
+    
+    Returns:
+        int: The nth Fibonacci number.
+
+    Raises:
+        NameError: If n is not an int.
+    
+    Examples:
+        Basic usage:
+        ```python
+        fibonacci(5)  # Returns 5
+        fibonacci(10) # Returns 55
+        ```
+    """
+````
