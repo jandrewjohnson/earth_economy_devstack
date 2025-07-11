@@ -1,5 +1,3 @@
-# Conventions
-
 ### Slashes vs backslashes
 
 On windows, for historical sillyness reasons, paths at the most bare-metal level separate levels with backslash \\. However, nearly everything else within windows correctly interprets a forward slash / as a backslash at the os level. Thus, although we can't control how OTHER programs process or report out on backslashes, we follow the basic rule that if we are inputting it as text into our repos, **always use forward slash**, no matter what (\$5 bounty: argue a case where this needs an exception within our devstack). Linux/mac always uses forward slash (henceforth, aka slash), so this should work well.
@@ -126,6 +124,8 @@ p.gtap11_gtapaez11_region_correspondence_path = os.path.join(p.base_data_dir, 'g
 
 ## Variable and Scenario Naming Conventions
 
+TODO: This one section is possibly redundant with above and some practices are out of date.
+
 To keep track of the MANY different filetypes, data processes, variables, scenarios, policies etc, please follow exactly the specifications below.
 
 -   The word label refers to a relatively short string (preferably 8 characters long or less) with no spaces, underscores or punctuation (but may have hyphens). This is case-sensitive, but try to avoid capitalization.
@@ -219,10 +219,10 @@ To keep track of the MANY different filetypes, data processes, variables, scenar
         -   BAU and policy scenarios assume the results are modelled and that their years are defined in p.years (but not `p.base_years`)
     -   Clarify what is the naming difference between src dst versus input output. Is the former only for file paths or can it also be e.g. array. OR does this have to do with if it is a function return.
         -   Proposed answer: src/dst is a pointer/reference to a thing and Input/Output is the thing itself. Esp useful for paths.
-        -   Similarly, \_path and \_dir imply the string is a reference, so src_path and src_dir are common.
-        -   You might often see e.g. `input_array = hb.as_array(src_path)`, illustrating this difference.
 
--   
+        -   Similarly, \_path and \_dir imply the string is a reference, so src_path and src_dir are common.
+
+        -   You might often see e.g. `input_array = hb.as_array(src_path)`, illustrating this difference.
 
 ## get_path and ref_path
 
@@ -239,8 +239,6 @@ However prior to calling get_path, the root directory of the path is not clear. 
 
 p.ha_per_cell_10sec_ref_path = os.path.join('pyramids', "ha_per_cell_10sec.tif")
 
-# Python tricks
-
 ## Setting the environment
 
 -   What does this mean?
@@ -254,8 +252,6 @@ p.ha_per_cell_10sec_ref_path = os.path.join('pyramids', "ha_per_cell_10sec.tif")
     -   Additionally, when you are publishing Quarto Books or Jupyter Notebooks, you might want to set the path explicitly
         -   For example, to publish the EE Devstack, I have a line in the `quarto.yml` file like this:
         -   `yaml     execute:         engine: python         python: C:\Users\jajohns\mambaforge\envs\env2023a\python.exe`
-
-# Encoding tricks
 
 ## Dealing with UTF-8 Encoding Issues in Data Analysis: A Practical Guide
 
@@ -298,3 +294,382 @@ def fibonacci(n):
         ```
     """
 ````
+
+## Function and Method Naming Conventions
+
+### Factory and Creation Functions
+
+**make**\
+Reserved for factory functions or methods that create new instances (e.g., make_dataset, make_grid)
+
+**create**\
+For functions that generate new objects/files from scratch (e.g., create_empty_raster, create_new_project)
+
+### File Operations
+
+**open**\
+Opens file handles or connections, loads metadata but not full data (e.g., gdal.Open, open_database_connection)
+
+**load**\
+Reads entire data into memory from disk or remote source (e.g., load_dataset, load_model_weights)
+
+**read**\
+Gets data into memory from filepath or file-like object, often line-by-line or chunk-based (e.g., read_csv, read_lines)
+
+**write**\
+Outputs data to disk or stream, often incremental (e.g., write_results, write_to_buffer)
+
+**save**\
+Persists complete objects/states to disk, typically all at once (e.g., save_model, save_checkpoint)
+
+### Data Manipulation
+
+**extract**\
+Pulls out specific portions from larger data structures (e.g., extract_features, extract_roi)
+
+**execute**\
+Runs commands, scripts, or processes (e.g., execute_query, execute_pipeline)
+
+**convert**\
+Transforms data from one format/type to another (e.g., convert_to_numpy, convert_crs)
+
+### Collection Operations
+
+**list**\
+Returns collection of items, typically as Python list (e.g., list_files, list_available_datasets)
+
+**remove**\
+Deletes from collections/memory structures (e.g., remove_duplicates, remove_from_cache)
+
+**delete**\
+Permanently removes from disk/database (e.g., delete_file, delete_record)
+
+**displace**\
+In-house term for renaming a path with e.g. a timestamp so you can write a new file into the old place (without eliminating the original). Has optional delete_on_exit functionality
+
+**rename**\
+Changes name while keeping same location (e.g., rename_file, rename_column)
+
+**replace**\
+Substitutes one value/object with another (e.g., replace_missing_values, replace_substring)
+
+**move**\
+Relocates to different location/container (e.g., move_file, move_to_archive)
+
+## Directory and File Naming
+
+### Directory Conventions
+
+**dir**\
+Avoid - ambiguous (directory or direction?). Use 'directory' instead. Note that it CAN be used as a suffix, like temp_dir. Function Names Exception: Use `dir` in function names (e.g., `delete_dir()`, `create_dir()`) for brevity, matching Unix heritage.
+
+**directory**\
+Preferred over 'dir' for clarity (e.g., output_directory, working_directory)
+
+**folder**\
+Avoid using unless it's user-facing documentation. Alternative to 'directory', more GUI-oriented.
+
+**dirname**\
+Preferred in most cases. Matches stdlib conventions. Name of directory without path (e.g., "outputs" from "/home/user/outputs")
+
+**dir_name**\
+Avoid. Used when following strict PEP 8 in a codebase that emphasizes readability
+
+**dir_path**\
+The full directory path (e.g., "/home/user/documents")
+
+**directory_name**\
+Avoid. Too long.
+
+### File Naming
+
+**path**\
+Full path to file/directory (e.g., input_path, config_path)
+
+**file_name**\
+Full filename with extension (e.g., "data.csv", "image.tif"). Preferred over filename.
+
+**filename**\
+Avoid. Use file_name. However this is broadly used elsewhere.
+
+**file_root**\
+Filename without extension (e.g., "data" from "data.csv")
+
+**fileroot**\
+Avoid. Use file_root. However this is broadly used elsewhere.
+
+**file_extension**\
+File suffix including dot (e.g., ".csv", ".tif")
+
+**parent_directory**\
+One level up in directory tree (e.g., os.path.dirname(path))
+
+**grandparent_path**\
+Two levels up; consider using pathlib for clarity
+
+## Variable Naming Conventions
+
+### Counting and Size
+
+**n_cols**\
+Common shorthand for counts in scientific computing (e.g., n_samples, n_features)
+
+**num_cols**\
+More explicit than n\_, good for public APIs (e.g., num_iterations, num_bands)
+
+**number_cols**\
+Too verbose; prefer n\_ or num\_ prefix
+
+**shape**\
+Dimensions tuple for arrays/matrices (e.g., array.shape returns (rows, cols))
+
+**size**\
+Total number of elements or bytes (e.g., array.size, file_size)
+
+### Data Types
+
+**data_type**\
+Preferred option for most cases and consistency with numpy/pandas conventions
+
+**dtype**\
+Avoid except where a library uses it explicitly, specifically numpy
+
+**datatype**\
+Avoid except where a library uses it explicitly
+
+### Geospatial Conventions
+
+**cell_size**\
+Spatial resolution of single raster cell (e.g., 30m for Landsat)
+
+**res**\
+Common abbreviation for resolution in geospatial contexts
+
+**resolution**\
+Full word preferred in public APIs, documentation
+
+**x_res**\
+Horizontal resolution (width of pixel in map units)
+
+**y_res**\
+Vertical resolution (height of pixel in map units)
+
+**raster_info**\
+Metadata dict/object for gridded data (extent, projection, resolution)
+
+**vector_info**\
+Metadata dict/object for feature data (geometry type, attribute schema)
+
+### Bounding Boxes
+
+**bb**\
+Common abbreviation for bounding box in geospatial code
+
+**bounding_box**\
+Preferred for clarity
+
+**bb_exact\
+**Pyramids-specific notation that the bb aligns with some pyramidal ID raster. (preferably identified in the name, like bb_exact_30sec)
+
+**bounding_box_min_max_notation**\
+\[xmin, ymin, xmax, ymax\]
+
+**bounding_box_xy_notation**\
+\[xmin, xmax, ymin, ymax\]
+
+**cr_widthheight**\
+\[col, row, width, height\] Specific usecase optimized for use with GDAL notation on bounding boxes.
+
+### Coordinates
+
+**lat**\
+Standard abbreviation for latitude
+
+**lon**\
+Standard abbreviation for longitude (preferred over 'long')
+
+**lon_vs_long**\
+Always use 'lon'; 'long' conflicts with Python built-in type
+
+**lat_size**\
+Height in degrees or number of latitude values
+
+**lon_size**\
+Width in degrees or number of longitude values
+
+## Identifiers and Indexing
+
+**index**\
+Position in sequence or database index (e.g., row_index, spatial_index). DO NOT USE for id columns in e.g. pandas DataFrames as the position can change.
+
+**id**\
+Unique identifier; prefer 'identifier' or specific names (e.g., user_id, feature_id)
+
+**counter**\
+For loop counters or accumulation (e.g., error_counter, iteration_counter). When lots of counters are being used, consider c_row, row in enumerate(rows) or c_col, col in enumerate(cols) to avoid confusion.
+
+## Data Processing
+
+**valid**\
+Boolean or mask indicating valid/usable data points
+
+**not_valid**\
+Prefer 'invalid' or use boolean logic with 'valid'
+
+**mask**\
+Boolean array for filtering/selection (True where condition met)
+
+**ndv**\
+Preferred option over nodata, no_data, no_data_value, etc.
+
+**nonzero**\
+Elements/indices where value != 0 (e.g., numpy.nonzero())
+
+## Standard Library Abbreviations
+
+**array**\
+Generic numpy/array object (e.g., data_array, temperature_array)
+
+**df**\
+Standard abbreviation for pandas DataFrame. If you have many dfs, consider using df\_ prefix (e.g., df_sales, df_customers)
+
+**gdf**\
+Standard abbreviation for GeoPandas GeoDataFrame
+
+**gpd**\
+Standard import alias for geopandas (import geopandas as gpd)
+
+**pd**\
+Standard import alias for pandas (import pandas as pd)
+
+**np**\
+Standard import alias for numpy (import numpy as np)
+
+## Special Conventions
+
+**default**\
+Default parameter values (e.g., default_crs, default_timeout)
+
+**paths_to_delete_at_exit**\
+Clear naming for cleanup list; good practice for temp files
+
+**uris_to_delete_at_exit**\
+Outdated. Use paths_to_delete_at_exit instead.
+
+**plots_to_display_at_exit**\
+Clear naming for deferred plotting; useful for batch processing
+
+### Priority Indicators
+
+**todo**\
+Single TODO for standard priority tasks
+
+**todoo**\
+Double-O for lower priority items needing attention. The priority order for todo markers is usually opposite among coders.
+
+**todooo**\
+Triple-O for even lower issues that must be addressed
+
+### Naming to Avoid
+
+**globals**\
+Avoid global variables; if necessary, use UPPER_CASE naming
+
+**temp**\
+Never use - ambiguous (temporary or temperature?)
+
+**temporary**\
+Better than 'temp' - clear meaning for short-lived objects
+
+**temperature**\
+Better than 'temp' - clear meaning for thermal data
+
+### Debug Conventions
+
+**print_parentheses**\
+print() with no space likely debug code to be removed
+
+**print_space_parentheses**\
+print () with space indicates intentional output to keep
+
+## Miscellaneous Conventions
+
+**use_of_word_old**\
+Prefix 'old\_' for previous versions during refactoring (e.g., old_algorithm)
+
+**info**\
+Generic metadata container (e.g., dataset_info, processing_info)
+
+**describe**\
+Statistical summary function name (e.g., describe_dataset, pandas.describe())
+
+**desc**\
+Common abbreviation for description in metadata/documentation
+
+**run_dir**\
+Directory for current execution outputs (e.g., experiments, logs)
+
+**postpending_array_etc_to_var_name**\
+Good practice to indicate type (e.g., temps_array vs temps_list)
+
+## File Type Specific
+
+**shapefile**\
+Only use to specify that you're explicitly using an ESRI shapefile vs eg geopackage.
+
+**tiff**\
+Never use, except in GDAL Drivername GTiff
+
+## Scenario Naming Conventions
+
+Scenarios are defined in the following nested structure:
+
+1.  **Exogenous Assumptions Label** (no hyphens) - e.g., SSP, GDP, population
+
+2.  **Climate Assumption Label** (no hyphens) - which RCP
+
+3.  **Model Label** (can have hyphens) - e.g., magpie, luh2-message
+
+4.  **Counterfactual Label** - includes BAU as special counterfactual
+
+Example directory structure:
+
+```         
+ssp2/rcp45/luh2-message/bau/filename_2050.tif 
+```
+
+### Filename Conventions
+
+**Implied**: Directory structure defines all labels except year:
+
+```         
+project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_2050.tif 
+```
+
+**Explicit**: Include all labels in filename:
+
+```         
+project/intermediate/convert_netcdf/ssp2/rcp45/luh2-message/bau/lulc_ssp2_rcp45_bau_luh2-message_2050.tif 
+```
+
+## UTF-8 Encoding Guidelines
+
+When working with international datasets:
+
+-   Use `pd.read_csv('file.csv', encoding='utf-8-sig')` for reading
+
+-   Use `df.to_csv('output.csv', encoding='utf-8-sig', index=False)` for writing
+
+-   The `-sig` adds a BOM that helps Excel correctly interpret UTF-8
+
+## Python Style Guidelines
+
+### DocstringsGeneral Style
+
+-   Use snake_case for variables and functions
+
+-   Use CamelCase for classes
+
+-   Avoid global variables
+
+-   Keep functions concise and focused on a single task

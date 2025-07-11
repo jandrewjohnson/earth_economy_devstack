@@ -2,23 +2,17 @@
 
 ### Overview
 
-GTAPPy is a Python package designed to facilitate the use of the Global Trade Analysis Project (GTAP)
-model. GTAP is a computable general equilibrium (CGE) model, widely used for economic policy analysis.
-GTAPpy allows for efficient, streamlined, parallelized GTAP simulations.
+GTAPPy is a Python package designed to facilitate the use of the Global Trade Analysis Project (GTAP) model. GTAP is a computable general equilibrium (CGE) model, widely used for economic policy analysis. GTAPpy allows for efficient, streamlined, parallelized GTAP simulations.
 
 Use of the model proceeds in the following 6 steps.
 
-**1. User Creates A Run Script**
-There will be a run test standard file that initializes GTAPPy, ensuring everything is downloaded.
-After this is run once, a run script can be created that is specific to the project.
+**1. User Creates A Run Script** There will be a run test standard file that initializes GTAPPy, ensuring everything is downloaded. After this is run once, a run script can be created that is specific to the project.
 
 A run script (e.g. "run_process_aez_results.py") is where the user configures run variables, including paths (e.g., the project and base data directories), as attributes to a ProjectFlow object.
 
 The ProjectFlow object (imported from the Hazelbean library) then serves as the backbone for organizing directories and enabling parallel processing of tasks. It acts as a centralized structure where all the project-level features can be accessed consistently and efficiently throughout, and it manages dependencies between tasks to enable parallelization.
 
-Instead of modifying the run script, GTAPPy is in the process of having an API (a file, 'scenario_definitions.csv') that automatically
-gets saved out from the run test standard file. Once this is generated, a new simulation can be
-configured.
+Instead of modifying the run script, GTAPPy is in the process of having an API (a file, 'scenario_definitions.csv') that automatically gets saved out from the run test standard file. Once this is generated, a new simulation can be configured.
 
 To build the task tree (i.e., ProjectFlow object), a function in gtappy_initialize_project.py is called.
 
@@ -28,23 +22,17 @@ The user executes the run script (e.g., 'run_process_aez_results.py'), preferent
 
 **3. GTAPpy Initializes the Project and Creates a Task Tree**
 
-The program initializes a ProjectFlow object with the configurations specified by the user in the run script.
-Then it creates a task tree (calling the functions in gtappy_initialize_project.py).
+The program initializes a ProjectFlow object with the configurations specified by the user in the run script. Then it creates a task tree (calling the functions in gtappy_initialize_project.py).
 
 **4. GTAPpy Generates Instructions (CMF File)**
 
-GTAP is run using GEMPACK, which requires CMF files to be prepared. GTAPpy generates these CMF files based
-on user input, using functions in the gtappy_runner.py script.
+GTAP is run using GEMPACK, which requires CMF files to be prepared. GTAPpy generates these CMF files based on user input, using functions in the gtappy_runner.py script.
 
 **5. Executing GEMPACK**
 
-The 'run_gtap_cmf' function in 'gtappy_runner.py' is called, which uses the CMF file to run the GTAP model
-through GEMPACK.
+The 'run_gtap_cmf' function in 'gtappy_runner.py' is called, which uses the CMF file to run the GTAP model through GEMPACK.
 
-**6. Processing Model Outputs**
-GEMPACK generates detailed outputs, which GTAPpy then processes to generate what the user requires. Often,
-the user wants filtered or aggregated data for specific sectors, regions, and years.
-GTAPpy typically generates CSV files summarizing the data, e.g. trade data (TRAD.csv).
+**6. Processing Model Outputs** GEMPACK generates detailed outputs, which GTAPpy then processes to generate what the user requires. Often, the user wants filtered or aggregated data for specific sectors, regions, and years. GTAPpy typically generates CSV files summarizing the data, e.g. trade data (TRAD.csv).
 
 GTAP also generates log files to show details of the simulation, including errors.
 

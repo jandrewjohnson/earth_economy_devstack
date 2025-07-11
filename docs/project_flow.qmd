@@ -429,6 +429,6 @@ Regardless, we can see that this file, `star_threat.tif` will be (one of) the ou
 
 ![](images/paste-56.png)
 
-Now, with this file in place, you can rerun the `run_test_iucn_30by30.py` file and the p.get_path() functions will find the desired file when it is checking in the base_data! There will be a new directory created for the task at `intermediate/biodiversity/star` but that will be empty. The project should run much faster now by not having to create the file while still ensuring the user has access to it. 
+Now, with this file in place, you can rerun the `run_test_iucn_30by30.py` file and the p.get_path() functions will find the desired file when it is checking in the base_data! There will be a new directory created for the task at `intermediate/biodiversity/star` but that will be empty. The project should run much faster now by not having to create the file while still ensuring the user has access to it.
 
 Now that you have a new working project. Your likely next step is to create a new task tree builder function, perhaps named `build_test_iucn_30by30_task_tree(p)`. This function will define the tasks that are unique to this project. You can copy the tasks from the IUCN project and modify them as needed. You can also add new tasks that are unique to this project.
