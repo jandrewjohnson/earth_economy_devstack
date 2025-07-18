@@ -14,9 +14,6 @@ is something huge, so use a start script which takes lines from default and over
 
 Then in the non-ignored starts folder, has a test_runs.R
 
-
 # To run gams
 
 see start/start_functions.R
-
-

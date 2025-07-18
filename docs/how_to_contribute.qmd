@@ -1,30 +1,29 @@
 # Contributing code to the Earth Economy Devstack
 
-## Adding your own repository
-
-Adding your own code to the Earth Economy Devstack is Easy! After you have cloned
-
-## Version management with Git & GitHub repository
-
 The Earth Economy Devstack and all of its published article code is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development.
 
-There are two different ways to interact with a github repository: 1. making a fork; 2; working on a branch. This section describes both options, however internal members of TEEMs will usually use branches.
+There are two different ways to interact with a github repository: 1. making a fork; 2; working on a branch. This section describes both options, however internal members of TEEMs will use the fork method, using Pull Requests when their code is ready to incorporate back into the forked repository.
 
-## 
+We also create and host a curated base_data. This data can be seamlessly downloaded using ProjectFlow within the devstack via the `get_path()` method. See the last section of this page for details on contributing data.
 
-### Forking
+## Getting started with forking
 
-However, some basic preferred workflows are outlined in the following.
+Using SEALS as an example, this section walks through how a new user could contribute a modification via a fork and pull request.
 
 ![](images/git_workflow.png)
 
-#### Create a new fork of the original SEALS repo
+Before developing the code it is recommended to create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for
 
-Before developing the code it is recommended to create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for - code development or fixes - submitting a pull request to the original SEALS repository.
+1.  code development or fixes
+2.  submitting a pull request to the original SEALS repository.
 
-#### Clone fork to your local machine
+#### 1. Clone fork to your local machine
 
-Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). To clone the repository on your local machine via the command line, navigate to the local folder, in which you want to clone the repository, and type
+Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). The figure below illustrates the relationship of the original repo, your own user repo (made by forking) and then the local set of files cloned onto your machine.
+
+![](images/paste-68.png)
+
+To clone the repository on your local machine via the command line, navigate to the local folder, in which you want to clone the repository, and type
 
 ```         
 git clone -b <name-of-branch>` <url-to-github-repo> <name-of-local-clone-folder>
@@ -44,13 +43,13 @@ To stage all changes in the current repository use the command `git add .`. If y
 
 To commit all staged changes use the command `git commit -m "a short description of the code changes"`.
 
-After committing the changes, they can be pushed to your fork by using `git push origin <name-of-branch>`.
+After committing the changes, they can be pushed to your fork by using `git push origin <name-of-branch>`, illustrated in the bottom two rows of the figure below. Eventually, your code can be incorporated back into the upstream repository via pull requests, discussed below.
 
 ![](images/git_branches.png)
 
 #### Updating Your Fork with Changes from the Original Repository
 
-To update your fork with the latest changes from the original repository, follow these steps:
+It often happens that after you forked a repo, someone else makes a change that you need and you would like to update your fork with the latest changes from the original repository, This is easy if you haven't made any changes, and just a bit harder if you have. To do so, follow these steps:
 
 **1. Configure the Original Repository as a Remote**
 
@@ -68,9 +67,7 @@ Fetch the branches and their respective commits from the `upstream` repository. 
 git fetch upstream
 ```
 
-**3. Merge or Rebase the Changes**
-
-**Option A: Merge the Changes**
+**3. Merge (or Rebase) the Changes**
 
 1.  Switch to your local `main` branch (or the branch you want to update).
 
@@ -88,26 +85,6 @@ git fetch upstream
 
     ``` sh
     git push origin main
-    ```
-
-**Option B: Rebase the Changes**
-
-1.  Switch to your local `main` branch (or the branch you want to update).
-
-    ``` sh
-    git checkout main
-    ```
-
-2.  Rebase your local changes on top of the upstream changes.
-
-    ``` sh
-    git rebase upstream/main
-    ```
-
-3.  Resolve any rebase conflicts if they arise, continue the rebase, and push the updated branch to your fork.
-
-    ``` sh
-    git push origin main --force
     ```
 
 **4. Ensure Your Fork is Up-to-Date**
@@ -156,9 +133,9 @@ On the pull request page, which appears on the `upstream` repository, you can ad
 
 Finally, the pull request will appear in the `upstream` repository. The main developers will review your changes and, if approved, will merge them into the `upstream` repository.
 
-### Branching
+### Branching (with VS Code GUI)
 
-Wheter you are working on a Fork or on the seals repository itself, we will organize contributions with branches. On the command line, you can create new code branch by using `git branch <name-of-new-branch>`. To let git know that you want to switch to and work on the new branch use `git checkout <name-of-new-branch>`. There are many other graphical user interfaces that help with git commands (so you don't have to memorize all of the commands), including Github Desktop, Sourcetree and others. We also will use a VS Code plug called GitGraph to manage our repository. To install GitGraph, go the the Extensions left tab in VS Code and search for it. Once installed, you will find a button on the status bar to launch it. Using the gtap_invest_dev repository as an example, it should look like this:
+Usually Forking is sufficient for most uses. But, if for instance you are working on two different features simultaneously on your own fork, you might want to organize it with branches. On the command line, you can create new code branch by using `git branch <name-of-new-branch>`. To let git know that you want to switch to and work on the new branch use `git checkout <name-of-new-branch>`. There are many other graphical user interfaces that help with git commands (so you don't have to memorize all of the commands), including Github Desktop, Sourcetree and others. We also will use a VS Code plug called GitGraph to manage our repository. To install GitGraph, go the the Extensions left tab in VS Code and search for it. Once installed, you will find a button on the status bar to launch it. Using the gtap_invest_dev repository as an example, it should look like this:
 
 #### Using Git Graph to make a change
 
@@ -242,7 +219,9 @@ Our base data is becoming a valuable asset that accelerates our shared work. Tow
 
 To make one's project fully replicable, it obviously needs to have an open git repo. The challenge, though, is that git is not good for managing data, so if someone clones your code, it will fail because it doesn't (and shouldn't if the data is \> 5MB), include the data in the repo. The way our Devstack manages base_data is that it is automatically downloaded via p.get_path() when it is needed. Thus, if you want your project to "just work", we need to figure out how to create a good system for proposing new contributions to the base data and then cleaning/curating them so they work well. 
 
-**Proposed contribution process:**
+### Option 1: Contributing Input data
+
+If you have code that you want to contribute to the devstack but it uses data not in the existing base_data, you can contribute it via this process so your code works for everyone else (in the lab, be with options for literally everyone else).
 
 1\. Move your data into our TEEMs drive in the base_data submissions folder in a single folder. I've populated this already with the 4 projects that I think we could incorporate right now, pictured below, for air_quality, natures_frontiers, manage_invest , urban_cooling.
 
@@ -256,7 +235,7 @@ To make one's project fully replicable, it obviously needs to have an open git r
 
 `data_path = os.path.join(base_data_dir, data_filename)`
 
-3\. Ensure that your repo has a readme.md in the base of the repo (this is automatically visualised in github when someone visits your repo. Additionally, copy/paste readme doc to a google doc in the your projects' base_data root, as pictured:
+3\. Ensure that your repo has a readme.md in the base of the repo (this is automatically visualized in github when someone visits your repo. Additionally, copy/paste readme doc to a google doc in the your projects' base_data root, as pictured:
 
 ![](images/paste-61.png)
 
@@ -271,3 +250,34 @@ I'm happy to do the cleaning, but if you want, you might want to consider follow
 7\. You make a new repo commit to your repository that  changes the  `base_data_dir`   reference.
 
 8\. Profit! Now your code can be run seamlessly by anyone with access to our TEEMs drive. This also means it is a small task to make accessible to anyone (done by me putting it on our google cloud bucket for fast and public download).
+
+### Option 2: Contributing outputs of your model
+
+In more advanced circumstances, or in large lab projects, you may want **outputs** rather than inputs as described above brought into the base_data. The best example of this would be the GEP project where eventually, even the extremely large filesize outputs will be hosted in a consistent and accessible manner. Follow these steps to do this.
+
+1.  Ensure you are using ProjectFlow, which will create a set of directories to use for intermediate and final outputs based on your TaskTree.
+2.  As a final task in your TaskTree, include a `p.distribute_outputs_task` that simply copies and pastes your key outputs, as defined in the ProjectFlow outputs typology in the proper subdirectory of your ProjectFlow output_dir.
+3.  The results of this task must also be copied, along with a zip archive of the contents of the distribute_outputs_task verbatim, to the outputs directory with a structure defined in the project outputs typology.
+4.  Upload this zip archive to our TEEMs shared drive at:
+
+Using commercial agriculture as an example, we see the build_standard_task_tree() method.
+
+![](images/paste-62.png){width="988"}
+
+Go into this function to see the logic of the code (Ctrl-Leftclick in Windows VS Code). It defines a bunch of tasks (labeled as nouns because they will be interpreted as directories). Notice that the first task `commercial_agriculture` is the parent task to the other four tasks. This is critical for organization, data-caching, and namespace management, set with `parent=p.commercial_agriculture_task`.
+
+![](images/paste-65.png)
+
+When we run the run.py function, we'll see output that summarizes the TaskTree, as below.
+
+![](images/paste-63.png)
+
+This corresponds to the task directories in the Project directory:
+
+![](images/paste-64.png)
+
+The results distribution folder is organized according to the structure defined in the output typology, which is defined in the parent task for the service.
+
+![](images/paste-67.png)
+
+The results_distribution_task should organize the results so that they organize well into `base_data/gep/commercial_agriculture/<contents_of_zip>`
