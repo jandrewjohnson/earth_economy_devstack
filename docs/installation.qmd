@@ -1,8 +1,10 @@
 # Installation
 
+There are two types of installations. Basic, which just lets you be a user of Hazelbean (and soon SEALS), and then the Repository installation, which gets you up and running with the latest developer repositories. Also check out our [video playlist](https://www.youtube.com/playlist?list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) for more context.
+
 ## Basic Installation
 
-Hazelbean can be installed using condaforge following these steps.
+Hazelbean can be installed using condaforge following these steps. See the[ Installing Git and Miniforge3](https://www.youtube.com/watch?v=HhZcqVQdbV8&list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) video for a walkthrough.
 
 1.  Install git: <https://Git-scm.com/downloads>
 2.  Install Miniforge3 from <https://conda-forge.org/download/>
