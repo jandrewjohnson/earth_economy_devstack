@@ -1,0 +1,17 @@
+# Replicable science depends on simplicity and speed
+
+If replicating a project requires almost as much time as the doing original research, it is barely replication. Speed compression fully defines how valuable the science is. But what does that look like currently? Below I have a single screenshot of something pretty darn close to the "gold standard" of replicability. All the researcher told me was the "look it up on my github." The full process to replicate is then pictured below.
+
+![](images/paste-69.png)
+
+This produced identical CSVs to what the researcher claimed their research did. Total time from hearing about the github repository to fully replicating their result: about 30 seconds. THAT is replicable science.
+
+To showcase the simplicity exhibited here, there were only 3 real steps, highlighed below.
+
+![](images/paste-70.png)
+
+1.  I used git to get the full history of the code and cloned it onto my computer. In this case, the repository also included the data, which worked because the data were pretty small. Sometimes the data step is really hard if the data are too big to fit in git (less than 5mb or so).
+2.  I used Anaconda (specifically miniforge3) to install python and get the hundreds of open-source libraries a modern data scientist uses. This command simply activates that environment I already set up. On possible improvement to this repository would be to include the method for creating the environment itself (by including an environment.yml file which tells Anaconda what to install). Environment management is a very common time-sink/challenge, but it's getting easier. Check out our [devstack installation](https://justinandrewjohnson.com/earth_economy_devstack/installation.html) steps for more info.
+3.  I called the `python` command and pointed it to the `run_renewable_energy_production.py` file. Identifying the correct python file to run varies from project to project, but a good repo will have a readme.md file displayed at its root that give a "quickstart" explanation defining this file.
+
+In this wild west of AI, we need to ask "what does it even mean to be a good researcher", or even "what does it mean to be true". Effective replicability, in my opinion, is the best candidate to answer both of these.
