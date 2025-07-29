@@ -1,5 +1,7 @@
 # Replicable science depends on simplicity and speed
 
+**2025-07-29**
+
 If replicating a project requires almost as much time as the doing original research, it is barely replication. Speed compression fully defines how valuable the science is. But what does that look like currently? Below I have a single screenshot of something pretty darn close to the "gold standard" of replicability. All the researcher told me was the "look it up on my github." The full process to replicate is then pictured below.
 
 ![](images/paste-69.png)
