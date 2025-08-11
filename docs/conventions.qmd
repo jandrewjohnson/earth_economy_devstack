@@ -678,7 +678,7 @@ When working with international datasets:
 
 We follow pep8 style for Python with a few key departures. First, we allow more than 80 character-width lines. The limit is flexible but keep it what fits within 160 characters, with the exception of comments trailing a code line. For functions, only have 1 linebreak not 2 between functions. This is useful when you collapse/fold your functions, you can see more functions.
 
-## UNSORTED 
+## UNSORTED
 
 TODO, needs to be put in the right place in the documentation
 
