@@ -12,6 +12,7 @@ format:
         incremental: true  
         auto-stretch: false
 ---
+
 # First SEALS run walkthrough
 
 ## Getting set up
@@ -37,38 +38,28 @@ format:
 ![](images/2024-03-06-04-41-48.png)
 :::
 
-## Run files 
+## Run files
 
-::: columns 
-::: {.column width="70%"} 
-::: r-fit-text 
-
-
+::: columns
+::: {.column width="70%"}
+::: r-fit-text
 -   One does not simply run a `main.py` (Figure 1)
     -   Instead, we're going to have a "run file" that sets up the code and then runs the `seals_main.py` file
     -   Open up the `run_test_standard.py` file in the seals directory (Figure 2)
 -   We will setup this file and then finally run it (in debug mode via the launch configs in the earth_economy_devstack repository)
-::: 
-::: 
-::: {.column width="30%"}
+:::
+:::
 
+::: {.column width="30%"}
 ![](images/2024-03-06-04-53-49.png)
 
 ![](images/2024-03-06-04-56-59.png)
-
 :::
 :::
 
 ## Setting up the run file
 
-::: r-fit-text
--   The run file begins with standard python imports
--   Then in the `if __name__ == '__main__':` block, we define the project directory and initialize the project flow object
-    -   The reason for putting it in this block is so that you don't accidentally run the code when you import the file in another script
--   This file then creates a ProjectFlow objected, assigned to the variable p.
-    -   Python is an object-oriented programming langage
-        -   The hb.ProjectFlow() defines a `class`, which is like a recipe for an object
-        -   When we call it, it generates on `object` of that class, which we assign to the variable `p`
+::: r-fit-text - The run file begins with standard python imports - Then in the `if __name__ == '__main__':` block, we define the project directory and initialize the project flow object - The reason for putting it in this block is so that you don't accidentally run the code when you import the file in another script - This file then creates a ProjectFlow objected, assigned to the variable p. - Python is an object-oriented programming langage - The hb.ProjectFlow() defines a `class`, which is like a recipe for an object - When we call it, it generates on `object` of that class, which we assign to the variable `p`
 
 ``` python
 import os, sys
@@ -170,5 +161,4 @@ After doing the above steps, you should be ready to run `run_test_seals.py`. Upo
 Once the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:
 
 \[THIS IS NOT THE CORRECT IMAGE\]
-
 :::

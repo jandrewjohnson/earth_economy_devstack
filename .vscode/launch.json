@@ -11,7 +11,7 @@
             "justMyCode": false,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
 
         {
@@ -24,7 +24,7 @@
             "cwd": "${fileDirname}",
             "envFile": "${workspaceFolder}/.env",   
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev"
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev"
             }
         },
 
@@ -37,7 +37,7 @@
             "justMyCode": true,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
         
         {
@@ -49,7 +49,7 @@
             "justMyCode": false,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
         {
             "name": "integratedTerminal, JUST MY CODE, Current File (Windows)",
@@ -60,7 +60,7 @@
             "justMyCode": true,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
         {
             "name": "externalConsole, Current File (Windows)",
@@ -71,7 +71,7 @@
             "justMyCode": false,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
         {
             "name": "externalConsole, JUST MY CODE Current File (Windows)",
@@ -82,7 +82,7 @@
             "justMyCode": true,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
         },
         {
             "name": "internalConsole, Current File (Mac/Unix)",
@@ -93,7 +93,7 @@
             "justMyCode": false,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
         },
         {
             "name": "integratedTerminal, Current File (Mac/Unix)",
@@ -104,7 +104,7 @@
             "justMyCode": false,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
         },
         {
             "name": "externalConsole, Current File (Mac/Unix)",
@@ -115,7 +115,7 @@
             "justMyCode": false,
             "cwd": "${fileDirname}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
         },
         
 
