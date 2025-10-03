@@ -4,7 +4,7 @@ There are two types of installations. Basic, which just lets you be a user of Ha
 
 ## Basic Installation
 
-Hazelbean can be installed using condaforge following these steps. See the[ Installing Git and Miniforge3](https://www.youtube.com/watch?v=HhZcqVQdbV8&list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) video for a walkthrough.
+Hazelbean can be installed using condaforge following these steps. See the[Installing Git and Miniforge3](https://www.youtube.com/watch?v=HhZcqVQdbV8&list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) video for a walkthrough.
 
 1.  Install git: <https://Git-scm.com/downloads>
 2.  Install Miniforge3 from <https://conda-forge.org/download/>
@@ -31,22 +31,19 @@ If you want to run SEALS, edit Hazelbean, or run our global_invest models, you w
     -   To install one of our repositories, for example SEALS, you start by cloning the repo at <https://github.com/jandrewjohnson/seals_dev>.
         -   You can clone it to whatever folder you want, but if you want to switch to a Workspace configuration later, we recommend installing it in /Users/<YOUR_USERNAME>/Files/<toolname>/<repo_name> which using the SEALS example on my machine would be C:/Users/jajohns/Files/seals/seals_dev.
         -   From with your command prompt pointing at that directory, run your git command
-            -   `git clone https://github.com/jandrewjohnson`
+            -   `git clone https://github.com/jandrewjohnson/<toolname>`
     -   Supported repositories include the below
         -   <https://github.com/jandrewjohnson/seals_dev>
         -   <https://github.com/jandrewjohnson/hazelbean_dev>
-            -   NOTE: Hazelbean is a little different than the other repos because you have already installed it via Condaforge and that might not need updating. However, if you want to have the very latest version of hazelbean and/or modify it, you will need to install directly from the repository. Note, however, that you should `pip uninstall hazelbean` before doing the `pip install -e .` command below.
         -   <https://github.com/jandrewjohnson/gtap_invest_dev>
         -   <https://github.com/jandrewjohnson/global_invest_dev>
         -   <https://github.com/jandrewjohnson/gtappy_dev>
 3.  Install the cloned repositories using an "editable" install with pip
     -   Activate the conda environment in this command prompt with the following command
         -   `mamba activate environment_name`
-    -   Remove from your environment any previously installed devstack software, INCLUDING HAZELBEAN. It is still necessary to install hazelbean as a first step from the Basic install steps above to get all required dependencies.
-        -   With your environment activated, run e.g. `pip uninstall hazelbean` or similar for other previously installed models.
     -   Navigate in you command prompt to the directory where you cloned the additional repos. For the SEALS example, this would be C:\\Users\\jajohns\\Files\\seals\\seals_dev
     -   Use pip to install the repo you as an "editable install" with the following command
-        -   `pip install -e .`
+        -   `pip install -e . --no-deps`
 
 One installed, the cloned repositories are all importable by python. For SEALS, you might want to start by poking around run_seals_standard.py.
 
