@@ -683,3 +683,9 @@ We follow pep8 style for Python with a few key departures. First, we allow more 
 TODO, needs to be put in the right place in the documentation
 
 only a projectflow module's root dir can have the exact file run.py. This is used as a markerfile to identify the module's root.
+
+### Single vs Double quotes
+
+Python allows both single and double quotes for strings, but they must be *balanced*. Best practices are mixed, but we do it where the outer string always uses doublequote and then inner strings (like in the dictionary key string values below) use single quotes.
+
+hb.log(f"\nWARNING!\nIn hb.df_merge, left had non-shared values in merge-col. N=: {str(len(comparison_dict\['right_only'\]))}. First few values:" + str(comparison_dict\['right_only'\])\[:100\] + "...")

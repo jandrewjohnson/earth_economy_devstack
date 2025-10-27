@@ -1,0 +1,40 @@
+# Installation of Hazelbean in Julia
+
+## Install Julia
+
+1.  On windows, Install **Julia** (which includes juliaup, the official Julia installer/manager) from the Microsoft Store: <https://www.microsoft.com/store/apps/9NJNWW8PVKMN>
+    1.  For full installation instructions here: <https://julialang.org/install/>
+    2.  ![](images/paste-73.png){width="329"}
+2.  Run the Julia application you just installed.
+    1.  An easy way is to do this is press the start button and type Julia.
+    2.  This will call `juliaup`, which is a nice tool that will get you the latest version of the actual Julia code.
+    3.  ![](images/paste-72.png){width="330"}
+3.  After `juliaup` is called, each subsequent time you call Julia, it will enter a Julia REPL (Read-Eval-Print-Loop, basically a command line instance of Julia)
+
+## Julia Environments
+
+1.  Julia can have different environments (configurations of packages). Managing environments is notoriously challenging, but it is important.
+2.  When you called `juliaup` above, it created a default system environment, stored in your Users directory
+    1.  ![](images/paste-76.png)
+    2.  This is the default system Julia installation. It's tempting to use *only* this, but that can quickly get confusing and cause dependency nightmares.
+    3.  Better is to have specific environments tied to specific project and Git repo.
+
+## Julia's Project.toml and Manifest.toml
+
+A good Julia git repository will have two critical files at its project root: Project.toml and Manifest.toml. Together, these will tell your Julia how to install the exact versions of all packages needed. After you clone a repo with these files, navigate to that directory in the Command Prompt/Terminal and run:
+
+`julia --project=. -e 'using Pkg; Pkg.instantiate()'`
+
+This will launch Julia, set the project to the current directory, and then install all of the packages in Project.toml and Manifest.toml.
+
+## Manual adding of Packages
+
+If you're making your own environment or need to add additional packages, you can add them via Julia's package manager. To do so:
+
+1.  Launch Julia REPL for this project with `julia –project=.`
+2.  In Julia REPL, type `]` to enter the Package manager.
+3.  Install additional packages by name with something like this:
+
+`add ArchGDAL DataFrames JuMP CSV Plots Statistics GLM Optim JSON HTTP`
+
+When run in a project folder, this Add command will write/update the Manifest and Project files.
