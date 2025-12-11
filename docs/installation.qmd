@@ -1,10 +1,10 @@
 # Installation
 
-There are two types of installations. Basic, which just lets you be a user of Hazelbean (and soon SEALS), and then the Repository installation, which gets you up and running with the latest developer repositories. Also check out our [video playlist](https://www.youtube.com/playlist?list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) for more context.
+There are three types of installations. Basic, which just lets you be a user of Hazelbean (and soon SEALS), Project Installation, which provides a pre-configured SEALS environment that works with project-specific data, and then Developer installation, which lets you make changes to SEALS and the rest of the Earth-Economy Devstack via Pull Requests. Also check out our [video playlist](https://www.youtube.com/playlist?list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) for more context.
 
-## Basic Installation
+## 1. Basic Installation
 
-Hazelbean can be installed using condaforge following these steps. See the[Installing Git and Miniforge3](https://www.youtube.com/watch?v=HhZcqVQdbV8&list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) video for a walkthrough.
+Hazelbean is the computational core of the devstack and can be installed using condaforge following these steps. See the [Installing Git and Miniforge3](https://www.youtube.com/watch?v=HhZcqVQdbV8&list=PLir2vw2cQ_Nu8RWoNfH_-QUmxKnK4Bztf) video for a walkthrough.
 
 1.  Install git: <https://Git-scm.com/downloads>
 2.  Install Miniforge3 from <https://conda-forge.org/download/>
@@ -18,40 +18,52 @@ Hazelbean can be installed using condaforge following these steps. See the[Insta
 
 You can now import hazelbean and it will have precompiled binaries already working for your operating system for geospatial operations using ProjectFlow!
 
-## Repository Installation
+## 2. Project Installation
 
-If you want to run SEALS, edit Hazelbean, or run our global_invest models, you will need to have a C compiler and have editable installs of our git repositories. First, do the basic installation above and then follow these steps:
+If someone has given you a project repository that you want to run and it relies on some combination of our devstack tools, but you are not planning on *editing* any of the tools, a Project Installation is your best approach. Here we will use [seals_cgebox_dev](https://github.com/jandrewjohnson/seals_cgebox_dev) as an example project. See also our [video tutorial for Project installation](https://youtu.be/8QmE8BPK94s). The project repository should have steps included for installation, but check the [seals_cgebox_dev](https://github.com/jandrewjohnson/seals_cgebox_dev) readme.md for an example. Project Installations include a setup_environment.bat or shell file that will setup the environment for you. Note that you need to have a C/C++ compiler installed, so be sure to read that section below.
 
-1.  Install C/C++ compiler
-    1.  Windows: - Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools. - Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools). - Option 3: Run the install.bat file in the Earth Economy Devestack repo's root. This just runs the winget command above. - Mac:
-    2.  Mac/Linux
-        1.  You can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
-            -   If you don't have Xcode, you can get it by running `xcode-select --install` in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
-2.  Clone all desired repositories
-    -   To install one of our repositories, for example SEALS, you start by cloning the repo at <https://github.com/jandrewjohnson/seals_dev>.
-        -   You can clone it to whatever folder you want, but if you want to switch to a Workspace configuration later, we recommend installing it in /Users/<YOUR_USERNAME>/Files/<toolname>/<repo_name> which using the SEALS example on my machine would be C:/Users/jajohns/Files/seals/seals_dev.
-        -   From with your command prompt pointing at that directory, run your git command
-            -   `git clone https://github.com/jandrewjohnson/<toolname>`
-    -   Supported repositories include the below
-        -   <https://github.com/jandrewjohnson/seals_dev>
-        -   <https://github.com/jandrewjohnson/hazelbean_dev>
-        -   <https://github.com/jandrewjohnson/gtap_invest_dev>
-        -   <https://github.com/jandrewjohnson/global_invest_dev>
-        -   <https://github.com/jandrewjohnson/gtappy_dev>
-3.  Install the cloned repositories using an "editable" install with pip
-    -   Activate the conda environment in this command prompt with the following command
-        -   `mamba activate environment_name`
-    -   Navigate in you command prompt to the directory where you cloned the additional repos. For the SEALS example, this would be C:\\Users\\jajohns\\Files\\seals\\seals_dev
-    -   Use pip to install the repo you as an "editable install" with the following command
+## 3. Developer Installation
+
+The Developer Installation installs all (or a subset) of our full devstack. This requires you to have a C/C++ compiler installed (see below). It also specifies canonical file names and structures for where to put the various repositories.
+
+1.  Create a new environment and follow the basic installation steps above.
+2.  Remove hazelbean from the new environment with `conda remove hazelbean --force`. This gets rid of the condaforge version of Hazelbean but keeps its dependencies (NOTE: simple pip uninstalling leaves behind Zombie Folders).
+3.  Create the hazelbean Project Folder at `C:/Users/<YOUR_USERNAME>/Files/hazelbean/` (PC) or `/Users/<YOUR_USERNAME>/Files/hazelbean/` (Mac/Linux)
+4.  Clone the desired branch from the hazelbean GitHub repository into your hazelbean Project Folder.
+    -   `git clone -b main https://github.com/jandrewjohnson/hazelbean_dev.git`
+5.  Navigate to the repo at `/Users/<YOUR_USERNAME>/Files/hazelbean/hazelbean_dev/` and then make an editable install of hazelbean with the following command:
+    -   `pip install -e . --no-deps`
+
+### Add Additional Devstack Repositories as Desired
+
+Now that you have the developer version of hazelbean, you can add additional repositories from our devstack as desired. To do this, using SEALS as an example, follow these steps:
+
+1.  Clone the desired repository, e.g., <https://github.com/jandrewjohnson/seals_dev> into the proper Project Folder.
+    -   In the SEALS Project Folder at `/Users/<YOUR_USERNAME>/Files/seals/` you will have the Project Repository at `/Users/<YOUR_USERNAME>/Files/seals/seals_dev/`
+    -   Navigate to the Project Repsoitory and make an editable install with pip. Make sure you have the right environment activated in your command prompt.
         -   `pip install -e . --no-deps`
+2.  Step 1 can be repeated for any of the repositories below (presuming you have read access) - <https://github.com/jandrewjohnson/seals_dev> - <https://github.com/jandrewjohnson/gtap_invest_dev> - <https://github.com/jandrewjohnson/global_invest_dev> - <https://github.com/jandrewjohnson/gtappy_dev> - <https://github.com/jandrewjohnson/gep_dev>
 
-One installed, the cloned repositories are all importable by python. For SEALS, you might want to start by poking around run_seals_standard.py.
+## Compiling C/C++ Code
 
-## **Common problems:**
+Windows:
+
+-   Option 1: You could go to <https://visualstudio.microsoft.com/visual-cpp-build-tools/> and select download build tools.
+
+-   Option 2: Enter the following command in the Terminal: `winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"` This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools).
+
+-   Option 3: Run the install.bat file in the Earth Economy Devestack repo's root. This just runs the winget command above. - Mac:
+
+Mac/Linux:
+
+-   You can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.
+    -   If you don't have Xcode, you can get it by running `xcode-select --install` in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.
+
+## Common problems
 
 -   You MUST have administrator rights to your computer.
 
--   If you're using Windows PowerShell (instead of the Command Prompt and it isn't working with Conda, you must initialize conda in powershell
+-   If you're using Windows PowerShell (instead of the Command Prompt and it isn't working with Conda, you must initialize conda in powershell)
 
     -   `conda init powershell`
 
@@ -62,5 +74,3 @@ One installed, the cloned repositories are all importable by python. For SEALS, 
         1.  If you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option). - Install in `C:\Users\<YOUR_USERNAME>\miniforge3` (PC) or `~/miniconda3` (Mac)
 
 -   If you get a “Windows Protected your PC”, click more info then Run Anyway.
-
-##

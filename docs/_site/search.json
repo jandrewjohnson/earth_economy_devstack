@@ -61,5 +61,33 @@
     "title": "",
     "section": "Running the model",
     "text": "Running the model\n\nAfter doing the above steps, you should be ready to run run_test_seals.py. Upon starting, SEALS will report the “task tree” of steps that it will compute in the ProjectFlow environment. To understand SEALS in more depth, inspect each of the functions that define these tasks for more documention in the code.\nOnce the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:\n[THIS IS NOT THE CORRECT IMAGE]"
+  },
+  {
+    "objectID": "installation.html#basic-installation",
+    "href": "installation.html#basic-installation",
+    "title": "",
+    "section": "1. Basic Installation",
+    "text": "1. Basic Installation\nHazelbean is the computational core of the devstack and can be installed using condaforge following these steps. See the Installing Git and Miniforge3 video for a walkthrough.\n\nInstall git: https://Git-scm.com/downloads\nInstall Miniforge3 from https://conda-forge.org/download/\n\nInstall just for your User Account\nDuring installation, select yes for “Add Mambaforge/Miniforge to my PATH environment Variable”\n\nCreate a new conda environment, activate it, and then install required packages with the following 3 mamba commands. The third command will take quite a while (10+ minutes). The conda init command may not be needed depending on how you configured your shell.\n\nconda init\nconda create -n environment_name\nconda activate environment_name\nmamba install hazelbean\n\n\nYou can now import hazelbean and it will have precompiled binaries already working for your operating system for geospatial operations using ProjectFlow!"
+  },
+  {
+    "objectID": "installation.html#project-installation",
+    "href": "installation.html#project-installation",
+    "title": "",
+    "section": "2. Project Installation",
+    "text": "2. Project Installation\nIf someone has given you a project repository that you want to run and it relies on some combination of our devstack tools, but you are not planning on editing any of the tools, a Project Installation is your best approach. Here we will use seals_cgebox_dev as an example project. See also our video tutorial for Project installation."
+  },
+  {
+    "objectID": "installation.html#developer-installation",
+    "href": "installation.html#developer-installation",
+    "title": "",
+    "section": "3. Developer Installation",
+    "text": "3. Developer Installation\nIf you want to run SEALS, edit Hazelbean, or run our global_invest models, you will need to have a C compiler and have editable installs of our git repositories. First, do the basic installation above and then follow these steps:\n\nInstall C/C++ compiler\n\nWindows: - Option 1: You could go to https://visualstudio.microsoft.com/visual-cpp-build-tools/ and select download build tools. - Option 2: Enter the following command in the Terminal: winget install Microsoft.VisualStudio.2022.BuildTools --force --override \"--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended\" This will launch the build-tools installer (you could do this manually via the MS website if you want, but this ensures you get the right tools). - Option 3: Run the install.bat file in the Earth Economy Devestack repo’s root. This just runs the winget command above. - Mac:\nMac/Linux\n\nYou can use Xcode to compile the cython files. Most users will already have this installed but if not, follow the directions below.\n\nIf you don’t have Xcode, you can get it by running xcode-select --install in the Terminal. This command downloads and installs the Xcode Command Line Tools, which includes gcc and clang, the compilers needed to compile C/C++ code on macOS. This is somewhat analogous to the Visual Studio Build Tools on Windows.\n\n\n\nClone all desired repositories\n\nTo install one of our repositories, for example SEALS, you start by cloning the repo at https://github.com/jandrewjohnson/seals_dev.\n\nYou can clone it to whatever folder you want, but if you want to switch to a Workspace configuration later, we recommend installing it in /Users//Files// which using the SEALS example on my machine would be C:/Users/jajohns/Files/seals/seals_dev.\nFrom with your command prompt pointing at that directory, run your git command\n\ngit clone https://github.com/jandrewjohnson/&lt;toolname&gt;\n\n\nSupported repositories include the below\n\nhttps://github.com/jandrewjohnson/seals_dev\nhttps://github.com/jandrewjohnson/hazelbean_dev\nhttps://github.com/jandrewjohnson/gtap_invest_dev\nhttps://github.com/jandrewjohnson/global_invest_dev\nhttps://github.com/jandrewjohnson/gtappy_dev\n\n\nInstall the cloned repositories using an “editable” install with pip\n\nActivate the conda environment in this command prompt with the following command\n\nmamba activate environment_name\n\nNavigate in you command prompt to the directory where you cloned the additional repos. For the SEALS example, this would be C:\\Users\\jajohns\\Files\\seals\\seals_dev\nUse pip to install the repo you as an “editable install” with the following command\n\npip install -e . --no-deps\n\n\n\nOne installed, the cloned repositories are all importable by python. For SEALS, you might want to start by poking around run_seals_standard.py."
+  },
+  {
+    "objectID": "installation.html#common-problems",
+    "href": "installation.html#common-problems",
+    "title": "",
+    "section": "Common problems:",
+    "text": "Common problems:\n\nYou MUST have administrator rights to your computer.\nIf you’re using Windows PowerShell (instead of the Command Prompt and it isn’t working with Conda, you must initialize conda in powershell\n\nconda init powershell\n\nIf you don’t add conda to your path, you can do this manually. On PC, you could use the command\n\nSETX PATH \"%PATH%;C:\\Users\\&lt;YOUR_USERNAME&gt;\\miniforge3;C:\\Users\\&lt;YOUR_USERNAME&gt;\\miniforge3;\"\n(you can do for All Users, but you will need to manually set paths to conda)\n\nIf you have an Apple “m1 or m2” chip (a relatively new apple chip, make sure you select the Apple Silicon option). - Install in C:\\Users\\&lt;YOUR_USERNAME&gt;\\miniforge3 (PC) or ~/miniconda3 (Mac)\n\n\nIf you get a “Windows Protected your PC”, click more info then Run Anyway."
   }
 ]
