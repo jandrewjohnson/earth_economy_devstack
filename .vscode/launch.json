@@ -1,0 +1,113 @@
+{
+    "version": "0.2.0",
+    "debugpy.justMyCode": false,
+    "configurations": [
+
+        
+        {
+            "name": "integratedTerminal, Current File (Windows)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+
+        {
+            "name": "integratedTerminal, Current File (Mac/Unix)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+        },
+
+        {
+            "name": "integratedTerminal, JUST MY CODE, Current File (Windows)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+        {
+            "name": "externalConsole, Current File (Windows)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+        {
+            "name": "externalConsole, JUST MY CODE Current File (Windows)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal",
+            "justMyCode": true,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+        {
+            "name": "internalConsole, Current File (Windows). NOT PREFFERED because can fail on gdal imports.",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "internalConsole",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+        {
+            "name": "internalConsole JUST MY CODE, Current File (Windows). NOT PREFFERED because can fail on gdal imports.",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev;${workspaceFolder}/../seals/seals_dev;${workspaceFolder}/../gtap_invest/gtap_invest_dev;${workspaceFolder}/../gtappy/gtappy_dev;${workspaceFolder}/../global_invest/global_invest_dev",            }
+        },
+
+        {
+            "name": "internalConsole, Current File (Mac/Unix). NOT PREFFERED because can fail on gdal imports.",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "internalConsole",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+        },
+
+        {
+            "name": "externalConsole, Current File (Mac/Unix)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal",
+            "justMyCode": false,
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/../hazelbean/hazelbean_dev;${workspaceFolder}/../linneabean/linneabean_dev:${workspaceFolder}/../seals/seals_dev:${workspaceFolder}/../gtap_invest/gtap_invest_dev:${workspaceFolder}/../gtappy/gtappy_dev:${workspaceFolder}/../global_invest/global_invest_dev:/Users/sumilthakrar/Files/gtappy/gtappy_dev",            }
+        },
+        
+
+    ]
+}
