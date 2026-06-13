@@ -1,0 +1,4 @@
+scenario_label,scenario_type,run,ignore_dependencies,observed_reference_label,depends_on,compared_to,tags,base_year,observed_years,years,aoi
+observed_2020,observed,1,0,,,,,2020,2020,,RWA
+bau,bau,1,0,observed_2020,,,,2020,2020,1990 2000 2010 2030 2040 2050,RWA
+#disabled_example,bau,0,0,observed_2020,,,,2020,2020,2030,RWA

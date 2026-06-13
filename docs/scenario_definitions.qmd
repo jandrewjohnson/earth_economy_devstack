@@ -1,0 +1,221 @@
+---
+title: "Scenario definitions (v2 schema)"
+---
+
+**Status:** design specification. No code implements this yet. The canonical parser and run-step iterator will live in hazelbean (next to `project_flow.py`); seals, gtappy, gtap_invest and global_invest will import it and delete their local copies of `assign_df_row_to_object_attributes`.
+
+This document specifies version 2 of the scenario definitions CSV that drives SEALS and the models built around it (gtap_invest, global_invest, gtappy, ngfs_pnas). It replaces the v1 `standard_scenarios.csv` schema and its per-project variants.
+
+Example files live in `examples/scenario_definitions_examples/`:
+
+- `single_stage_seals.csv` — a SEALS-only project (migrated from the v1 SEALS template), including a hindcast year.
+- `multi_stage_ngfs.csv` — a GTAP+SEALS project (migrated from the NGFS/PNAS variant) using stage-prefixed columns.
+- `hindcast_example.csv` — minimal demonstration of backward years.
+
+## Why v2
+
+The v1 schema accumulated four structural problems as projects grew:
+
+1.  **Per-model time columns multiplied ad hoc.** The NGFS variant needed `key_base_year`/`years` for the CGE model (2023→2050) and `seals_key_base_year`/`seals_years` for SEALS (2020→2050). Every new model stage added more one-off columns.
+2.  **"baseline" conflated two different things**: the observed historical anchor (base-year LULC data, calibration inputs) and the business-as-usual counterfactual trajectory. One is data; the other is a scenario.
+3.  **`scenario_type` was overloaded with workflow control.** Values like `baseline_ignore_dependencies` smuggled a label and a dependency flag into the type field, and pseudo-baseline rows were wired together through `comparison_counterfactual_labels`.
+4.  **Years only ran forward** from the base year; hindcasting (simulating years before the anchor) was impossible to express.
+
+v2 keeps a **single flat, Excel-editable CSV** — duplication across rows is accepted — and fixes the semantics.
+
+## Core concepts
+
+A v2 file is a table where **every row is either an observed anchor or a runnable scenario**:
+
+- An **observed** row defines the historical anchor: the base year, the base-year LULC map, calibration inputs, and any additional observed years. It runs no projection years. It is data preparation, not a counterfactual.
+- A **bau** or **policy** row is a trajectory to simulate. It points at its anchor (`observed_reference_label`), optionally at scenarios that must run first (`depends_on`), and at scenarios it is compared against in reporting (`compared_to`).
+
+Real computations that were previously disguised as baseline rows (e.g. an initial CGE equilibrium run) become ordinary `bau` rows that other rows `depends_on`. **Observed anchors get `observed` rows; real runs get `bau`/`policy` rows.**
+
+## Column reference
+
+### Identity
+
+| column | type | required | semantics |
+|------------------|------------------|------------------|------------------|
+| `scenario_label` | label | yes | Primary key, unique within the file. Rows whose label starts with `#` are comments and are skipped entirely. |
+| `scenario_type` | enum | yes | Closed vocabulary: `observed`, `bau`, or `policy`. Anything else is a load-time error. |
+| `tags` | label list | no | Free-form grouping (e.g. `stress_test`, `ngfs_phase4`) for filtering and reporting. Never read by run logic. |
+
+### Comparison and dependency DAG
+
+| column | type | required | semantics |
+|------------------|------------------|------------------|------------------|
+| `observed_reference_label` | label | on `bau`/`policy` rows | Which `observed` row anchors this scenario (base-year data and calibration lookup). Replaces v1 `baseline_reference_label`. |
+| `depends_on` | label list | no | Scenarios that must complete (all stages) before this row runs. Defines the execution DAG; the parser topologically sorts, and cycles are a load-time error. |
+| `compared_to` | label list | required on `policy` rows | Scenario(s) this row is differenced against in reporting/comparison tasks. Replaces v1 `comparison_counterfactual_labels`. |
+
+These are three separate concerns that v1 mixed together: *where is my anchor data*, *what must run before me*, and *what am I compared against*.
+
+### Time
+
+| column | type | required | semantics |
+|------------------|------------------|------------------|------------------|
+| `base_year` | int | yes | The single observed-data anchor year. Replaces v1 `key_base_year`. Must never appear in `years`. |
+| `observed_years` | int list | no | Additional observed/historical years available for calibration or validation. Replaces v1 `base_years`. Defaults to just `base_year`. |
+| `years` | int list | on `bau`/`policy` rows | Years to simulate. May contain years **before and/or after** `base_year` (see Hindcasting). Empty on `observed` rows. |
+
+### Per-stage overrides
+
+When a project chains multiple model stages with different timesteps (e.g. GTAP runs 2023→2050 while SEALS runs 2020→2050), any time or config field can be overridden per stage by prefixing the stage name:
+
+```         
+<stage>_<field>     e.g.  gtap_base_year, gtap_years, gtap_model_label
+```
+
+Because single underscores are ambiguous (`regional_projections_input_path` is not a "regional" stage override), the parser requires a **registered stage list**, declared in the run file before the CSV is loaded:
+
+``` python
+p.scenario_stages = ['gtap', 'seals']
+```
+
+Resolution rule when executing stage *s*, field *f*: use the `<s>_<f>` cell if it is non-empty, otherwise fall back to the plain `<f>` column. The plain columns are the single-stage default — a SEALS-only project never writes a prefix. The type of a prefixed column is inherited from its base field name (`gtap_shocks_path` is a path because `shocks_path` would be).
+
+### Naming and provenance labels
+
+Unchanged from v1; these compose output directories as `exogenous_label/climate_label/model_label/counterfactual_label/year`:
+
+`exogenous_label`, `climate_label`, `model_label` (the coarse-projection source model, e.g. `luh2-message`, `magpie`), `counterfactual_label` (the trajectory name, e.g. `bau`, `below_2c`).
+
+### Spatial extent
+
+`aoi` (ISO3 code, `global`, or a vector path), `regions_vector_path`, `regions_column_label`.
+
+### Coarse projection sources
+
+Unchanged names from v1: `coarse_projections_input_path`, `coarse_src_label`, `coarse_simplification_label`, `coarse_correspondence_path`, `lc_class_varname`, `dimensions`, `time_dim_adjustment` (e.g. `add2015`, arithmetic applied to NetCDF time coordinates).
+
+### Base-year LULC and calibration
+
+Primarily meaningful on `observed` rows: `base_year_lulc_path`, `lulc_src_label`, `lulc_simplification_label`, `lulc_correspondence_path`, `calibration_parameters_path` (**renamed** from v1 `calibration_parameters_source` so the `_path` suffix types it correctly).
+
+### Regional / vector stage
+
+`regional_projections_input_path` (templatable, see Templating), `region_to_coarse_algorithm` (e.g. `covariate_sum_shift`).
+
+### GTAP/CGE stage config
+
+All stage-prefixed in multi-stage projects: `gtap_model_label` (was v1 `cge_model_label`), `gtap_aggregation_label` (was `aggregation_label`), `gtap_cmf_template`, `gtap_shocks_path`, `gtap_shock_config`.
+
+### Workflow control
+
+| column | type | default | semantics |
+|------------------|------------------|------------------|------------------|
+| `run` | bool | 1 | Include this row in execution. Replaces commenting-out or deleting rows. |
+| `ignore_dependencies` | bool | 0 | Skip validation of / waiting on cross-scenario upstream artifacts (assume present or regenerate). This is the boolean that v1 smuggled into `scenario_type='baseline_ignore_dependencies'`. |
+
+### Unknown columns
+
+Columns not in this spec are **allowed**: they are typed by the suffix rules below and set as ProjectFlow attributes. This is the extensibility valve so projects extend the schema instead of forking it.
+
+## Hindcasting (backward years)
+
+`years` may contain any integers other than `base_year` (listing `base_year` itself is a load-time error — it is the anchor, never a simulated step). The parser splits `years` into two chains:
+
+- **forward chain**: years greater than `base_year`, ascending;
+- **backward chain**: years less than `base_year`, **descending** (closest-to-base first).
+
+`previous_year` is defined as *the adjacent year toward `base_year` in this chain* — `base_year` for the first element of each chain, otherwise the prior chain element. Allocation still computes `state(year) − state(previous_year)` exactly as today; in the backward chain `previous_year` is chronologically later than `year`, and the signs of the changes fall out naturally.
+
+Each run step carries a derived `time_direction ∈ {forward, backward}` so tasks that genuinely care (discounting, time-dimension slicing) can branch. Canonical serial order per scenario per stage is the full forward chain, then the full backward chain; the two chains are independent and may be parallelized.
+
+The iteration contract the hazelbean implementation must satisfy:
+
+``` python
+def iter_stage_runs(scenario_set, stage):
+    for s in scenario_set.enabled_topo_sorted():        # run==1, ordered by depends_on DAG
+        base  = s.resolve(stage, 'base_year')           # stage override else plain column
+        years = s.resolve(stage, 'years')
+        fwd = sorted(y for y in years if y > base)
+        bwd = sorted((y for y in years if y < base), reverse=True)
+        for chain, direction in ((fwd, 'forward'), (bwd, 'backward')):
+            prev = base
+            for y in chain:
+                yield RunStep(scenario=s, stage=stage, year=y,
+                              previous_year=prev, base_year=base,
+                              direction=direction)
+                prev = y
+```
+
+Base-year preparation jobs (from `observed` rows) run once per unique anchor before any `RunStep`.
+
+## Parsing rules (implementation contract)
+
+1.  **Read** with `pd.read_csv(path, encoding='utf-8-sig', dtype=str, keep_default_na=False)`. An empty string means None; the empty cell is the *only* null representation (no `none`/`NA`/`nan` literals — this kills the `'nan'`-string checks in the v1 parsers).
+2.  **Comment rows**: a `scenario_label` starting with `#` skips the whole row.
+3.  **Lists** are single-space-separated within a cell (Excel-safe, never commas). Repeated spaces collapse; leading/trailing whitespace is stripped.
+4.  **Typing is by column-name suffix, never value sniffing** (applied after stripping a registered stage prefix):
+    - `*_path` → path; `*_paths` → path list
+    - `years`, `*_years` → int list; `*_year` → int
+    - `run`, `ignore_dependencies`, `*_enabled` → bool (`1/0/true/false`, case-insensitive)
+    - `depends_on`, `compared_to`, `tags`, `*_labels`, `dimensions` → string list
+    - everything else → string.
+5.  **Stage prefixes** are resolved only against the registered stage list (`p.scenario_stages`).
+6.  **Paths** use forward slashes, always (see the slashes rule in [conventions](conventions.qmd); v1 files containing `lulc\esa\...` are normalized by migration). Paths resolve through ProjectFlow's `get_path()` search order (project input dir → base_data → ...).
+7.  **Templating** uses hazelbean cat-ears tokens, `<^token^>`, in two phases: tokens naming already-defined project attributes substitute at row load; run-namespace tokens (`year`, `previous_year`, `base_year`, `direction`, `stage`, `scenario_label`, plus any row field) substitute per run step, just before use. A token still unresolved when its value is consumed is a **hard error** — no silent pass-through (this replaces v1's `leave_ref_path_if_fail=True` fallback).
+8.  **Load-time validation**: unique labels; closed `scenario_type` vocabulary; `observed_reference_label` points at an `observed` row; `depends_on`/`compared_to` reference existing labels; the dependency DAG is acyclic; `base_year` does not appear in `years`; `observed` rows have empty `years`; `policy` rows have non-empty `compared_to`.
+9.  **Legacy detection**: the presence of a `key_base_year` column or any `scenario_type='baseline'` row means the file is v1 — the parser refuses it and points at the one-shot migrator (planned as `hb.scenarios.migrate_v1_to_v2(csv_path)`). There is deliberately no dual-mode parsing.
+
+## Migration from v1
+
+### SEALS `standard_scenarios.csv` (27 columns)
+
+| v1 | v2 |
+|------------------------------------|------------------------------------|
+| `scenario_type=baseline` row | `scenario_type=observed`, `years` emptied |
+| `key_base_year` | `base_year` |
+| `base_years` | `observed_years` |
+| `baseline_reference_label` | `observed_reference_label` |
+| `comparison_counterfactual_labels` | `compared_to` |
+| `calibration_parameters_source` | `calibration_parameters_path` |
+| backslash paths (`lulc\esa\...`) | forward slashes |
+| *(new)* | `run=1`, `ignore_dependencies=0`, empty `depends_on` and `tags` |
+| everything else | unchanged |
+
+### NGFS/PNAS variant (35 columns)
+
+All of the above, plus:
+
+| v1 | v2 |
+|------------------------------------|------------------------------------|
+| `aggregation_label` | `gtap_aggregation_label` |
+| `cge_model_label` | `gtap_model_label` |
+| `cmf_template`, `shocks_path`, `shock_config` | `gtap_cmf_template`, `gtap_shocks_path`, `gtap_shock_config` |
+| `key_base_year` (CGE anchor, 2023), `years` (CGE years) | `gtap_base_year`, `gtap_years` |
+| `seals_key_base_year` (2020 observed anchor) | plain `base_year` |
+| `seals_years` | plain `years` (SEALS resolves the plain columns) |
+| `shock_config=none` literal | empty cell |
+
+Row surgery:
+
+- Add one `observed` row (anchor 2020, ESA LULC) — v1 had no row representing the actual observed anchor.
+- `baseline_ignore_dependencies_initial` (type `baseline`) → ordinary `bau` row `gtap_initial` — it is a real CGE run, not data.
+- `baseline_ignore_dependencies` (type `baseline_ignore_dependencies`) → `bau` row with `depends_on=gtap_initial`, `ignore_dependencies=1`.
+- Policy rows: `baseline_reference_label`/`comparison_counterfactual_labels` pointing at the pseudo-baseline → `depends_on=bau`, `compared_to=bau`, `observed_reference_label=<the observed row>`.
+- Any `scenario_type=stress_test`-style values → `policy` plus `tags=stress_test`.
+
+### gtappy template variant
+
+| v1 | v2 |
+|------------------------------------|------------------------------------|
+| `scenario_index` | dropped (label is the key) |
+| `*_short_label` columns | dropped, or folded into the canonical label columns at migration |
+| `baseline_reference_year` | `base_year` |
+| variable-extraction / output-filter columns | out of scope for scenario definitions — they stay in gtappy's `outputs.csv`; a genuinely per-scenario override becomes a `gtap_`-prefixed column |
+
+### Breaking changes
+
+1.  The `p.key_base_year` attribute disappears (→ `p.base_year`); task code reading it must rename (mechanical: e.g. `seals_main.py:109, 540, 562, 592`).
+2.  `scenario_type` outside `{observed, bau, policy}` is rejected.
+3.  Stage-override columns require stage registration (`p.scenario_stages`).
+4.  Backslash paths are invalid.
+5.  The duplicated v1 parsers (`seals_utils.assign_df_row_to_object_attributes`, `gtappy_utils.assign_df_row_to_object_attributes`) are slated for deletion once the hazelbean parser exists.
+
+## Future implementation
+
+The canonical parser, validator, migrator and `RunStep` iterator belong in hazelbean next to `project_flow.py`, reusing `cat_ears.py` for templating. Key v1 code to replace when implementing: `seals/seals_utils.py:586-724` (row→attributes parsing), `seals/seals_main.py:1400-1560` (scenario/year iteration), and the gtappy/gtap_invest copies.

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Scenario definitions (v2 schema)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-45431c2918bd31147ddb3fa7038bb99f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-search-results"></div>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="scenario_definitions.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Scenario definitions (v2 schema)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Status:</strong> design specification. No code implements this yet. The canonical parser and run-step iterator will live in hazelbean (next to <code>project_flow.py</code>); seals, gtappy, gtap_invest and global_invest will import it and delete their local copies of <code>assign_df_row_to_object_attributes</code>.</p>
+<p>This document specifies version 2 of the scenario definitions CSV that drives SEALS and the models built around it (gtap_invest, global_invest, gtappy, ngfs_pnas). It replaces the v1 <code>standard_scenarios.csv</code> schema and its per-project variants.</p>
+<p>Example files live in <code>examples/scenario_definitions_examples/</code>:</p>
+<ul>
+<li><code>single_stage_seals.csv</code> — a SEALS-only project (migrated from the v1 SEALS template), including a hindcast year.</li>
+<li><code>multi_stage_ngfs.csv</code> — a GTAP+SEALS project (migrated from the NGFS/PNAS variant) using stage-prefixed columns.</li>
+<li><code>hindcast_example.csv</code> — minimal demonstration of backward years.</li>
+</ul>
+<section id="why-v2" class="level2">
+<h2 class="anchored" data-anchor-id="why-v2">Why v2</h2>
+<p>The v1 schema accumulated four structural problems as projects grew:</p>
+<ol type="1">
+<li><strong>Per-model time columns multiplied ad hoc.</strong> The NGFS variant needed <code>key_base_year</code>/<code>years</code> for the CGE model (2023→2050) and <code>seals_key_base_year</code>/<code>seals_years</code> for SEALS (2020→2050). Every new model stage added more one-off columns.</li>
+<li><strong>“baseline” conflated two different things</strong>: the observed historical anchor (base-year LULC data, calibration inputs) and the business-as-usual counterfactual trajectory. One is data; the other is a scenario.</li>
+<li><strong><code>scenario_type</code> was overloaded with workflow control.</strong> Values like <code>baseline_ignore_dependencies</code> smuggled a label and a dependency flag into the type field, and pseudo-baseline rows were wired together through <code>comparison_counterfactual_labels</code>.</li>
+<li><strong>Years only ran forward</strong> from the base year; hindcasting (simulating years before the anchor) was impossible to express.</li>
+</ol>
+<p>v2 keeps a <strong>single flat, Excel-editable CSV</strong> — duplication across rows is accepted — and fixes the semantics.</p>
+</section>
+<section id="core-concepts" class="level2">
+<h2 class="anchored" data-anchor-id="core-concepts">Core concepts</h2>
+<p>A v2 file is a table where <strong>every row is either an observed anchor or a runnable scenario</strong>:</p>
+<ul>
+<li>An <strong>observed</strong> row defines the historical anchor: the base year, the base-year LULC map, calibration inputs, and any additional observed years. It runs no projection years. It is data preparation, not a counterfactual.</li>
+<li>A <strong>bau</strong> or <strong>policy</strong> row is a trajectory to simulate. It points at its anchor (<code>observed_reference_label</code>), optionally at scenarios that must run first (<code>depends_on</code>), and at scenarios it is compared against in reporting (<code>compared_to</code>).</li>
+</ul>
+<p>Real computations that were previously disguised as baseline rows (e.g.&nbsp;an initial CGE equilibrium run) become ordinary <code>bau</code> rows that other rows <code>depends_on</code>. <strong>Observed anchors get <code>observed</code> rows; real runs get <code>bau</code>/<code>policy</code> rows.</strong></p>
+</section>
+<section id="column-reference" class="level2">
+<h2 class="anchored" data-anchor-id="column-reference">Column reference</h2>
+<section id="identity" class="level3">
+<h3 class="anchored" data-anchor-id="identity">Identity</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>column</th>
+<th>type</th>
+<th>required</th>
+<th>semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>scenario_label</code></td>
+<td>label</td>
+<td>yes</td>
+<td>Primary key, unique within the file. Rows whose label starts with <code>#</code> are comments and are skipped entirely.</td>
+</tr>
+<tr class="even">
+<td><code>scenario_type</code></td>
+<td>enum</td>
+<td>yes</td>
+<td>Closed vocabulary: <code>observed</code>, <code>bau</code>, or <code>policy</code>. Anything else is a load-time error.</td>
+</tr>
+<tr class="odd">
+<td><code>tags</code></td>
+<td>label list</td>
+<td>no</td>
+<td>Free-form grouping (e.g.&nbsp;<code>stress_test</code>, <code>ngfs_phase4</code>) for filtering and reporting. Never read by run logic.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="comparison-and-dependency-dag" class="level3">
+<h3 class="anchored" data-anchor-id="comparison-and-dependency-dag">Comparison and dependency DAG</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>column</th>
+<th>type</th>
+<th>required</th>
+<th>semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>observed_reference_label</code></td>
+<td>label</td>
+<td>on <code>bau</code>/<code>policy</code> rows</td>
+<td>Which <code>observed</code> row anchors this scenario (base-year data and calibration lookup). Replaces v1 <code>baseline_reference_label</code>.</td>
+</tr>
+<tr class="even">
+<td><code>depends_on</code></td>
+<td>label list</td>
+<td>no</td>
+<td>Scenarios that must complete (all stages) before this row runs. Defines the execution DAG; the parser topologically sorts, and cycles are a load-time error.</td>
+</tr>
+<tr class="odd">
+<td><code>compared_to</code></td>
+<td>label list</td>
+<td>required on <code>policy</code> rows</td>
+<td>Scenario(s) this row is differenced against in reporting/comparison tasks. Replaces v1 <code>comparison_counterfactual_labels</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>These are three separate concerns that v1 mixed together: <em>where is my anchor data</em>, <em>what must run before me</em>, and <em>what am I compared against</em>.</p>
+</section>
+<section id="time" class="level3">
+<h3 class="anchored" data-anchor-id="time">Time</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>column</th>
+<th>type</th>
+<th>required</th>
+<th>semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>base_year</code></td>
+<td>int</td>
+<td>yes</td>
+<td>The single observed-data anchor year. Replaces v1 <code>key_base_year</code>. Must never appear in <code>years</code>.</td>
+</tr>
+<tr class="even">
+<td><code>observed_years</code></td>
+<td>int list</td>
+<td>no</td>
+<td>Additional observed/historical years available for calibration or validation. Replaces v1 <code>base_years</code>. Defaults to just <code>base_year</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>years</code></td>
+<td>int list</td>
+<td>on <code>bau</code>/<code>policy</code> rows</td>
+<td>Years to simulate. May contain years <strong>before and/or after</strong> <code>base_year</code> (see Hindcasting). Empty on <code>observed</code> rows.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="per-stage-overrides" class="level3">
+<h3 class="anchored" data-anchor-id="per-stage-overrides">Per-stage overrides</h3>
+<p>When a project chains multiple model stages with different timesteps (e.g.&nbsp;GTAP runs 2023→2050 while SEALS runs 2020→2050), any time or config field can be overridden per stage by prefixing the stage name:</p>
+<pre><code>&lt;stage&gt;_&lt;field&gt;     e.g.  gtap_base_year, gtap_years, gtap_model_label</code></pre>
+<p>Because single underscores are ambiguous (<code>regional_projections_input_path</code> is not a “regional” stage override), the parser requires a <strong>registered stage list</strong>, declared in the run file before the CSV is loaded:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p.scenario_stages <span class="op">=</span> [<span class="st">'gtap'</span>, <span class="st">'seals'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Resolution rule when executing stage <em>s</em>, field <em>f</em>: use the <code>&lt;s&gt;_&lt;f&gt;</code> cell if it is non-empty, otherwise fall back to the plain <code>&lt;f&gt;</code> column. The plain columns are the single-stage default — a SEALS-only project never writes a prefix. The type of a prefixed column is inherited from its base field name (<code>gtap_shocks_path</code> is a path because <code>shocks_path</code> would be).</p>
+</section>
+<section id="naming-and-provenance-labels" class="level3">
+<h3 class="anchored" data-anchor-id="naming-and-provenance-labels">Naming and provenance labels</h3>
+<p>Unchanged from v1; these compose output directories as <code>exogenous_label/climate_label/model_label/counterfactual_label/year</code>:</p>
+<p><code>exogenous_label</code>, <code>climate_label</code>, <code>model_label</code> (the coarse-projection source model, e.g.&nbsp;<code>luh2-message</code>, <code>magpie</code>), <code>counterfactual_label</code> (the trajectory name, e.g.&nbsp;<code>bau</code>, <code>below_2c</code>).</p>
+</section>
+<section id="spatial-extent" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-extent">Spatial extent</h3>
+<p><code>aoi</code> (ISO3 code, <code>global</code>, or a vector path), <code>regions_vector_path</code>, <code>regions_column_label</code>.</p>
+</section>
+<section id="coarse-projection-sources" class="level3">
+<h3 class="anchored" data-anchor-id="coarse-projection-sources">Coarse projection sources</h3>
+<p>Unchanged names from v1: <code>coarse_projections_input_path</code>, <code>coarse_src_label</code>, <code>coarse_simplification_label</code>, <code>coarse_correspondence_path</code>, <code>lc_class_varname</code>, <code>dimensions</code>, <code>time_dim_adjustment</code> (e.g.&nbsp;<code>add2015</code>, arithmetic applied to NetCDF time coordinates).</p>
+</section>
+<section id="base-year-lulc-and-calibration" class="level3">
+<h3 class="anchored" data-anchor-id="base-year-lulc-and-calibration">Base-year LULC and calibration</h3>
+<p>Primarily meaningful on <code>observed</code> rows: <code>base_year_lulc_path</code>, <code>lulc_src_label</code>, <code>lulc_simplification_label</code>, <code>lulc_correspondence_path</code>, <code>calibration_parameters_path</code> (<strong>renamed</strong> from v1 <code>calibration_parameters_source</code> so the <code>_path</code> suffix types it correctly).</p>
+</section>
+<section id="regional-vector-stage" class="level3">
+<h3 class="anchored" data-anchor-id="regional-vector-stage">Regional / vector stage</h3>
+<p><code>regional_projections_input_path</code> (templatable, see Templating), <code>region_to_coarse_algorithm</code> (e.g.&nbsp;<code>covariate_sum_shift</code>).</p>
+</section>
+<section id="gtapcge-stage-config" class="level3">
+<h3 class="anchored" data-anchor-id="gtapcge-stage-config">GTAP/CGE stage config</h3>
+<p>All stage-prefixed in multi-stage projects: <code>gtap_model_label</code> (was v1 <code>cge_model_label</code>), <code>gtap_aggregation_label</code> (was <code>aggregation_label</code>), <code>gtap_cmf_template</code>, <code>gtap_shocks_path</code>, <code>gtap_shock_config</code>.</p>
+</section>
+<section id="workflow-control" class="level3">
+<h3 class="anchored" data-anchor-id="workflow-control">Workflow control</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>column</th>
+<th>type</th>
+<th>default</th>
+<th>semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>run</code></td>
+<td>bool</td>
+<td>1</td>
+<td>Include this row in execution. Replaces commenting-out or deleting rows.</td>
+</tr>
+<tr class="even">
+<td><code>ignore_dependencies</code></td>
+<td>bool</td>
+<td>0</td>
+<td>Skip validation of / waiting on cross-scenario upstream artifacts (assume present or regenerate). This is the boolean that v1 smuggled into <code>scenario_type='baseline_ignore_dependencies'</code>.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="unknown-columns" class="level3">
+<h3 class="anchored" data-anchor-id="unknown-columns">Unknown columns</h3>
+<p>Columns not in this spec are <strong>allowed</strong>: they are typed by the suffix rules below and set as ProjectFlow attributes. This is the extensibility valve so projects extend the schema instead of forking it.</p>
+</section>
+</section>
+<section id="hindcasting-backward-years" class="level2">
+<h2 class="anchored" data-anchor-id="hindcasting-backward-years">Hindcasting (backward years)</h2>
+<p><code>years</code> may contain any integers other than <code>base_year</code> (listing <code>base_year</code> itself is a load-time error — it is the anchor, never a simulated step). The parser splits <code>years</code> into two chains:</p>
+<ul>
+<li><strong>forward chain</strong>: years greater than <code>base_year</code>, ascending;</li>
+<li><strong>backward chain</strong>: years less than <code>base_year</code>, <strong>descending</strong> (closest-to-base first).</li>
+</ul>
+<p><code>previous_year</code> is defined as <em>the adjacent year toward <code>base_year</code> in this chain</em> — <code>base_year</code> for the first element of each chain, otherwise the prior chain element. Allocation still computes <code>state(year) − state(previous_year)</code> exactly as today; in the backward chain <code>previous_year</code> is chronologically later than <code>year</code>, and the signs of the changes fall out naturally.</p>
+<p>Each run step carries a derived <code>time_direction ∈ {forward, backward}</code> so tasks that genuinely care (discounting, time-dimension slicing) can branch. Canonical serial order per scenario per stage is the full forward chain, then the full backward chain; the two chains are independent and may be parallelized.</p>
+<p>The iteration contract the hazelbean implementation must satisfy:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> iter_stage_runs(scenario_set, stage):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> scenario_set.enabled_topo_sorted():        <span class="co"># run==1, ordered by depends_on DAG</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        base  <span class="op">=</span> s.resolve(stage, <span class="st">'base_year'</span>)           <span class="co"># stage override else plain column</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        years <span class="op">=</span> s.resolve(stage, <span class="st">'years'</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        fwd <span class="op">=</span> <span class="bu">sorted</span>(y <span class="cf">for</span> y <span class="kw">in</span> years <span class="cf">if</span> y <span class="op">&gt;</span> base)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        bwd <span class="op">=</span> <span class="bu">sorted</span>((y <span class="cf">for</span> y <span class="kw">in</span> years <span class="cf">if</span> y <span class="op">&lt;</span> base), reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> chain, direction <span class="kw">in</span> ((fwd, <span class="st">'forward'</span>), (bwd, <span class="st">'backward'</span>)):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            prev <span class="op">=</span> base</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> y <span class="kw">in</span> chain:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                <span class="cf">yield</span> RunStep(scenario<span class="op">=</span>s, stage<span class="op">=</span>stage, year<span class="op">=</span>y,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                              previous_year<span class="op">=</span>prev, base_year<span class="op">=</span>base,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                              direction<span class="op">=</span>direction)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                prev <span class="op">=</span> y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Base-year preparation jobs (from <code>observed</code> rows) run once per unique anchor before any <code>RunStep</code>.</p>
+</section>
+<section id="parsing-rules-implementation-contract" class="level2">
+<h2 class="anchored" data-anchor-id="parsing-rules-implementation-contract">Parsing rules (implementation contract)</h2>
+<ol type="1">
+<li><strong>Read</strong> with <code>pd.read_csv(path, encoding='utf-8-sig', dtype=str, keep_default_na=False)</code>. An empty string means None; the empty cell is the <em>only</em> null representation (no <code>none</code>/<code>NA</code>/<code>nan</code> literals — this kills the <code>'nan'</code>-string checks in the v1 parsers).</li>
+<li><strong>Comment rows</strong>: a <code>scenario_label</code> starting with <code>#</code> skips the whole row.</li>
+<li><strong>Lists</strong> are single-space-separated within a cell (Excel-safe, never commas). Repeated spaces collapse; leading/trailing whitespace is stripped.</li>
+<li><strong>Typing is by column-name suffix, never value sniffing</strong> (applied after stripping a registered stage prefix):
+<ul>
+<li><code>*_path</code> → path; <code>*_paths</code> → path list</li>
+<li><code>years</code>, <code>*_years</code> → int list; <code>*_year</code> → int</li>
+<li><code>run</code>, <code>ignore_dependencies</code>, <code>*_enabled</code> → bool (<code>1/0/true/false</code>, case-insensitive)</li>
+<li><code>depends_on</code>, <code>compared_to</code>, <code>tags</code>, <code>*_labels</code>, <code>dimensions</code> → string list</li>
+<li>everything else → string.</li>
+</ul></li>
+<li><strong>Stage prefixes</strong> are resolved only against the registered stage list (<code>p.scenario_stages</code>).</li>
+<li><strong>Paths</strong> use forward slashes, always (see the slashes rule in <a href="./conventions.html">conventions</a>; v1 files containing <code>lulc\esa\...</code> are normalized by migration). Paths resolve through ProjectFlow’s <code>get_path()</code> search order (project input dir → base_data → …).</li>
+<li><strong>Templating</strong> uses hazelbean cat-ears tokens, <code>&lt;^token^&gt;</code>, in two phases: tokens naming already-defined project attributes substitute at row load; run-namespace tokens (<code>year</code>, <code>previous_year</code>, <code>base_year</code>, <code>direction</code>, <code>stage</code>, <code>scenario_label</code>, plus any row field) substitute per run step, just before use. A token still unresolved when its value is consumed is a <strong>hard error</strong> — no silent pass-through (this replaces v1’s <code>leave_ref_path_if_fail=True</code> fallback).</li>
+<li><strong>Load-time validation</strong>: unique labels; closed <code>scenario_type</code> vocabulary; <code>observed_reference_label</code> points at an <code>observed</code> row; <code>depends_on</code>/<code>compared_to</code> reference existing labels; the dependency DAG is acyclic; <code>base_year</code> does not appear in <code>years</code>; <code>observed</code> rows have empty <code>years</code>; <code>policy</code> rows have non-empty <code>compared_to</code>.</li>
+<li><strong>Legacy detection</strong>: the presence of a <code>key_base_year</code> column or any <code>scenario_type='baseline'</code> row means the file is v1 — the parser refuses it and points at the one-shot migrator (planned as <code>hb.scenarios.migrate_v1_to_v2(csv_path)</code>). There is deliberately no dual-mode parsing.</li>
+</ol>
+</section>
+<section id="migration-from-v1" class="level2">
+<h2 class="anchored" data-anchor-id="migration-from-v1">Migration from v1</h2>
+<section id="seals-standard_scenarios.csv-27-columns" class="level3">
+<h3 class="anchored" data-anchor-id="seals-standard_scenarios.csv-27-columns">SEALS <code>standard_scenarios.csv</code> (27 columns)</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>v1</th>
+<th>v2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>scenario_type=baseline</code> row</td>
+<td><code>scenario_type=observed</code>, <code>years</code> emptied</td>
+</tr>
+<tr class="even">
+<td><code>key_base_year</code></td>
+<td><code>base_year</code></td>
+</tr>
+<tr class="odd">
+<td><code>base_years</code></td>
+<td><code>observed_years</code></td>
+</tr>
+<tr class="even">
+<td><code>baseline_reference_label</code></td>
+<td><code>observed_reference_label</code></td>
+</tr>
+<tr class="odd">
+<td><code>comparison_counterfactual_labels</code></td>
+<td><code>compared_to</code></td>
+</tr>
+<tr class="even">
+<td><code>calibration_parameters_source</code></td>
+<td><code>calibration_parameters_path</code></td>
+</tr>
+<tr class="odd">
+<td>backslash paths (<code>lulc\esa\...</code>)</td>
+<td>forward slashes</td>
+</tr>
+<tr class="even">
+<td><em>(new)</em></td>
+<td><code>run=1</code>, <code>ignore_dependencies=0</code>, empty <code>depends_on</code> and <code>tags</code></td>
+</tr>
+<tr class="odd">
+<td>everything else</td>
+<td>unchanged</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ngfspnas-variant-35-columns" class="level3">
+<h3 class="anchored" data-anchor-id="ngfspnas-variant-35-columns">NGFS/PNAS variant (35 columns)</h3>
+<p>All of the above, plus:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>v1</th>
+<th>v2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>aggregation_label</code></td>
+<td><code>gtap_aggregation_label</code></td>
+</tr>
+<tr class="even">
+<td><code>cge_model_label</code></td>
+<td><code>gtap_model_label</code></td>
+</tr>
+<tr class="odd">
+<td><code>cmf_template</code>, <code>shocks_path</code>, <code>shock_config</code></td>
+<td><code>gtap_cmf_template</code>, <code>gtap_shocks_path</code>, <code>gtap_shock_config</code></td>
+</tr>
+<tr class="even">
+<td><code>key_base_year</code> (CGE anchor, 2023), <code>years</code> (CGE years)</td>
+<td><code>gtap_base_year</code>, <code>gtap_years</code></td>
+</tr>
+<tr class="odd">
+<td><code>seals_key_base_year</code> (2020 observed anchor)</td>
+<td>plain <code>base_year</code></td>
+</tr>
+<tr class="even">
+<td><code>seals_years</code></td>
+<td>plain <code>years</code> (SEALS resolves the plain columns)</td>
+</tr>
+<tr class="odd">
+<td><code>shock_config=none</code> literal</td>
+<td>empty cell</td>
+</tr>
+</tbody>
+</table>
+<p>Row surgery:</p>
+<ul>
+<li>Add one <code>observed</code> row (anchor 2020, ESA LULC) — v1 had no row representing the actual observed anchor.</li>
+<li><code>baseline_ignore_dependencies_initial</code> (type <code>baseline</code>) → ordinary <code>bau</code> row <code>gtap_initial</code> — it is a real CGE run, not data.</li>
+<li><code>baseline_ignore_dependencies</code> (type <code>baseline_ignore_dependencies</code>) → <code>bau</code> row with <code>depends_on=gtap_initial</code>, <code>ignore_dependencies=1</code>.</li>
+<li>Policy rows: <code>baseline_reference_label</code>/<code>comparison_counterfactual_labels</code> pointing at the pseudo-baseline → <code>depends_on=bau</code>, <code>compared_to=bau</code>, <code>observed_reference_label=&lt;the observed row&gt;</code>.</li>
+<li>Any <code>scenario_type=stress_test</code>-style values → <code>policy</code> plus <code>tags=stress_test</code>.</li>
+</ul>
+</section>
+<section id="gtappy-template-variant" class="level3">
+<h3 class="anchored" data-anchor-id="gtappy-template-variant">gtappy template variant</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>v1</th>
+<th>v2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>scenario_index</code></td>
+<td>dropped (label is the key)</td>
+</tr>
+<tr class="even">
+<td><code>*_short_label</code> columns</td>
+<td>dropped, or folded into the canonical label columns at migration</td>
+</tr>
+<tr class="odd">
+<td><code>baseline_reference_year</code></td>
+<td><code>base_year</code></td>
+</tr>
+<tr class="even">
+<td>variable-extraction / output-filter columns</td>
+<td>out of scope for scenario definitions — they stay in gtappy’s <code>outputs.csv</code>; a genuinely per-scenario override becomes a <code>gtap_</code>-prefixed column</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="breaking-changes" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes">Breaking changes</h3>
+<ol type="1">
+<li>The <code>p.key_base_year</code> attribute disappears (→ <code>p.base_year</code>); task code reading it must rename (mechanical: e.g.&nbsp;<code>seals_main.py:109, 540, 562, 592</code>).</li>
+<li><code>scenario_type</code> outside <code>{observed, bau, policy}</code> is rejected.</li>
+<li>Stage-override columns require stage registration (<code>p.scenario_stages</code>).</li>
+<li>Backslash paths are invalid.</li>
+<li>The duplicated v1 parsers (<code>seals_utils.assign_df_row_to_object_attributes</code>, <code>gtappy_utils.assign_df_row_to_object_attributes</code>) are slated for deletion once the hazelbean parser exists.</li>
+</ol>
+</section>
+</section>
+<section id="future-implementation" class="level2">
+<h2 class="anchored" data-anchor-id="future-implementation">Future implementation</h2>
+<p>The canonical parser, validator, migrator and <code>RunStep</code> iterator belong in hazelbean next to <code>project_flow.py</code>, reusing <code>cat_ears.py</code> for templating. Key v1 code to replace when implementing: <code>seals/seals_utils.py:586-724</code> (row→attributes parsing), <code>seals/seals_main.py:1400-1560</code> (scenario/year iteration), and the gtappy/gtap_invest copies.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
