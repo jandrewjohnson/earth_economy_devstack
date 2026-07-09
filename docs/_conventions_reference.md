@@ -509,6 +509,20 @@ splitting each multi-byte character into garbled pieces.
 - Every computationally intensive step must be guarded by an existence check
   (usually `if not hb.path_exists(output_path):`) so completed work is skipped
   on re-run.
+- **`input_template/` is tracked; `input/` is derived.** Definition files a run
+  reads — scenarios CSV, parameters CSV, outputs CSV, figure/section definitions,
+  and any other seed inputs — live in the repo's `input_template/` directory and
+  **are committed to source control**. On first run, ProjectFlow copies each item
+  that doesn't already exist in the project's `input/` directory (which lives under
+  the timestamped/project run dir and is **outside source control**). So: edit the
+  copy in `input_template/`; treat `input/` as a generated working copy. A run only
+  copies files that are missing in `input/`, so a stale `input/` file will shadow an
+  updated template — delete it (or use a fresh project dir) to pick up template edits.
+- **A test run differs from the full run only by its scenarios CSV.** Keep a pared
+  `<project>_scenarios_test.csv` in `input_template/` (fewer scenarios, a single
+  future year, a single AOI region) and a thin `run_<project>_test.py` that calls
+  the same `run_project()` entry point with that filename and a stable, non-timestamped
+  project dir so repeated test runs resume in place. Don't fork the task tree for tests.
 
 ## Git workflow
 
