@@ -4,7 +4,7 @@ The Earth Economy Devstack and all of its published article code is available as
 
 There are two different ways to interact with a github repository:
 
-1.  Branching for internal collaborators. Needs to be a member of the NatCapTEEMs github organization. We use a process called Github Flow, documented below.
+1.  Branching for internal collaborators. Needs to be a member of the NatCapTEEMs github organization. We use **Git Flow** (a `main` branch for releases plus a `develop` integration branch), documented below.
 
 2.  Forking with pull requests. Works for external collaborators. Anyone can do it!
 
@@ -28,7 +28,7 @@ There are many other graphical user interfaces that help with git commands (so y
 
 #### Using Git Graph to make a change
 
-STATUS NOTE: We are debating if we should have GitHub Flow style contribution (which has no develop branch separate from Main) and Git Flow style, which does have the develop branch. Below we document Git Flow.
+We use **Git Flow**: a `develop` integration branch separate from `main` (which holds releases). Feature branches are made off `develop` and pull requests target `develop`. Below we document this workflow.
 
 Suppose you want to make a change to the `hazelbean_dev` repository. We will use this example to explain how we use Git Graph to make this contribution. First, let's take a look at the Git Graph interface.
 
