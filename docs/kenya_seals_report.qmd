@@ -7,10 +7,6 @@ format:
   html:
     toc: true
     toc-depth: 4
-    theme: cosmo
-    embed-resources: true
-    mermaid:
-        theme: default
 ---
 
 ## Overview
