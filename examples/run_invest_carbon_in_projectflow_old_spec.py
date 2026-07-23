@@ -34,7 +34,7 @@ def build_task_tree(p):
     p.ecosystem_services_task = p.add_task(ecosystem_services_tasks.ecosystem_services) # Empty task just to contain all the other ES tasks (by being set as their parent task)
     p.carbon_storage_biophysical_invest_task = p.add_task(ecosystem_services_tasks.carbon_storage_biophysical_invest, parent=p.ecosystem_services_task) # Actually implements the model logic
 
-# Build the task tree and excute it!
+# Build the task tree and execute it!
 build_task_tree(p)
 p.execute()
     
