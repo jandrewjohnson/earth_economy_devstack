@@ -23,7 +23,7 @@ text. Use them consistently.
 - **`index`** — the *position* of an element in a sequence (list, string, or the
   row position in a spreadsheet). It is **transient and not stable**: never
   persist it, and never use it as the identifier column in a DataFrame or file,
-  because the position can change. Use `id` for anything durable.
+  because the position can change. Use `id` for anything durable. Generally avoid index.
 
 - **`labelheader`** — an exactly-4-character, lowercase-alphanumeric string (no
   special symbols). Useful for the Header label in `.har` files. Technically
@@ -496,9 +496,32 @@ splitting each multi-byte character into garbled pieces.
 
 ## ProjectFlow conventions
 
-- A ProjectFlow module's root directory is marked by a file named **exactly**
-  `run.py` — this markerfile identifies the module root. Only the root may have
-  it.
+- A ProjectFlow project's root is the directory holding its `run_<project>.py`
+  entry file (ProjectFlow auto-detects this as `script_dir`; `input_template/`
+  lives beside the run file). There is no separate markerfile.
+- **`run_<project>.py` is the single entry point and defines `run_project()`
+  itself.** The canonical shape: a module-level `build_task_tree(p)` — named
+  exactly that in every run file — that constructs the project's task tree
+  (always build the FULL tree — variants disable, they don't omit), then
+  `run_project(scenario_definitions_filename=..., project_name=...,
+  append_timestamp=False, tasks_to_skip=None, execute=True)` doing all
+  ProjectFlow setup, calling `build_task_tree(p)` then
+  `p.skip_tasks(tasks_to_skip)`, and ending in `p.execute()` (behind `execute`)
+  and `return p`, then an `if __name__ == '__main__':` guard calling
+  `run_project()`. The guard is mandatory — run files must never execute on
+  import. Skipping is run configuration, so it lives in `run_project`, not in the
+  builder; `p.skip_tasks()` (hazelbean) sets `run=0` by task name and warns on
+  unknown names. Variant runs (fast, postprocess-only, backend tests) are thin
+  wrappers that import `run_project` and pass `tasks_to_skip=[...]` and/or a
+  different scenarios CSV — never duplicated files. Timestamped project dirs are
+  opt-in via `append_timestamp`, never a commented-out line. Reference
+  implementation: `gtap_invest/projects/ngfs/ngfs_pnas/ngfs_pnas/run_ngfs_pnas.py`.
+- **Machine-specific configuration lives in `parameters.csv`, never in code and
+  never in environment variables.** Connection settings (`vm_ssh_host`,
+  `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`), credentials
+  paths, and any other per-machine values are keys in the project's
+  `<project>_parameters.csv`. The tracked `input_template/` copy ships these keys
+  with **blank** values; each machine fills in its own untracked `input/` copy.
 - **Tasks are named as nouns** (this intentionally breaks PEP 8), referencing
   what is stored in the task's output directory, so the resulting file structure
   reads well to an outsider.
@@ -518,11 +541,53 @@ splitting each multi-byte character into garbled pieces.
   copy in `input_template/`; treat `input/` as a generated working copy. A run only
   copies files that are missing in `input/`, so a stale `input/` file will shadow an
   updated template — delete it (or use a fresh project dir) to pick up template edits.
+- **scenarios.csv is authoritative for every attribute it has a column for.**
+  Scenario iteration re-hydrates `p` from the CSV row at each scenario, so a
+  run-file assignment like `p.aoi = 'RWA'` made after scenario initialization
+  wins only until the first scenario iterates, then is silently overwritten.
+  Run files may set scenario-varying attributes only inside the
+  generate-defaults branch
+  (`if not hb.path_exists(p.scenario_definitions_path):`), where they seed the
+  CSV about to be written — on later runs that branch is dead code and the CSV
+  rules. To run with a different AOI (or any other scenario-varying value),
+  pass a different scenarios CSV via
+  `run_project(scenario_definitions_filename=...)` — that is exactly what the
+  pared `_test.csv` pattern is.
+- **Every run file defines `build_task_tree(p)` — even when it only delegates.**
+  `build_task_tree` is the one named place that answers "what is this project's
+  pipeline?", so all run files share identical anatomy (imports,
+  `build_task_tree`, `run_project`, `__main__` guard). Three forms, one name:
+  a one-line shim delegating to a shared library builder (e.g.
+  `seals_initialize_project.build_standard_task_tree(p)`); a composition of
+  one or more library builders plus project-specific tasks; or a fully local
+  tree built from library *task functions*. Two guardrails: (1)
+  `build_task_tree` contains only tree construction — library-builder calls,
+  `p.add_task`/`p.add_iterator`, and tree-structure decisions; no `p`
+  configuration, CSV logic, or dir setup (that's `run_project`'s job). (2)
+  `run_project` never calls a library builder directly — all tree construction
+  flows through the local `build_task_tree`, with `p.skip_tasks(tasks_to_skip)`
+  immediately after the call (skipping is run configuration, however the tree
+  was assembled).
+- **Library repos export task functions plus only truly generic builders.**
+  A pipeline shared by many entry points (e.g. seals'
+  `build_standard_task_tree`) lives in the library's `*_initialize_project`
+  module so fixes propagate to every run file whose shim delegates to it. A
+  research project's tree lives in the project's own `run_<project>.py` —
+  the project must be free to evolve its tree without touching the shared
+  library, at the accepted cost of some structural duplication between
+  projects. Do not accumulate single-project builders in library
+  `*_initialize_project` modules; when a project graduates to its own repo,
+  its builder moves with it (renamed to the local `build_task_tree`). A
+  variant run never justifies a new builder — use `tasks_to_skip` or a `mode`
+  kwarg on `run_project`.
 - **A test run differs from the full run only by its scenarios CSV.** Keep a pared
   `<project>_scenarios_test.csv` in `input_template/` (fewer scenarios, a single
-  future year, a single AOI region) and a thin `run_<project>_test.py` that calls
-  the same `run_project()` entry point with that filename and a stable, non-timestamped
-  project dir so repeated test runs resume in place. Don't fork the task tree for tests.
+  future year, a single AOI region) and a thin `run_<project>_test.py` (≤ ~25
+  lines) that imports `run_project` from `run_<project>.py` and calls it with that
+  filename, a stable `<project>_test` project name, and `append_timestamp=False`
+  so repeated test runs resume in place. Don't fork the task tree for tests.
+  Test files use the `_test` **suffix** (`run_<project>_test.py`,
+  `run_<project>_<variant>_test.py`), never a `run_test_*` prefix.
 
 ## Git workflow
 
