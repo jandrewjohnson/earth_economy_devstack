@@ -1,0 +1,177 @@
+---
+title: "Model specs and iterator-driven staging (design)"
+---
+
+**Status:** design specification. No code implements this yet. It builds on the [scenario definitions v2 schema](scenario_definitions.qmd) (the CSV *instance* layer) and specifies the *model-schema* and *execution* layers above it. The canonical parser, the model-spec registry, and the iterator builder will live in hazelbean next to `project_flow.py`.
+
+## The three layers
+
+The devstack has been carrying three concerns in one place (per-project CSV parsers plus scattered task code). v2 separates them:
+
+| layer | what it is | authored by | where it lives |
+|------------------|------------------|------------------|------------------|
+| **model spec** | a model's typed inputs, outputs, clock, and iteration role — the schema for *one* model (SEALS, GTAP, InVEST-ES) | developers, in Python | each model's repo; registry in hazelbean |
+| **scenario definitions** | the values for a particular project — one row per scenario, the canonical clock | researchers, in Excel/CSV | each project's `scenario_definitions.csv` |
+| **task tree** | the executable ProjectFlow — nested iterators built from the specs and the canonical clock | the framework | `project_flow.py` (existing engine) |
+
+InVEST (NatCap) formalizes only the first layer — a `ModelSpec` of typed `Input`/`Output` objects plus an `execute(args)` that returns an output registry. We adopt that shape and extend it with the two things InVEST leaves to the user: a **clock** (a model runs across time, not once) and an **iteration role** (how the model becomes one or more levels of the ProjectFlow iterator tree). The scenario layer and the harmonization semantics are specified in the companion doc; this doc is the model spec and how the engine consumes it.
+
+## What a model spec is
+
+A model spec is one declarative object per model, registered before the run:
+
+``` python
+p.register_model(seals.MODEL_SPEC)      # replaces the bare p.scenario_stages = ['gtap','seals']
+p.register_model(gtappy.MODEL_SPEC)
+p.register_model(global_invest.ES_MODEL_SPEC)
+```
+
+Registering a model both declares a **stage** (its `stage_label` becomes the `<stage>_` column prefix in the CSV) and hands the framework everything it needs to type-check inputs, resolve the model's clock against the canonical clock, build its iterator level(s), and wire its outputs to downstream models.
+
+### Fields
+
+``` python
+ModelSpec(
+    stage_label   = 'seals',            # the <stage>_ CSV prefix; unique
+    model_id      = 'seals_downscaling', # globally unique, package-ish
+    inputs        = [...],               # typed Input objects (below)
+    outputs       = [...],               # typed Output objects — the exchange registry
+    clock         = ClockSpec(...),      # base-year source, cadence, harmonization
+    iteration     = IterationSpec(...),  # how this model maps to iterator levels
+    execute       = seals_main.allocations,  # the callable(s) the engine wraps
+    validate      = None,                # optional; defaults to spec-driven validation
+)
+```
+
+### Typed inputs (replacing suffix typing for known columns)
+
+v2's suffix rules (`*_path`, `*_years`) stay as the fallback for *unknown* columns — the extensibility valve. But a model's *known* columns are declared with types, which is strictly better: it removes the reason the v1 `calibration_parameters_source` had to be renamed to `_path` just so the suffix rule could see it. The type hierarchy is small and domain-specific (the InVEST hierarchy adapted — we need years and correspondences, not pint units):
+
+- `PathInput(required, must_exist, templatable)` — resolves through `get_path()`; `must_exist` may be deferred (see Deferred inputs).
+- `YearInput` — a single int (a base year). Always scalar; the v1 `key_base_year` scalar/list asymmetry is gone.
+- `YearListInput` — a space-delimited int list (`years`, `observed_years`).
+- `RasterInput`, `VectorInput(geometry_types, id_field)`, `CSVInput(index_col, orientation)` — spatial/tabular, carrying the validation each needs.
+- `CorrespondenceInput` — a reclassification csv (`src_id/dst_id/src_label/dst_label` or multicorrespondence).
+- `LabelInput`, `LabelListInput` — scenario references (`observed_reference_label`, `depends_on`).
+- `EnumInput(options)` — closed vocabulary (`scenario_type`, `*_interpolation`).
+- `NumberInput`, `BoolInput`, `StringInput` — scalars.
+
+Each input carries `id`, `about`, `required` (bool **or** a string expression evaluated against the row, e.g. `"scenario_type == 'policy'"`), and a `validate(value, row) -> error | None`. `seals_api_input.md` is the human-facing rendering of a spec; the spec object is the machine-facing source of truth, and one can generate the other.
+
+### Typed outputs (the cross-stage exchange registry)
+
+This is the piece that makes model coupling concrete. Each model declares its outputs by `id`, with a templated path and the canonical years at which they exist:
+
+``` python
+outputs = [
+    RasterOutput(id='lulc_projected',
+                 path='<^cur_dir^>/lulc_<^year^>.tif',
+                 per='canonical_year'),
+    VectorOutput(id='regional_luc',
+                 path='<^cur_dir^>/luc_<^year^>.gpkg',
+                 per='stage_year'),
+]
+```
+
+A downstream model consumes an upstream one **by output id, never by reconstructing a path** — the fragile string-surgery that `seals_process_coarse_timeseries` does today (`cur_dir.replace('/'+year+'/', ...)`) is replaced by `p.resolve_output('seals', 'lulc_projected', year)`. This mirrors InVEST's decision to have `execute()` return an id→path dict, and it is what lets the harmonizer resample another model's *named* output onto the clock it needs.
+
+### The clock spec
+
+Attaches the harmonization design from the companion doc to the model rather than to loose CSV columns:
+
+``` python
+ClockSpec(
+    base_year   = 'canonical',          # or 'own' (reads <stage>_base_year)
+    cadence     = 'canonical',          # or 'timestep' (<stage>_timestep) or 'explicit' (<stage>_years)
+    serial      = True,                 # recursive-dynamic: year N needs year N-1
+    interpolation   = 'linear',         # how published outputs fill skipped canonical years
+    extrapolation   = 'hold',           # how canonical years outside native range fill
+    exogenous   = [ShockSource(path_column='gtap_shocks_path',
+                               semantics_column='gtap_shock_config')],  # per-header rate/level/difference
+)
+```
+
+`serial=True` marks the recursive-dynamic chain (GTAP's `.upd`, SEALS's year-on-year allocation) — such a level can never be `run_in_parallel`. The independent forward/backward hindcast chains and independent scenarios *can* be.
+
+### The iteration spec — how a model becomes iterator levels
+
+``` python
+IterationSpec(
+    levels = ['scenario', 'stage_year'],  # the iterator nesting this model contributes
+    replacement_names = {                 # attribute names it sets — distinct per level
+        'stage_year':  ['year', 'previous_year', 'time_direction'],
+    },
+    zones = 'allocation_zones',           # optional inner parallel decomposition (existing)
+)
+```
+
+The `replacement_names` matter because ProjectFlow's `iterator_replacements` is a **single project-level dict** rebuilt by each iterator level's function. Two levels that both wrote `p.year` would collide; the canonical-year level writes `p.canonical_year` while a stage-native sub-year level writes `p.year`. This is exactly the `p.year` (per-step) vs `p.canonical_year`/`p.stage_year` (stage-resolved) split in the companion doc's attribute contract.
+
+## How the task tree is built from specs
+
+The engine already supports the primitive we need: **nested iterators are in production today.** `allocation_zones_task` is created with `parent=p.allocations_task` in seals, gtappy and gtap_invest — a two-level scenario→zone nest. Each level's function repopulates the global `iterator_replacements` for its own dimension; execution order and the per-iteration `copy.copy(self)` freeze keep the levels independent. The proposal extends this proven depth-2 pattern to depth 3–4.
+
+A generic builder, `p.build_stage_tree(coupling=...)`, reads the registered specs, the canonical clock, and one project-level **coupling mode**, and emits the iterator tree. The coupling mode is the single knob that answers both of the motivating cases, because **the nesting order of the iterators is what distinguishes one-way from coupled**:
+
+### Case 1 — one-way (`coupling='pipeline'`): GTAP annual to 2050, then SEALS every 5 years
+
+Stages are **sibling** iterator subtrees; within each, the stage is the outer level and its native year the inner:
+
+```         
+scenario iterator            (topo-sorted by depends_on; parallel-ok)
+├── gtap subtree
+│   └── gtap_year iterator    (annual 2024..2050; serial)
+└── seals subtree
+    ├── seals_year iterator   (5-yearly 2025..2050; serial)
+    └── allocation_zones      (parallel; existing inner nest)
+```
+
+GTAP runs its whole annual chain and publishes `regional_luc` at every year; SEALS samples that output at its 5-yearly canonical years (an exact subset — no interpolation needed). This is the `multi_stage_ngfs` pattern and needs nothing the engine can't already do.
+
+### Case 2 — coupled feedback (`coupling='coupled'`): GTAP 5 yrs → SEALS+InVEST make shocks → back to GTAP
+
+The **canonical year is the outer** iterator and the stages are **serial children**; the barrier and the feedback both fall out of the tree for free:
+
+```         
+scenario iterator                     (parallel-ok across scenarios)
+└── canonical_year iterator           (2025 2030 ... 2050; serial — sets p.canonical_year)
+    ├── gtap_segment   (child 1)      (gtap_year sub-iterator: the 5 annual steps to this canonical year; sets p.year)
+    ├── seals          (child 2)      (downscales this canonical year; + allocation_zones parallel)
+    └── invest_es      (child 3)      (scores ES; writes next segment's shock har)
+```
+
+- **The barrier is the outer iteration boundary** — `canonical_year` cannot advance to 2030 until all three children of the 2025 iteration finish. Free from the existing engine (children run to completion within an iteration).
+- **The feedback is execution order + a file on disk** — `invest_es` writes the shock har during the 2025 iteration; `gtap_segment` reads it during the 2030 iteration because children run in tree order (the non-parallel path is literally `for child in task.children: run_task(child)`). No new cross-scenario `depends_on` granularity is needed, because the coupling is *within* one scenario's iterator subtree.
+- **Feedback flows through disk, never through `p`** — the engine's own comment warns that parallel `project_copy` mutations "can't be rejoined." The shock har is the handoff, which is already how these models communicate. Consequently the coupled inner levels are serial; only the scenario level parallelizes.
+
+The same three model specs produce case 1 or case 2 purely by the `coupling` mode flipping the nesting order. A researcher's fast test (`years=2050`) degenerates to a single outer iteration with no special-casing.
+
+## Clock resolution, harmonization, deferred validation
+
+These come from the companion doc, now anchored to the spec:
+
+- **Resolution** — for each stage the builder computes `(base_year, years)` from its `ClockSpec` (canonical unless it declares `own`/`timestep`/`explicit`) and materializes `previous_years` per level. The iterator gets a flattened parallel `previous_year` list built from that dict — exactly what `seals_main` already assembles by hand.
+- **Harmonization** — all cross-clock resampling goes through one utility, `hb.resample_years(values_by_year, target_years, method, extrapolation)`, semantics-aware: levels interpolate, rates `compound` (geometric root to split, product to aggregate), differences scale. This replaces the three duplicated interpolation blocks in `gtappy_tasks.py`, the hardcoded decadal BtC interpolation, and the silent year-skip in `extract_global_netcdf`.
+- **Load-time validation** — the spec makes coverage checkable: every canonical year must be obtainable from every registered model under its declared policy, and every resolved stage year from its declared exogenous sources. A gap is a named load-time error, not a mid-run KeyError or a frozen GEMPACK solve.
+- **Deferred inputs** — an input whose `must_exist` is deferred (a constructed-anchor LULC, or a **coupled shock har that a later barrier produces**) is not checked at load; it is checked when its producing task completes. This is the one place case 2 genuinely needs the declarative layer: the segment-2 shock file does not exist at load, so `gtap_shocks_path`'s existence check is deferred to the barrier, exactly as a constructed anchor's `base_year_lulc_path` is deferred to its `depends_on` row.
+
+## What is reuse vs. new work
+
+Honest accounting, because the point of anchoring on iterators is to minimize new engine code:
+
+**Reuse (exists today):** the iterator engine, nested iterators (proven at depth 2), `iterator_replacements`, per-iteration `project_copy` freezing, serial-vs-parallel per level, the `assign_to_object` value parser, and `initialize_definitions_csv`.
+
+**New, but pure data (no engine changes):** the `ModelSpec`/`ClockSpec`/ `IterationSpec` dataclasses; the registry (`p.register_model`); clock resolution and `previous_years` materialization; the coverage validator.
+
+**New engine-adjacent work, to prototype and test:**
+
+1.  `p.build_stage_tree(coupling)` — the generic builder that nests specs into iterators. The depth-3–4 nesting is an extension of a working depth-2 pattern, but must be tested: attribute-name collisions across levels, and the global `iterator_replacements` rebuilt correctly at each level.
+2.  `hb.resample_years` — hazelbean has spatial interpolation only; this temporal, semantics-aware utility is genuinely new.
+3.  Deferred `must_exist` validation — checking a templated input at producer-completion instead of at load.
+4.  The output registry (`p.resolve_output(stage, id, year)`) replacing path string-surgery.
+
+**Intentionally unchanged:** per-step task code (`str(p.year)` path composition, `..._{year}_{previous_year}_ha_diff` filenames), because `p.year`/`p.previous_year` keep their names and meanings.
+
+## Ownership and migration
+
+Spec *machinery* (dataclasses, registry, builder, resampler, validator) lives in hazelbean next to `project_flow.py`. Spec *content* lives in each model's repo: `seals.MODEL_SPEC`, `gtappy.MODEL_SPEC`, `global_invest.ES_MODEL_SPEC` — the same ownership split as the rest of the devstack. `seals_api_input.md` becomes the rendered view of `seals.MODEL_SPEC`; the stub parser in `seals_api_parsing.py` (and its `generate_scenarios_csv_and_put_in_input_dir` inverse) is superseded rather than revived. A first useful deliverable is "generate a valid v2 template CSV from the registered specs," which replaces the hand-maintained template writer and gives new users the runnable example the SEALS input doc already promises.
