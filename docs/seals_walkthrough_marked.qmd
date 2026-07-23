@@ -18,9 +18,9 @@ format:
 ## Getting set up
 
 ::: r-fit-text
--   Make sure you have followed all of the steps in the [installation](installation.qmd) page.
-    -   In particular, Clone the SEALS and Hazelbean repositories in the correct location, as [described here](installation.html#clone-the-required-repositories)
-    -   You will know you've got them installed correctly if your VS Code Explorer tab shows the repositories without an error message (Figure 1)
+- Make sure you have followed all of the steps in the [installation](installation.qmd) page.
+  - In particular, Clone the SEALS and Hazelbean repositories in the correct location, as [described here](installation.html#clone-the-required-repositories)
+  - You will know you've got them installed correctly if your VS Code Explorer tab shows the repositories without an error message (Figure 1)
 
 ![](images/paste-45.png){width="201"}
 :::
@@ -28,34 +28,34 @@ format:
 ## Explore the SEALS code
 
 ::: r-fit-text
--   In the VS Code Explorer tab, navigate to your seals_dev directory (Figure 1)
-    -   Quick note about file organization
-        -   The root directory of seals_dev contains more than just the seals library, such as directories for scripts, images, etc.
-        -   The library itself is in the seals subdirectory `seals_dev/seals` which may seem redundant but is necessary for the way Python imports work.
-        -   If you inspect the seals directory, you will see an `__init__.py` file. This make Python able to import the directory as a package.
-    -   You will also see a `seals_main.py` file. This is where most of the actual logic of seals is.
+- In the VS Code Explorer tab, navigate to your seals_dev directory (Figure 1)
+  - Quick note about file organization
+    - The root directory of seals_dev contains more than just the seals library, such as directories for scripts, images, etc.
+    - The library itself is in the seals subdirectory `seals_dev/seals` which may seem redundant but is necessary for the way Python imports work.
+    - If you inspect the seals directory, you will see an `__init__.py` file. This make Python able to import the directory as a package.
+  - You will also see a `seals_main.py` file. This is where most of the actual logic of seals is.
 
 ![](images/2024-03-06-04-41-48.png)
 :::
 
 ## Run files
 
-::: columns
-::: {.column width="70%"}
+:::::: columns
+:::: {.column width="70%"}
 ::: r-fit-text
--   One does not simply run a `main.py` (Figure 1)
-    -   Instead, we're going to have a "run file" that sets up the code and then runs the `seals_main.py` file
-    -   Open up the `run_test_standard.py` file in the seals directory (Figure 2)
--   We will setup this file and then finally run it (in debug mode via the launch configs in the earth_economy_devstack repository)
+- One does not simply run a `main.py` (Figure 1)
+  - Instead, we're going to have a "run file" that sets up the code and then runs the `seals_main.py` file
+  - Open up the `run_test_standard.py` file in the seals directory (Figure 2)
+- We will setup this file and then finally run it (in debug mode via the launch configs in the earth_economy_devstack repository)
 :::
-:::
+::::
 
 ::: {.column width="30%"}
 ![](images/2024-03-06-04-53-49.png)
 
 ![](images/2024-03-06-04-56-59.png)
 :::
-:::
+::::::
 
 ## Setting up the run file
 
@@ -106,12 +106,12 @@ p.set_project_dir(p.project_dir)
 ## Using Objects
 
 ::: r-fit-text
--   The `p` object we created will organize input variables (called attributes when assigned to an object)
-    -   Like this: `p.attribute_name = 'ItsName'`
--   The `p` object also has functions tied specificially to it (called methods when assigned to an object)
-    -   Such as: `p.validate_name()`
-    -   Methods operate on the object that defined it
-        -   So `validate_name()` is specifically looking at the `p` object, often doing something to the `p` object, like fixing value of `p.attribute_name`
+- The `p` object we created will organize input variables (called attributes when assigned to an object)
+  - Like this: `p.attribute_name = 'ItsName'`
+- The `p` object also has functions tied specificially to it (called methods when assigned to an object)
+  - Such as: `p.validate_name()`
+  - Methods operate on the object that defined it
+    - So `validate_name()` is specifically looking at the `p` object, often doing something to the `p` object, like fixing value of `p.attribute_name`
 :::
 
 # Scenario Definitions
@@ -119,10 +119,10 @@ p.set_project_dir(p.project_dir)
 ## Scenario definitions CSV
 
 ::: r-fit-text
--   The `scenario_definitions` file specifies what defines the many different scenarios you want to run
-    -   Each row will be one scenario
-    -   Each time the model runs a new scenario, it will update its attributes based on this row
--   If you haven't run SEALS yet, you won't have a `scenario_defintions` file, so it will download the default one on the first run
+- The `scenario_definitions` file specifies what defines the many different scenarios you want to run
+  - Each row will be one scenario
+  - Each time the model runs a new scenario, it will update its attributes based on this row
+- If you haven't run SEALS yet, you won't have a `scenario_defintions` file, so it will download the default one on the first run
 
 ``` python
     p.scenario_definitions_filename = 'test_standard_scenarios.csv' 
@@ -133,7 +133,7 @@ p.set_project_dir(p.project_dir)
 
 ## Scenario types
 
--   Scenario type determines if it is historical (baseline) or future (anything else) as well as what the scenario should be compared against. I.e., Policy minus BAU.
+- Scenario type determines if it is historical (baseline) or future (anything else) as well as what the scenario should be compared against. I.e., Policy minus BAU.
 
 ``` python
 p.scenario_type = 'bau'
@@ -142,11 +142,11 @@ p.scenario_type = 'bau'
 ## Automatically downloading data
 
 ::: r-fit-text
--   This computing stack also uses hazelbean to automatically download needed data at run time.
-    -   In the code block below, we set p.base_data_dir to a location where we want to store lots of very large files.
-    -   Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. T
-    -   This also lets you use the same base data across different projects.
--   The final directory has to be named base_data to match the naming convention on the google cloud bucket.
+- This computing stack also uses hazelbean to automatically download needed data at run time.
+  - In the code block below, we set p.base_data_dir to a location where we want to store lots of very large files.
+  - Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. T
+  - This also lets you use the same base data across different projects.
+- The final directory has to be named base_data to match the naming convention on the google cloud bucket.
 
 ``` python
 p.base_data_dir = os.path.join('Files/base_data')
