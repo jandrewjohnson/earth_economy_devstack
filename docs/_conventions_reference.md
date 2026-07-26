@@ -297,7 +297,17 @@ p.countries_iso3_path = p.get_path(
     possible_dirs=[p.input_dir, p.base_data_dir])
 ```
 
-## Function and method naming
+**Failure semantics are skip-aware.** When a ref_path resolves nowhere,
+`get_path` raises a `NameError` listing the ref_path as given and every root
+searched — but only in a *consume* context: a running task (`p.run_this`
+truthy) or run-file-level code. In a **skipped** task (`p.run_this == 0`),
+pre-`run_this` code executes purely to publish paths for later tasks, so
+`get_path` never raises there: it forms the would-be path under the first
+searched root, logs the assumption, and lets any real failure surface in the
+next task that actually consumes the file. This makes `p.get_path()` safe to
+use in the project-level-variables zone above `if p.run_this:`; a task that is
+about to *generate* a file should still pass `raise_error_if_fail=False` (or
+guard with `hb.path_exists`).
 
 **Factory / creation**
 - **make** — factory functions/methods that create new *instances*
@@ -499,12 +509,21 @@ splitting each multi-byte character into garbled pieces.
 - A ProjectFlow project's root is the directory holding its `run_<project>.py`
   entry file (ProjectFlow auto-detects this as `script_dir`; `input_template/`
   lives beside the run file). There is no separate markerfile.
+- **Bare `hb.ProjectFlow()` is git-aware and never writes inside a repo.** With
+  no `project_dir` argument, the default is the script's parent dir — unless the
+  script lives inside a git repo, in which case ProjectFlow walks up to the repo
+  root, steps one level above it, and uses `<repo_parent>/projects/<name>`
+  (`<name>` = the run file's stem minus any `run_` prefix), logging the choice.
+  For a repo in the standard devstack layout (`~/Files/<stack>/<repo>`) this
+  reproduces the house convention (`~/Files/<stack>/projects/<name>`) without
+  the run file spelling it out. An explicit `project_dir` (or `set_project_dir`)
+  always overrides.
 - **`run_<project>.py` is the single entry point and defines `run_project()`
   itself.** The canonical shape: a module-level `build_task_tree(p)` — named
   exactly that in every run file — that constructs the project's task tree
   (always build the FULL tree — variants disable, they don't omit), then
   `run_project(scenario_definitions_filename=..., project_name=...,
-  append_timestamp=False, tasks_to_skip=None, execute=True)` doing all
+  run_mode='check', tasks_to_skip=None, execute=True)` doing all
   ProjectFlow setup, calling `build_task_tree(p)` then
   `p.skip_tasks(tasks_to_skip)`, and ending in `p.execute()` (behind `execute`)
   and `return p`, then an `if __name__ == '__main__':` guard calling
@@ -513,8 +532,14 @@ splitting each multi-byte character into garbled pieces.
   builder; `p.skip_tasks()` (hazelbean) sets `run=0` by task name and warns on
   unknown names. Variant runs (fast, postprocess-only, backend tests) are thin
   wrappers that import `run_project` and pass `tasks_to_skip=[...]` and/or a
-  different scenarios CSV — never duplicated files. Timestamped project dirs are
-  opt-in via `append_timestamp`, never a commented-out line. Reference
+  different scenarios CSV — never duplicated files. `run_mode` (since
+  2026-07-24, replacing the old `append_timestamp` boolean) selects reuse:
+  `'check'` (default) reuses the stable project dir with standard skip-existing
+  logic; `'fresh_intermediate'` deletes the stable dir's `intermediate/` and
+  `outputs/` in place so everything recomputes while `input/` (machine config)
+  is kept — refused unless `project_name` contains `'test'`; `'full'` mints a
+  timestamped fresh project dir, also exercising `input_template/` seeding.
+  Reference
   implementation: `gtap_invest/projects/ngfs/ngfs_pnas/ngfs_pnas/run_ngfs_pnas.py`.
 - **Machine-specific configuration lives in `parameters.csv`, never in code and
   never in environment variables.** Connection settings (`vm_ssh_host`,
@@ -541,6 +566,16 @@ splitting each multi-byte character into garbled pieces.
   copy in `input_template/`; treat `input/` as a generated working copy. A run only
   copies files that are missing in `input/`, so a stale `input/` file will shadow an
   updated template — delete it (or use a fresh project dir) to pick up template edits.
+- **Definitions-CSV hydration resolves paths by NAME: only `*_path` columns run
+  through `get_path`.** (Since 2026-07-24; previously any dotted or slashed
+  value was treated as a path, which broke on ssh targets like
+  `user@192.168.64.2`, backend-machine paths like `C:\GP`, and free text like
+  `Expansion/Loss`.) A column holding a local path must therefore be named
+  `*_path`; blank and `skip` values pass through, `nan` hydrates to `None`,
+  cat-ears values resolve with `leave_ref_path_if_fail=True`. Columns whose
+  values are only *sometimes* paths (`aoi`, `calibration_parameters_source`)
+  are left literal by hydration and resolved by their consumers via
+  `hb.looks_like_path(value)` + `p.get_path(value, leave_ref_path_if_fail=True)`.
 - **scenarios.csv is authoritative for every attribute it has a column for.**
   Scenario iteration re-hydrates `p` from the CSV row at each scenario, so a
   run-file assignment like `p.aoi = 'RWA'` made after scenario initialization
@@ -584,8 +619,11 @@ splitting each multi-byte character into garbled pieces.
   `<project>_scenarios_test.csv` in `input_template/` (fewer scenarios, a single
   future year, a single AOI region) and a thin `run_<project>_test.py` (≤ ~25
   lines) that imports `run_project` from `run_<project>.py` and calls it with that
-  filename, a stable `<project>_test` project name, and `append_timestamp=False`
-  so repeated test runs resume in place. Don't fork the task tree for tests.
+  filename, a stable `<project>_test` project name, and `run_mode='check'`
+  so repeated test runs resume in place (`run_mode='fresh_intermediate'` on the
+  same stable name forces full recompute while keeping `input/`'s machine
+  config; `run_mode='full'` tests the fresh-machine first-run path). Don't fork
+  the task tree for tests.
   Test files use the `_test` **suffix** (`run_<project>_test.py`,
   `run_<project>_<variant>_test.py`), never a `run_test_*` prefix.
 
