@@ -1,15 +1,11 @@
-"""The smallest possible ProjectFlow run file ("Level 0").
+"""The smallest possible ProjectFlow run file.
 
-There is no build_task_tree and no run_project here — when p.execute() is called
-with an empty task tree, ProjectFlow adds every top-level function in this script
-as a task, in the order they are defined. That is the whole contract, so a
-Level-0 script must contain ONLY task functions at module level (put helpers
-inside the tasks or in an imported module).
-
-What you get for ~20 lines: an organized project directory, one folder per task,
-skip-if-already-computed re-runs, and logging. When you outgrow this — variants,
-scenarios, shared trees — graduate to the canonical form with build_task_tree()
-and run_project(); see run_example_global_invest.py next to this file, and the
+One task function, added explicitly with p.add_task(), then p.execute(). A function
+becomes a task when you add it — nothing hidden. What you get for ~20 lines: an
+organized project directory, one folder per task, skip-if-already-computed re-runs,
+and logging. When you outgrow this — more tasks, variants, scenarios — collect the
+add_task calls into a build_task_tree(p) function and graduate to the canonical form
+with run_project(); see run_example_global_invest.py next to this file, and the
 ProjectFlow conventions in docs/conventions.qmd.
 """
 import os
@@ -36,4 +32,5 @@ if __name__ == '__main__':
     # the project dir is placed just OUTSIDE the repo at <repo_parent>/projects/minimal_example
     # (derived from this filename), so outputs never land in the git working tree.
     p = hb.ProjectFlow()
+    p.add_task(caloric_yield_sum)
     p.execute()

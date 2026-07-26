@@ -198,8 +198,16 @@ if literal_aggregation_to_5m_cell:
 The better way is to use a function that builds in the tiling functionality. Eventually this will expand to multi-computer approaches, but for now, we'll just use the local but parallelized hb.raster_calculator()
 
 ``` python
-hb.raster_calculator(this)
+def op(carbon_per_ha, ha_per_cell):
+    return carbon_per_ha * ha_per_cell
+
+hb.raster_calculator(
+    [carbon_per_ha_path, ha_per_cell_path],
+    op,
+    carbon_per_cell_path)
 ```
+
+Stage 5 below shows this call doing real work inside a run file.
 
 ## Project complexity level 6: Systematic file management file management.
 
@@ -215,7 +223,7 @@ This led to ProjectFlow, one of the key tools within the Earth Economy Devstack 
 
 The lesson of the six levels is that each tool above was adopted only when the previous level's pain demanded it — and that lesson applies to ProjectFlow itself. The devstack's run-file conventions (see [conventions](conventions.qmd)) describe the *endpoint*: a canonical `run_<project>.py` with `build_task_tree()`, `run_project()`, tracked `input_template/` CSVs, and test-variant wrappers. If you are new and your problem is still a Level 1 problem, you should not start there. The spec scales down, and there is a ladder:
 
-**Level 0 — functions become tasks.** The smallest ProjectFlow script has no task tree at all: when `p.execute()` is called with an empty tree, every top-level function in the script is added as a task, in the order defined. The contract is that a Level-0 script contains *only* task functions at module level (helpers go inside tasks or in an imported module), plus the guarded two-line main block. See [`examples/run_minimal_example.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_minimal_example.py) — about 20 lines, and in exchange for roughly the effort of the Level 1 script you get an organized project directory, one folder per task, skip-if-already-computed re-runs, and logging. This is the honest trade to a beginner: Level 3 effort, Level 6 benefits.
+**The smallest run file — a function becomes a task when you add it.** The minimal ProjectFlow script is one task function plus a guarded three-line main block: `p = hb.ProjectFlow()`, `p.add_task(your_function)`, `p.execute()`. Nothing is hidden — the add_task call *is* the moment a plain function becomes a task (and calling `execute()` with nothing added fails with a message telling you exactly that). See [`examples/run_minimal_example.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_minimal_example.py) — about 20 lines, and in exchange for roughly the effort of the Level 1 script you get an organized project directory, one folder per task, skip-if-already-computed re-runs, and logging. This is the honest trade to a beginner: Level 3 effort, Level 6 benefits.
 
 **The canonical form, minimally.** When you want variants or an explicit tree, graduate to the canonical anatomy — `build_task_tree(p)`, `run_project(...)`, `__main__` guard. Every `run_project` keyword has a working default, so `run_project()` bare always works; the machinery stays invisible until you need it. See [`examples/run_example_global_invest.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_example_global_invest.py) for a small complete example, and the [conventions](conventions.qmd) page for the full rules. For a new standalone SEALS project, copy [`run_seals_standalone_project_template.py`](https://github.com/jandrewjohnson/seals_dev/blob/main/seals/run_seals_standalone_project_template.py) into your repo as its `run_<project>.py`. The full-scale reference implementation is [ngfs_pnas](https://github.com/jandrewjohnson/ngfs_pnas).
 
@@ -319,8 +327,7 @@ p = hb.ProjectFlow()
 
 # NOTE 1: No helper function needed — check hazelbean before writing one. The
 # raster-to-array helper we wrote at Level 3 already exists as hb.as_array().
-# (This is the devstack reuse rule; keeping helpers out of the script also
-# matters at the next stage, when functions start becoming tasks.)
+# (This is the devstack reuse rule.)
 
 # NOTE 2: Inputs put into an iterable. The thing that varies is now DATA, not
 # code — this list is the seed of what will later become a scenarios.csv.
@@ -383,13 +390,11 @@ import os
 import numpy as np
 import hazelbean as hb
 
-# NOTE 1: The loop moves inside a function, and the function becomes a TASK.
-# When p.execute() runs with no task tree defined, every top-level function in
-# this script is added as a task, in order — which is why Stage 2 already
-# cleared helpers off the module level. A task receives p and gets its own
-# output directory, p.cur_dir, inside the project dir.
+# NOTE 1: The loop moves inside a function, and the function becomes a TASK —
+# explicitly, when we hand it to p.add_task() at the bottom. A task receives p
+# and gets its own output directory, p.cur_dir, inside the project dir.
 # Also note that we slightly deviate from python style: functions normally
-# are verbs/command langugage (sum_yields). In EE spec, the name of a task 
+# are verbs/command langugage (sum_yields). In EE spec, the name of a task
 # becomes the folder that tasks' outputs are stored in, so we instead choose
 # a noun.
 def yield_summations(p):
@@ -418,11 +423,231 @@ def yield_summations(p):
 
 
 if __name__ == '__main__':
-    # NOTE 3: The guard is now REQUIRED, not stylistic: ProjectFlow imports this
-    # script to discover the task functions, and the guard keeps that import
-    # from starting a second run.
+    # NOTE 3: Ordinary Python hygiene, but the spec makes it mandatory:
+    # importing a run file must never start a run.
     p = hb.ProjectFlow()
+    p.add_task(yield_summations)
     p.execute()
 ```
 
 Run it twice and the second run finishes instantly — every task reports its outputs already exist. The results are no longer trapped in a `print` that scrolls away: they live as files in `<project_dir>/intermediate/yield_summations/`, timestamped by the filesystem and inspectable after the fact. And notice what the existence check changed about *how you work*: "I updated dataset 3" is no longer a reason to rerun everything — it's `rm` one file and re-run. This is the same mechanism that lets the full SEALS model resume a crashed global run without recomputing days of work; you now have it in a 30-line script.
+
+## Stage 4
+
+The Old code here is the 2017 confessional from Level 4 above — worth re-skimming its seven NOTEs, because every one of them is an ancestral form of something ProjectFlow now does properly. The New version answers them NOTE by NOTE.
+
+### Old
+
+See the "BAD CODE; DONT RUN" block at Level 4 above (kept in one place to spare me reliving it twice). Its seven NOTEs, compressed: (1) Cython for speed, (2) a homemade utility library, (3) six lines of logging boilerplate, (4) a workspace hardcoded to `E:/bulk_data/...`, (5) custom raster loaders, (6) `do_30s_resample = False` booleans guarding expensive blocks, (7) a million-iteration double loop for what numpy does in one line.
+
+### New: Paths that find themselves, and switches that live in the tree
+
+``` python
+import os
+import numpy as np
+import hazelbean as hb
+
+
+def build_task_tree(p):
+    # With more than one task, the add_task calls move out of __main__ and into
+    # this named function: build_task_tree(p) is the one place that answers
+    # "what is this project's pipeline?" Every run file defines it — here it is
+    # three lines; in a real project it grows; in the full spec it can delegate
+    # to shared library builders.
+    p.resampled_carbon_task = p.add_task(resampled_carbon, run=0)
+    p.cleaned_carbon_task = p.add_task(cleaned_carbon)
+
+
+def resampled_carbon(p):
+    # Get path is given a ref_path, relative to the searched roots (project input/,
+    # base_data, then the cloud). get_path finds it wherever it lives — or
+    # downloads it
+    p.c_1km_path = p.get_path(os.path.join('carbon', 'c_1km.tif'))
+    p.ha_per_cell_30s_path = p.get_path(os.path.join('pyramids', 'ha_per_cell_30sec.tif'))
+
+    # Output paths are declared ABOVE the run_this gate: a disabled task still
+    # publishes where its products live (from the last run it was enabled), so
+    # downstream tasks keep working. That is why this task can sit at run=0.
+    p.c_30s_path = os.path.join(p.cur_dir, 'c_30s.tif')
+
+    if p.run_this:
+        if not hb.path_exists(p.c_30s_path):
+            hb.resample_to_match(p.c_1km_path, p.ha_per_cell_30s_path, p.c_30s_path,
+                                 resample_method='average')
+
+
+def cleaned_carbon(p):
+    p.cleaned_carbon_path = os.path.join(p.cur_dir, 'c_30s_cleaned.tif')
+    if p.run_this:
+        if not hb.path_exists(p.cleaned_carbon_path):
+            # vectorized numpy, one line.
+            array = hb.as_array(p.c_30s_path)
+            array = np.where(array < 0, -9999, array)
+            hb.save_array_as_geotiff(array, p.cleaned_carbon_path, p.c_30s_path)
+            hb.log('Cleaned carbon written to ' + p.cleaned_carbon_path)
+
+
+if __name__ == '__main__':
+    p = hb.ProjectFlow()
+    build_task_tree(p)
+    p.execute()
+```
+
+## Stage 5
+
+At global 30-second resolution a raster no longer fits in memory, and the Level 5 answer was a homemade "Tile Reference" class with manual chunk bookkeeping. The modern answer is one library call.
+
+### Old
+
+See the "BAD CODE; DON'T RUN" block at Level 5 above: `gu.Tr()` hand-slices the raster into tiles, nested loops walk each tile's rows and columns, and the chunk arithmetic (`tile[0] / factor + row`...) is exactly the kind of code where an off-by-one silently corrupts a publication figure.
+
+### New: One call streams the chunks
+
+The Stage 4 tasks are unchanged; this rung adds one task to the tree, so only the new pieces are shown.
+
+``` python
+def build_task_tree(p):
+    p.resampled_carbon_task = p.add_task(resampled_carbon, run=0)
+    p.cleaned_carbon_task = p.add_task(cleaned_carbon)
+    p.carbon_per_cell_task = p.add_task(carbon_per_cell)
+
+
+def carbon_per_cell(p):
+    # hb.raster_calculator streams the computation chunk by chunk
+    # across all cores (dask under the hood). Pass the input paths and the
+    # function to apply; the full rasters are never loaded at once. The op
+    # converts carbon per hectare to carbon per cell — elementwise, so chunking
+    # cannot change the result.
+    p.carbon_per_cell_path = os.path.join(p.cur_dir, 'carbon_per_cell.tif')
+    if p.run_this:
+
+        def op(carbon_per_ha, ha_per_cell):
+            # The operation applied to each chunk: receives arrays (one per
+            # input raster) and returns an array.
+            return carbon_per_ha * ha_per_cell
+
+        if not hb.path_exists(p.carbon_per_cell_path):
+            hb.raster_calculator(
+                [p.cleaned_carbon_path, p.ha_per_cell_30s_path],
+                op,
+                p.carbon_per_cell_path)
+            hb.log('Carbon per cell written to ' + p.carbon_per_cell_path)
+
+
+if __name__ == '__main__':
+    p = hb.ProjectFlow()
+    build_task_tree(p)
+    p.execute()
+```
+
+Notice the inputs: `p.cleaned_carbon_path` and `p.ha_per_cell_30s_path` were published by the Stage 4 tasks (above their `run_this` gates), so this task chains onto them without knowing or caring whether they ran this time or last week. When chunk-by-chunk parallelism isn't enough — when the *algorithm* itself must run independently per zone, thousands of times — the same idea scales up from chunks to tasks via ProjectFlow's iterators (`p.add_iterator`, `run_in_parallel=1`), which is how SEALS trains and allocates over millions of tiles. That machinery is beyond this walkthrough; the point of this rung is that you should never write chunk bookkeeping by hand again.
+
+## Stage 6
+
+For the final rung we return to the yield project from Stages 1–3, because Stage 2 left a promissory note there: *"this list is the seed of what will later become a scenarios.csv."* Time to pay it.
+
+### Old
+
+The Old is the Stage 3 script itself — nothing is wrong with its code. The pain is now operational: your adviser asks for a fifth dataset, or the same four for a different year, and the varying thing is hardcoded *inside a task*, so varying it means editing code. You want a quick smoke version versus the real run, and the Level 2 instinct — copy the file, edit one line — is exactly the retraction machine. And a collaborator wants to run it on their machine, where your paths and credentials don't exist.
+
+### New: The run is driven by data — scenarios, parameters, and a thin test wrapper
+
+The canonical run file separates three things that were tangled together: **scenarios** (the rows of work this run iterates over — what varies), **parameters** (values constant across all scenarios — including machine-specific ones), and **code** (which no longer changes when either of those do). Both CSVs live in a tracked `input_template/` directory next to the run file; `set_project_dir()` copies anything missing into the project's untracked `input/` working copy on first run, and the working copy is never overwritten — so per-machine values survive re-runs.
+
+`input_template/yield_scenarios.csv` — one row per unit of work:
+
+| scenario_label | yield_path                  | year |
+|----------------|-----------------------------|------|
+| cell_1         | data/yield_per_cell_1.tif   | 2017 |
+| cell_2         | data/yield_per_cell_2.tif   | 2017 |
+| cell_3         | data/yield_per_cell_3.tif   | 2017 |
+| cell_4         | data/yield_per_cell_4.tif   | 2017 |
+
+`input_template/yield_parameters.csv` — vertical `key,value`, constant per run. Machine-specific keys ship **blank** in the tracked template; each machine fills its own untracked `input/` copy:
+
+| key                   | value |
+|-----------------------|-------|
+| ndv                   | -9999 |
+| data_credentials_path |       |
+
+`run_yield.py`:
+
+``` python
+"""Sum caloric yield for every scenario in the scenarios CSV."""
+import os
+import numpy as np
+import pandas as pd
+import hazelbean as hb
+
+
+def build_task_tree(p):
+    p.yield_summations_task = p.add_task(yield_summations)
+
+
+def yield_summations(p):
+    if p.run_this:
+        for _, row in p.scenarios_df.iterrows():
+            # One output file per scenario ROW, each behind an existence check —
+            # the same skip logic as Stage 3, now driven by the CSV. A finished
+            # scenario is skipped on re-run; a finished TASK (all rows done)
+            # costs only these existence checks. Delete one file to redo one
+            # scenario; add a row to the CSV to extend the run.
+            sum_path = os.path.join(p.cur_dir, row['scenario_label'] + '_sum.csv')
+            if not hb.path_exists(sum_path):
+                array = hb.as_array(row['yield_path'])
+                total = float(array[array != p.ndv].sum())  # p.ndv came from parameters.csv
+                with open(sum_path, 'w') as f:
+                    f.write('scenario_label,year,total\n')
+                    f.write(row['scenario_label'] + ',' + str(row['year']) + ',' + str(total) + '\n')
+                hb.log('Summed ' + row['scenario_label'] + ': ' + str(total))
+
+
+def run_project(scenario_definitions_filename='yield_scenarios.csv',
+                project_name='yield',
+                tasks_to_skip=None):
+    """The full run and the test run differ ONLY by which scenarios CSV drives
+    the task tree. A stable project_name means repeated runs resume in place,
+    skipping anything already computed. Returns p."""
+    p = hb.ProjectFlow()
+
+    p.project_name = project_name
+    p.project_dir = os.path.join(os.path.expanduser('~'), 'Files', 'projects', p.project_name)
+    p.set_project_dir(p.project_dir)  # copies input_template/ -> input/ (skip-existing)
+
+    # Parameters: constant across scenarios. Hydrated onto p, so tasks just use
+    # p.ndv, p.data_credentials_path, etc. Blank values read as None.
+    parameters_df = pd.read_csv(os.path.join(p.input_dir, 'yield_parameters.csv'))
+    for _, row in parameters_df.iterrows():
+        setattr(p, row['key'], None if pd.isna(row['value']) else row['value'])
+    p.ndv = float(p.ndv)
+
+    # Scenarios: the rows of work. Which CSV loads is the run_project argument —
+    # this is the ONLY thing the test wrapper changes.
+    p.scenarios_df = pd.read_csv(os.path.join(p.input_dir, scenario_definitions_filename))
+
+    build_task_tree(p)
+    p.skip_tasks(tasks_to_skip)
+
+    p.L = hb.get_logger(p.project_name)
+    p.execute()
+    return p
+
+
+if __name__ == '__main__':
+    run_project()
+```
+
+And the smoke test, `run_yield_test.py`, is the whole answer to the Level 2 copy-the-file instinct — the variant is a CSV plus a few lines, never a fork:
+
+``` python
+"""Pared test of the yield project: same task tree, a one-row scenarios CSV, stable dir."""
+from run_yield import run_project
+
+if __name__ == '__main__':
+    run_project(scenario_definitions_filename='yield_scenarios_test.csv',
+                project_name='yield_test')
+```
+
+Run `run_yield.py` twice: the second run loads the CSVs, checks four existence checks, and exits — everything finished is skipped, which is what makes a stable project dir the default (the test project resumes in place the same way). Add a fifth row to `yield_scenarios.csv` and re-run: only the new scenario computes. Change a machine value (a credentials path, an ssh host) in `input/yield_parameters.csv` and no code changes anywhere. That is the whole canon in miniature: *code defines the pipeline once; scenarios say what to run over; parameters say what is constant; the filesystem remembers what is done.*
+
+This is where the walkthrough ends and the spec begins. The full rules — variant runs via `tasks_to_skip`, shared library builders, ref_paths in scenario CSVs, the `run_<project>_test.py` conventions — live on the [conventions](conventions.qmd) page; a copy-me seed for a new SEALS project is [`run_seals_standalone_project_template.py`](https://github.com/jandrewjohnson/seals_dev/blob/main/seals/run_seals_standalone_project_template.py); and the full-scale reference implementation, running a two-pass global economy-environment pipeline with exactly this anatomy, is [ngfs_pnas](https://github.com/jandrewjohnson/ngfs_pnas). What was deliberately *not* shown here: the libraries' richer scenario hydration (rows assigned onto `p` and iterated through the tree), parallel iterators, and the machine-config registry — each is the same idea you just saw, grown up.
