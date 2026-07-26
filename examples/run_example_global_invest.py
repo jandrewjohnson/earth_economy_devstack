@@ -14,7 +14,7 @@ def build_task_tree(p):
 
 def run_project(parameter_definitions_filename='example_global_invest_parameters.csv',
                 project_name='test_example', run_mode='check',
-                tasks_to_skip=None, execute=True):
+                tasks_to_skip=None):
     """Build and execute the example task tree.
 
     ProjectFlow only calculates tasks that haven't been done yet, so a stable
@@ -24,39 +24,16 @@ def run_project(parameter_definitions_filename='example_global_invest_parameters
     # A ProjectFlow object is created from the Hazelbean library to organize directories
     # and enable parallel processing. Project-level variables are assigned as attributes
     # on the p object. The EE-spec locates the project dir with extra_dirs relative to the
-    # user_dir.
-    valid_run_modes = ('check', 'fresh_intermediate', 'full')
-    if run_mode not in valid_run_modes:
-        raise ValueError('run_mode must be one of ' + str(valid_run_modes) + ', got ' + repr(run_mode))
-    if run_mode == 'fresh_intermediate' and 'test' not in project_name:
-        raise ValueError("run_mode='fresh_intermediate' deletes the project's intermediate/ and outputs/ "
-                         "dirs, so it is only allowed on dedicated test projects (project_name containing "
-                         "'test'), got " + repr(project_name))
-
-    p = hb.ProjectFlow()
-
-    p.user_dir = os.path.expanduser('~')
-    p.extra_dirs = ['Files', 'global_invest', 'projects']
-    p.project_name = project_name
-    if run_mode == 'full':
-        p.project_name = p.project_name + '_' + hb.pretty_time()
-
+    # user_dir. set_project_dir_for_run_mode validates run_mode and sets the project_dir
+    # under ~/<extra_dirs>/<project_name> (see its docstring for the run_mode semantics).
+    #
     # The project-dir is where everything will be stored (input, intermediate, output).
     # IMPORTANT: this should not be in a cloud-synced directory (dropbox, google drive,
     # etc.), which will either make the run fail or make it very slow. The recommended
     # place is somewhere in the user's home directory (as coded above).
-    p.project_dir = os.path.join(p.user_dir, os.sep.join(p.extra_dirs), p.project_name)
-    p.set_project_dir(p.project_dir)
-    if run_mode == 'fresh_intermediate':
-        # Delete in place (rather than timestamping a new dir) so any path derived
-        # from project_dir still resolves to the fresh results. input/ is kept: it
-        # holds the per-machine backend connection values in parameters.csv that a
-        # freshly seeded template would leave blank.
-        import shutil
-        for stale_dir in [p.intermediate_dir, p.output_dir]:
-            if os.path.exists(stale_dir):
-                shutil.rmtree(stale_dir)
-                print("run_mode='fresh_intermediate': deleted " + stale_dir)
+    p = hb.ProjectFlow()
+    p.set_project_dir_for_run_mode(project_name, run_mode,
+                                   extra_dirs=['Files', 'global_invest', 'projects'])
 
 
     # Build the task tree via a building function.
@@ -88,8 +65,7 @@ def run_project(parameter_definitions_filename='example_global_invest_parameters
     p.L = hb.get_logger('example_global_invest')
     hb.log('Created ProjectFlow object at ' + p.project_dir)
 
-    if execute:
-        p.execute()
+    p.execute()
 
     return p
 

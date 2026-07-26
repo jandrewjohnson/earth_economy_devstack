@@ -523,9 +523,18 @@ splitting each multi-byte character into garbled pieces.
   exactly that in every run file — that constructs the project's task tree
   (always build the FULL tree — variants disable, they don't omit), then
   `run_project(scenario_definitions_filename=..., project_name=...,
-  run_mode='check', tasks_to_skip=None, execute=True)` doing all
-  ProjectFlow setup, calling `build_task_tree(p)` then
-  `p.skip_tasks(tasks_to_skip)`, and ending in `p.execute()` (behind `execute`)
+  run_mode='check', tasks_to_skip=None)` doing all
+  ProjectFlow setup — directory setup is the pair `p = hb.ProjectFlow()` +
+  `p.set_project_dir_for_run_mode(project_name, run_mode)`, which validates
+  run_mode and infers the project dir git-aware from the run file's repo:
+  `<stack>/projects/<project_name>` for a run file in a library repo, and the
+  repo's wrapper-parent for a project repo nested under a projects/ tree (so
+  outputs land beside the checkout, never inside it). Pass `extra_dirs`
+  explicitly only for placements the inference can't know: grouping
+  subfolders (`projects/ntsp/...`), another stack's tree (the devstack
+  examples), or scripts outside any git repo — calling `build_task_tree(p)` then
+  `p.skip_tasks(tasks_to_skip)`, and ending in `p.execute()` (unconditional —
+  there is no `execute` flag; calling `run_project` means running the project)
   and `return p`, then an `if __name__ == '__main__':` guard calling
   `run_project()`. The guard is mandatory — run files must never execute on
   import. Skipping is run configuration, so it lives in `run_project`, not in the
