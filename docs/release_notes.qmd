@@ -1,5 +1,48 @@
 # Release Notes
 
+## Unreleased
+
+**Run-file spec: three complexity axes, and `run_project(p)`.**
+
+- A run file's complexity is now described by three *independent* axes rather than
+  one ladder. **Configuration** (how a run varies) keeps the numbered levels 1–4:
+  one task with inline constants; a task tree; + a scenarios CSV; + a parameters
+  CSV. **Code layout** (where the code lives) runs single file → split
+  (`<project>_tasks.py`, `_functions.py`, `_utils.py`, `_initialize_project.py`) →
+  library package. **Ownership** (who owns the code you run) runs self-contained →
+  devstack developer → downstream user. Moving along one axis never requires
+  moving along another, so *"level" unqualified always means the configuration
+  axis*.
+
+- `run_project` now takes only `p`. The caller builds and configures the
+  ProjectFlow in the `__main__` guard; `run_project(p)` only runs it. The rule
+  that replaces a signature full of keyword defaults: **`run_project(p)` sets what
+  no variant ever changes; the caller sets what a variant might.** A constant that
+  starts varying moves one line up instead of becoming a new keyword argument, so
+  the entry point stops growing as a project accumulates definition CSVs. Cost:
+  bare `run_project()` no longer works, and a variant wrapper is four lines rather
+  than three.
+
+- `<project>_utils.py` is defined as a **promotion queue** into hazelbean —
+  science-unaware helpers used by more than one project belong upstream — while
+  `<project>_functions.py` holds the model's domain knowledge and is terminal.
+
+- `examples/` reorganized: `run_templates/` (copy-me) and
+  `run_templates_annotated/` (the same code with the reasoning written out), plus
+  `input_research_scripts/` for real run files and the raw scripts they replace.
+  Two new templates hold configuration fixed at level 4 and move one other axis
+  each: `run_template_split_layout.py` and `run_template_downstream_user.py`.
+
+- The six numbered sections of *project_complexity.qmd* are renamed to
+  "Stage N, the old way" / "Stage N, redone with ProjectFlow" so they no longer
+  collide with the configuration levels. They are a historical narrative, not the
+  spec.
+
+- All 46 `*_old_spec.py` archives are deleted across the stack. Git history is the
+  archive for pre-conversion forms. The empty `docs/run_file.qmd` stub is removed;
+  `examples/index.qmd` is the landing page for "what should my run file look
+  like?".
+
 ## Update v4.0.0
 
 - Changed versioning to match the GTAP-InVEST project to which its development was associated. In this, we had:

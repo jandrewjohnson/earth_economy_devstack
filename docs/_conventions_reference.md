@@ -506,6 +506,21 @@ splitting each multi-byte character into garbled pieces.
 
 ## ProjectFlow conventions
 
+- **A run file's complexity is three independent axes, and only one is
+  numbered.** *Configuration* — how a run varies — has levels 1–4: one task with
+  inline constants; a task tree; + a scenarios CSV; + a parameters CSV.
+  *Code layout* — where the code lives — runs single file → split
+  (`<project>_tasks.py`; `<project>_functions.py` for science helpers;
+  `<project>_utils.py` for science-unaware helpers, which is a promotion queue
+  into hazelbean rather than a filing category; `<project>_initialize_project.py`
+  for tree builders) → library package. *Ownership* — who owns the code you run —
+  runs self-contained → devstack developer → downstream user, where the library
+  is a read-only dependency in your own repo. The axes are independent: moving
+  along one never requires moving along another, so **"level" unqualified always
+  means the configuration axis**. Copy-me templates live in
+  `examples/run_templates/`; the same code with the reasoning written out is in
+  `examples/run_templates_annotated/`. The six numbered stages in
+  project_complexity.qmd are a historical narrative, not these levels.
 - A ProjectFlow project's root is the directory holding its `run_<project>.py`
   entry file (ProjectFlow auto-detects this as `script_dir`; `input_template/`
   lives beside the run file). There is no separate markerfile.
@@ -516,40 +531,79 @@ splitting each multi-byte character into garbled pieces.
   (`<name>` = the run file's stem minus any `run_` prefix), logging the choice.
   For a repo in the standard devstack layout (`~/Files/<stack>/<repo>`) this
   reproduces the house convention (`~/Files/<stack>/projects/<name>`) without
-  the run file spelling it out. An explicit `project_dir` (or `set_project_dir`)
-  always overrides.
-- **`run_<project>.py` is the single entry point and defines `run_project()`
-  itself.** The canonical shape: a module-level `build_task_tree(p)` — named
-  exactly that in every run file — that constructs the project's task tree
-  (always build the FULL tree — variants disable, they don't omit), then
-  `run_project(scenario_definitions_filename=..., project_name=...,
-  run_mode='check', tasks_to_skip=None)` doing all
-  ProjectFlow setup — directory setup is the pair `p = hb.ProjectFlow()` +
-  `p.set_project_dir_for_run_mode(project_name, run_mode)`, which validates
-  run_mode and infers the project dir git-aware from the run file's repo:
-  `<stack>/projects/<project_name>` for a run file in a library repo, and the
-  repo's wrapper-parent for a project repo nested under a projects/ tree (so
-  outputs land beside the checkout, never inside it). Pass `extra_dirs`
-  explicitly only for placements the inference can't know: grouping
-  subfolders (`projects/ntsp/...`), another stack's tree (the devstack
-  examples), or scripts outside any git repo — calling `build_task_tree(p)` then
-  `p.skip_tasks(tasks_to_skip)`, and ending in `p.execute()` (unconditional —
-  there is no `execute` flag; calling `run_project` means running the project)
-  and `return p`, then an `if __name__ == '__main__':` guard calling
-  `run_project()`. The guard is mandatory — run files must never execute on
-  import. Skipping is run configuration, so it lives in `run_project`, not in the
-  builder; `p.skip_tasks()` (hazelbean) sets `run=0` by task name and warns on
-  unknown names. Variant runs (fast, postprocess-only, backend tests) are thin
-  wrappers that import `run_project` and pass `tasks_to_skip=[...]` and/or a
-  different scenarios CSV — never duplicated files. `run_mode` (since
-  2026-07-24, replacing the old `append_timestamp` boolean) selects reuse:
-  `'check'` (default) reuses the stable project dir with standard skip-existing
-  logic; `'fresh_intermediate'` deletes the stable dir's `intermediate/` and
-  `outputs/` in place so everything recomputes while `input/` (machine config)
-  is kept — refused unless `project_name` contains `'test'`; `'full'` mints a
-  timestamped fresh project dir, also exercising `input_template/` seeding.
-  Reference
-  implementation: `gtap_invest/projects/ngfs/ngfs_pnas/ngfs_pnas/run_ngfs_pnas.py`.
+  the run file spelling it out. An explicit `project_dir` or `project_name`
+  always overrides. Construction only *resolves* the paths — the dirs are created
+  (and `input_template/` seeded) on the first call that needs them, so a bare
+  constructor that is later re-pointed leaves no orphan project dir behind.
+- **`run_<project>.py` is the single entry point, and `run_project` takes only
+  `p`.** The canonical shape is four parts:
+  - a module-level `build_task_tree(p)` — named exactly that in every run file —
+    containing nothing but `add_task` calls. Always build the FULL tree; variants
+    disable tasks, they never omit them, so the tree's structure (parents, dirs,
+    iterators) is identical across every variant of a project.
+  - `run_project(p)`, which reads its configuration off the `p` the caller
+    handed it, calls `build_task_tree(p)` then `p.skip_tasks(p.tasks_to_skip)`,
+    ends in `p.execute()` (unconditional — there is no `execute` flag; calling
+    `run_project` means running the project) and `return p`. The ProjectFlow
+    constructor initializes `tasks_to_skip` to `None`, so a run that sets nothing
+    skips nothing and no guard is needed.
+  - an `if __name__ == '__main__':` guard that **builds and configures the
+    ProjectFlow** — `p = hb.ProjectFlow(project_name=..., run_mode=...)`, then the
+    attributes this run varies — and calls `run_project(p)`. The guard is
+    mandatory: run files must never execute on import.
+  - the definition CSVs the run reads, in `input_template/` beside the run file.
+- **The rule that decides what goes where: `run_project(p)` sets what no variant
+  ever changes; the caller sets what a variant might.** When a project constant
+  starts varying, it moves one line up — out of `run_project`, into the caller.
+  There is no signature to edit, no keyword to add, and no default that can drift
+  out of sync with the thing it duplicates. This is why `run_project` takes no
+  keyword arguments: a signature full of defaults restates what is already known
+  (`project_name` restates the file's own name, `run_mode` restates ProjectFlow's
+  default), it grows once per class of CSV forever, and its values are invisible
+  to everything except Python. Attributes on `p` can be listed, logged, and
+  diffed between variants. The cost, stated plainly: bare `run_project()` no
+  longer works, and a variant wrapper is four lines instead of three — in
+  exchange, every knob a run uses is visible at the call site, and omitting one
+  raises a named `AttributeError` instead of silently using another run's default.
+- **Directory setup is the single constructor call
+  `hb.ProjectFlow(project_name=..., run_mode=...)`, made by the caller.** It
+  validates `run_mode` and infers the project dir git-aware from the run file's
+  repo: `<stack>/projects/<project_name>` for a run file in a library repo, and
+  the repo's wrapper-parent for a project repo nested under a `projects/` tree
+  (so outputs land beside the checkout, never inside it). Pass `extra_dirs`
+  explicitly only for placements the inference cannot know: grouping subfolders
+  (`projects/ntsp/...`), another stack's tree (the devstack examples), or scripts
+  outside any git repo. Because the caller owns this call, a notebook or harness
+  can pass `extra_dirs` (or a fully custom `project_dir`) without the run file
+  needing a pass-through argument for it.
+- **Variant runs are their own file and share the pipeline by import — never by
+  copy.** A variant (fast, postprocess-only, smoke test, backend test) imports
+  `run_project`, constructs its own ProjectFlow with a distinct `project_name`,
+  sets only what differs — a different scenarios CSV, `p.tasks_to_skip = [...]` —
+  and calls `run_project(p)`. It sits at the same position on all three
+  complexity axes as the run it varies; if a variant has to move along an axis,
+  it is not a variant. `p.skip_tasks()` (hazelbean) sets `run=0` by task name and
+  warns on unknown names; skipping is run configuration, so the *choice* belongs
+  to the caller and the *application* belongs in `run_project`, never in the
+  builder.
+- **`run_mode` selects how much prior work is reused** (since 2026-07-24,
+  replacing the old `append_timestamp` boolean): `'check'` (default) reuses the
+  stable project dir with standard skip-existing logic; `'fresh_intermediate'`
+  deletes the stable dir's `intermediate/` and `outputs/` in place so everything
+  recomputes while `input/` (machine config) is kept — refused unless the
+  resolved project name contains `'test'`; `'full'` mints a timestamped fresh
+  project dir, also exercising `input_template/` seeding. `run_mode` is about
+  reuse policy, not location, so it composes with an explicit `project_dir` as
+  well as with `project_name`.
+- **Canonical examples of the shape:**
+  `examples/run_templates/run_template_3_canonical.py` (a scenarios CSV),
+  `run_template_4_data_driven.py` (+ a parameters CSV), and
+  `run_template_seals_example.py` (the same anatomy against a real library task
+  tree). `examples/run_templates_annotated/` holds the same code with the
+  reasoning written out, including the variant wrapper as a real file.
+  `gtap_invest/projects/ngfs/ngfs_pnas/ngfs_pnas/run_ngfs_pnas.py` remains the
+  largest real pipeline on this anatomy, but is still configured through a
+  `run_project(...)` signature and is pending conversion.
 - **Machine-specific configuration lives in `parameters.csv`, never in code and
   never in environment variables.** Connection settings (`vm_ssh_host`,
   `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`), credentials
@@ -594,9 +648,9 @@ splitting each multi-byte character into garbled pieces.
   (`if not hb.path_exists(p.scenario_definitions_path):`), where they seed the
   CSV about to be written — on later runs that branch is dead code and the CSV
   rules. To run with a different AOI (or any other scenario-varying value),
-  pass a different scenarios CSV via
-  `run_project(scenario_definitions_filename=...)` — that is exactly what the
-  pared `_test.csv` pattern is.
+  point the run at a different scenarios CSV — set
+  `p.scenario_definitions_filename` in the caller before `run_project(p)` — which
+  is exactly what the pared `_test.csv` pattern is.
 - **Every run file defines `build_task_tree(p)` — even when it only delegates.**
   `build_task_tree` is the one named place that answers "what is this project's
   pipeline?", so all run files share identical anatomy (imports,
@@ -609,9 +663,9 @@ splitting each multi-byte character into garbled pieces.
   `p.add_task`/`p.add_iterator`, and tree-structure decisions; no `p`
   configuration, CSV logic, or dir setup (that's `run_project`'s job). (2)
   `run_project` never calls a library builder directly — all tree construction
-  flows through the local `build_task_tree`, with `p.skip_tasks(tasks_to_skip)`
-  immediately after the call (skipping is run configuration, however the tree
-  was assembled).
+  flows through the local `build_task_tree`, with the `p.skip_tasks(...)` call
+  immediately after it (skipping is run configuration, however the tree was
+  assembled).
 - **Library repos export task functions plus only truly generic builders.**
   A pipeline shared by many entry points (e.g. seals'
   `build_standard_task_tree`) lives in the library's `*_initialize_project`

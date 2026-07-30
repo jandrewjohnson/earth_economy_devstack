@@ -2,7 +2,7 @@
 
 As an introduction and/or motivation for using the software in the EE Devstack, I would like to talk through the process that I went through as a PhD student, postdoc and staff researcher to answer progressively harder questions. I break these out into 6 stages below. Solving these challenges is what led to the creation of Hazelbean and many other software solutions.
 
-## Project complexity level 1: Simple question answered well
+## Stage 1, the old way: Simple question answered well
 
 Here is an example script that you might write as an Earth-economy researcher. Suppose your adviser asks you "what is the total caloric yield on earth per hectare?" You might write a script like this:
 
@@ -20,9 +20,9 @@ sum_of_yield = np.sum(yield_per_hectare_array)
 print('The total caloric yield on earth per hectare is: ' + str(sum_of_yield))
 ```
 
-## Project complexity level 2: Many similar questions. Creates a very long list.
+## Stage 2, the old way: Many similar questions. Creates a very long list.
 
-This is where most reserach code goes to die, in my experience. Suppose your advisor now asks okay do this for the a bunch of different datasets on yield. The classic coder response is to make a longer script!
+This is where most research code goes to die, in my experience. Suppose your advisor now asks okay do this for the a bunch of different datasets on yield. The classic coder response is to make a longer script!
 
 ``` python
 import os
@@ -64,9 +64,9 @@ print('The total caloric yield on earth per hectare for dataset 4 is: ' + str(su
 
 This style of coding works, but will quickly cause you to lose your sanity. Who can find the reason the above code will cause your article to be retracted? Also, what if each of those summations takes a long time and you want to make a small change? You have to rerun the whole thing. This is bad.
 
-## Project complexity level 3: Starting to deal with generalization, reusing code and shortening scripts.
+## Stage 3, the old way: Starting to deal with generalization, reusing code and shortening scripts.
 
-The coding approach in level 2 becomes intractable when there are lots of layers to consider. It's also a pain to have to repeat code to do some common tasks, like loading the raster to a dataset and then to an array. This complexity level starts to apply good coding practices, such as defining helper functions like `raster_to_array()` below. Code is also made much shorter and more elegant by using loops. It minimizes the number of code statements, reduces bugs and scales better to long lists of input files.
+The coding approach in stage 2 becomes intractable when there are lots of layers to consider. It's also a pain to have to repeat code to do some common tasks, like loading the raster to a dataset and then to an array. This stage starts to apply good coding practices, such as defining helper functions like `raster_to_array()` below. Code is also made much shorter and more elegant by using loops. It minimizes the number of code statements, reduces bugs and scales better to long lists of input files.
 
 ``` python
 import os
@@ -97,7 +97,7 @@ for raster_path in input_paths:
 print('Sums of layers: ' + str(summations))
 ```
 
-## Project complexity level 4: Starting to deal with performance and generalization.
+## Stage 4, the old way: Starting to deal with performance and generalization.
 
 Below is a real-life script I created in around 2017 to calculate something for Johnson et al. 2016. Unlike the other levels, do not even attempt to run this, but just appreciate how awful it is. Please skim past it quickly to save me the personal embarassment! Instead, I provide a better example of code below that does things better, in the Earth-Economy Devstack way,
 
@@ -164,7 +164,7 @@ array = hb.as_array(input_path)
 array = np.where(array < 0, -9999, array)
 ```
 
-## Project complexity level 5: Dealing with larger-than-memory data
+## Stage 5, the old way: Dealing with larger-than-memory data
 
 Depending on the size of the array, the numpy where command used above would fail with a MemoryError or something similar. Below you will the first way that I dealt with this (BAD CODE) and then the correct way. In either case, it is almost always true that the most likely solution to larger-than-memory situations is to apply your algorithm in chunks. We'll do this in both cases.
 
@@ -207,9 +207,9 @@ hb.raster_calculator(
     carbon_per_cell_path)
 ```
 
-Stage 5 below shows this call doing real work inside a run file.
+Stage 5, redone with ProjectFlow, shows this call doing real work inside a run file.
 
-## Project complexity level 6: Systematic file management file management.
+## Stage 6, the old way: Systematic file management.
 
 The final level of complexity we will discuss (before just using the Earth Economy Devstack approach) arises when the number of files that must be managed becomes a challenge both for performance reasons and the challenges of managing complexity.
 
@@ -219,19 +219,56 @@ When the computation in question requires many complex steps which might be cont
 
 This led to ProjectFlow, one of the key tools within the Earth Economy Devstack and a part of Hazelbean.
 
+# Three axes, not one ladder
+
+The six stages above are a *narrative*: the pains, in the order I hit them, that produced the devstack. They are not the spec, and their numbers are not the spec's numbers. When the spec says **level**, it means a position on one specific axis, defined here.
+
+A run file's complexity is three independent questions. A project sits somewhere on each, and moving along one axis does not require moving along another. Only the first is numbered, because only the first is a ladder climbed in order.
+
+### Configuration — how a run varies
+
+| level | what it adds | template |
+|------------------|--------------------------------|-----------------------|
+| 1 | one task; constants inline | `run_template_1_minimal.py` |
+| 2 | a task tree; constants inline | `run_template_2_script_with_tree.py` |
+| 3 | \+ a scenarios CSV: the rows of work become data | `run_template_3_canonical.py` |
+| 4 | \+ a parameters CSV: machine-specific values leave the code | `run_template_4_data_driven.py` |
+
+### Code layout — where the code lives
+
+| position | what it means |
+|-----------------------------|-------------------------------------------|
+| single file | tasks defined in the run file |
+| split | tasks in `<project>_tasks.py`; science helpers in `<project>_functions.py`; science-unaware helpers in `<project>_utils.py`; tree builders in `<project>_initialize_project.py` |
+| library package | the above installed and imported by many projects |
+
+`<project>_utils.py` is not a filing category but a queue: science-unaware, and used by more than one project, means a function is a candidate for promotion into hazelbean. `<project>_functions.py` is terminal — it holds the science, and stays with the model. Task modules are plural and topic-named once one gets large (`seals_process_coarse_timeseries.py`, `seals_visualization_tasks.py`).
+
+### Ownership — who owns the code you run
+
+| position           | what it means                                          |
+|-----------------------------|-------------------------------------------|
+| self-contained     | you own every file the run touches                     |
+| devstack developer | you import a devstack library and could edit it        |
+| downstream user    | the library is a read-only dependency in your own repo |
+
+The axes really are independent: `global_invest`'s service runners are configuration level 2 with a library-package layout. Templates 1–4 hold code layout and ownership *fixed* so that configuration is the only thing changing between them — that is what makes them readable as a diff. [`run_template_seals_example.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_seals_example.py) then moves the other two, staying at configuration level 3 while its layout becomes a library package.
+
 ## Where to start: earning complexity rather than adopting it
 
-The lesson of the six levels is that each tool above was adopted only when the previous level's pain demanded it — and that lesson applies to ProjectFlow itself. The devstack's run-file conventions (see [conventions](conventions.qmd)) describe the *endpoint*: a canonical `run_<project>.py` with `build_task_tree()`, `run_project()`, tracked `input_template/` CSVs, and test-variant wrappers. If you are new and your problem is still a Level 1 problem, you should not start there. The spec scales down, and there is a ladder:
+Each tool in the six stages was adopted only when the previous stage's pain demanded it — and that lesson applies to ProjectFlow itself. If your problem is still a stage-1 problem, do not start at configuration level 4. The spec scales down.
 
-**The smallest run file — a function becomes a task when you add it.** The minimal ProjectFlow script is one task function plus a guarded three-line main block: `p = hb.ProjectFlow()`, `p.add_task(your_function)`, `p.execute()`. Nothing is hidden — the add_task call *is* the moment a plain function becomes a task (and calling `execute()` with nothing added fails with a message telling you exactly that). See [`examples/run_minimal_example.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_minimal_example.py) — about 20 lines, and in exchange for roughly the effort of the Level 1 script you get an organized project directory, one folder per task, skip-if-already-computed re-runs, and logging. This is the honest trade to a beginner: Level 3 effort, Level 6 benefits.
+**The smallest run file — a function becomes a task when you add it.** The minimal ProjectFlow script is one task function plus a guarded three-line main block: `p = hb.ProjectFlow()`, `p.add_task(your_function)`, `p.execute()`. Nothing is hidden — the `add_task` call *is* the moment a plain function becomes a task (and calling `execute()` with nothing added fails with a message telling you exactly that). See [`examples/run_templates/run_template_1_minimal.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_1_minimal.py) — about 30 lines, and in exchange for roughly the effort of the stage-1 script you get an organized project directory, one folder per task, skip-if-already-computed re-runs, and logging.
 
-**The canonical form, minimally.** When you want variants or an explicit tree, graduate to the canonical anatomy — `build_task_tree(p)`, `run_project(...)`, `__main__` guard. Every `run_project` keyword has a working default, so `run_project()` bare always works; the machinery stays invisible until you need it. See [`examples/run_example_global_invest.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_example_global_invest.py) for a small complete example, and the [conventions](conventions.qmd) page for the full rules. For a new standalone SEALS project, copy [`run_seals_standalone_project_template.py`](https://github.com/jandrewjohnson/seals_dev/blob/main/seals/run_seals_standalone_project_template.py) into your repo as its `run_<project>.py`. The full-scale reference implementation is [ngfs_pnas](https://github.com/jandrewjohnson/ngfs_pnas).
+**The canonical form.** When you want variants, graduate to configuration level 3: `build_task_tree(p)`, `run_project(p)`, and a `__main__` guard that builds and configures the ProjectFlow. The rule that replaces a signature full of defaults: **`run_project(p)` sets what no variant ever changes; the caller sets what a variant might.** When a constant starts varying, it moves one line up, out of `run_project` and into the caller — no signature to edit and no default to keep in sync. See [`run_template_3_canonical.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_3_canonical.py), its annotated twin in `examples/run_templates_annotated/` for the reasoning, and the [conventions](conventions.qmd) page for the full rules. For a new standalone SEALS project, copy [`run_seals_standalone_project_template.py`](https://github.com/jandrewjohnson/seals_dev/blob/main/seals/run_seals_standalone_project_template.py) into your repo as its `run_<project>.py`. The full-scale reference implementation is [ngfs_pnas](https://github.com/jandrewjohnson/ngfs_pnas).
 
-**When to climb each rung.** Add a scenarios CSV when you first have two variants of the same run (the CSV, not the code, is what varies). Split work into more tasks when a step gets slow enough that you want skip-if-exists at a finer grain. Add a `parameters.csv` key the first time a machine-specific value (an ssh host, a credentials path) tries to enter your code. Add a thin `run_<project>_test.py` wrapper when the full run gets long enough that you want a pared smoke test. Each of these is the Level-2 lesson again in a new costume: the moment you are tempted to copy a block (or a whole file) and edit one line, the spec has a mechanism that varies the *data* instead of forking the *code*.
+**When to move along an axis.** *Configuration:* add a scenarios CSV when you first have two variants of the same run (the CSV, not the code, is what varies); add a `parameters.csv` key the first time a machine-specific value — an ssh host, a credentials path — tries to enter your code; add a thin `run_<project>_test.py` wrapper when the full run gets long enough to want a pared smoke test. *Code layout:* split when a task module gets big enough to navigate, or when a second run file needs the same task. *Ownership:* you cross into downstream-user territory the moment the library you import is one you should not be editing.
+
+Every one of these is the stage-2 lesson in a new costume: the moment you are tempted to copy a block — or a whole file — and edit one line, the spec has a mechanism that varies the *data* instead of forking the *code*.
 
 # Starting to walk the steps with ProjectFlow
 
-## Stage 1
+## Stage 1, redone with ProjectFlow
 
 ### Old
 
@@ -274,7 +311,7 @@ print('The total caloric yield on earth per hectare is: ' + str(p.sum_of_yield))
 
 One thing did already happen behind the scenes: `hb.ProjectFlow()` chose a sensible project directory for you. If your script lives inside a git repo (it probably does), ProjectFlow refuses to write outputs into the repo — it walks up to just outside it and uses `<repo_parent>/projects/<name>`, where `<name>` comes from your run file's name. It logs the choice, and passing `project_dir` explicitly always overrides it. In the standard devstack layout this lands exactly where the full spec would put it, so nothing needs to change later as you climb the stages.
 
-## Stage 2
+## Stage 2, redone with ProjectFlow
 
 ### Old
 
@@ -326,7 +363,7 @@ import hazelbean as hb
 p = hb.ProjectFlow()
 
 # NOTE 1: No helper function needed — check hazelbean before writing one. The
-# raster-to-array helper we wrote at Level 3 already exists as hb.as_array().
+# raster-to-array helper we wrote at stage 3 already exists as hb.as_array().
 # (This is the devstack reuse rule.)
 
 # NOTE 2: Inputs put into an iterable. The thing that varies is now DATA, not
@@ -350,7 +387,7 @@ for raster_path in p.input_paths:
 print('Sums of layers: ' + str(p.summations))
 ```
 
-## Stage 3
+## Stage 3, redone with ProjectFlow
 
 ### Old
 
@@ -432,13 +469,13 @@ if __name__ == '__main__':
 
 Run it twice and the second run finishes instantly — every task reports its outputs already exist. The results are no longer trapped in a `print` that scrolls away: they live as files in `<project_dir>/intermediate/yield_summations/`, timestamped by the filesystem and inspectable after the fact. And notice what the existence check changed about *how you work*: "I updated dataset 3" is no longer a reason to rerun everything — it's `rm` one file and re-run. This is the same mechanism that lets the full SEALS model resume a crashed global run without recomputing days of work; you now have it in a 30-line script.
 
-## Stage 4
+## Stage 4, redone with ProjectFlow
 
-The Old code here is the 2017 confessional from Level 4 above — worth re-skimming its seven NOTEs, because every one of them is an ancestral form of something ProjectFlow now does properly. The New version answers them NOTE by NOTE.
+The Old code here is the 2017 confessional from stage 4 above — worth re-skimming its seven NOTEs, because every one of them is an ancestral form of something ProjectFlow now does properly. The New version answers them NOTE by NOTE.
 
 ### Old
 
-See the "BAD CODE; DONT RUN" block at Level 4 above (kept in one place to spare me reliving it twice). Its seven NOTEs, compressed: (1) Cython for speed, (2) a homemade utility library, (3) six lines of logging boilerplate, (4) a workspace hardcoded to `E:/bulk_data/...`, (5) custom raster loaders, (6) `do_30s_resample = False` booleans guarding expensive blocks, (7) a million-iteration double loop for what numpy does in one line.
+See the "BAD CODE; DONT RUN" block at stage 4 above (kept in one place to spare me reliving it twice). Its seven NOTEs, compressed: (1) Cython for speed, (2) a homemade utility library, (3) six lines of logging boilerplate, (4) a workspace hardcoded to `E:/bulk_data/...`, (5) custom raster loaders, (6) `do_30s_resample = False` booleans guarding expensive blocks, (7) a million-iteration double loop for what numpy does in one line.
 
 ### New: Paths that find themselves, and switches that live in the tree
 
@@ -493,13 +530,13 @@ if __name__ == '__main__':
     p.execute()
 ```
 
-## Stage 5
+## Stage 5, redone with ProjectFlow
 
-At global 30-second resolution a raster no longer fits in memory, and the Level 5 answer was a homemade "Tile Reference" class with manual chunk bookkeeping. The modern answer is one library call.
+At global 30-second resolution a raster no longer fits in memory, and the stage 5 answer was a homemade "Tile Reference" class with manual chunk bookkeeping. The modern answer is one library call.
 
 ### Old
 
-See the "BAD CODE; DON'T RUN" block at Level 5 above: `gu.Tr()` hand-slices the raster into tiles, nested loops walk each tile's rows and columns, and the chunk arithmetic (`tile[0] / factor + row`...) is exactly the kind of code where an off-by-one silently corrupts a publication figure.
+See the "BAD CODE; DON'T RUN" block at stage 5 above: `gu.Tr()` hand-slices the raster into tiles, nested loops walk each tile's rows and columns, and the chunk arithmetic (`tile[0] / factor + row`...) is exactly the kind of code where an off-by-one silently corrupts a publication figure.
 
 ### New: One call streams the chunks
 
@@ -542,7 +579,7 @@ if __name__ == '__main__':
 
 Notice the inputs: `p.cleaned_carbon_path` and `p.ha_per_cell_30s_path` were published by the Stage 4 tasks (above their `run_this` gates), so this task chains onto them without knowing or caring whether they ran this time or last week. When chunk-by-chunk parallelism isn't enough — when the *algorithm* itself must run independently per zone, thousands of times — the same idea scales up from chunks to tasks via ProjectFlow's iterators (`p.add_iterator`, `run_in_parallel=1`), which is how SEALS trains and allocates over millions of tiles. That machinery is beyond this walkthrough; the point of this rung is that you should never write chunk bookkeeping by hand again.
 
-## Stage 6
+## Stage 6, redone with ProjectFlow
 
 For the final rung we return to the yield project from Stages 1–3, because Stage 2 left a promissory note there: *"this list is the seed of what will later become a scenarios.csv."* Time to pay it.
 
@@ -552,16 +589,16 @@ The Old is the Stage 3 script itself — nothing is wrong with its code. The pai
 
 ### New: The run is driven by data — scenarios, parameters, and a thin test wrapper
 
-The canonical run file separates three things that were tangled together: **scenarios** (the rows of work this run iterates over — what varies), **parameters** (values constant across all scenarios — including machine-specific ones), and **code** (which no longer changes when either of those do). Both CSVs live in a tracked `input_template/` directory next to the run file; `set_project_dir()` copies anything missing into the project's untracked `input/` working copy on first run, and the working copy is never overwritten — so per-machine values survive re-runs.
+The canonical run file separates three things that were tangled together: **scenarios** (the rows of work this run iterates over — what varies), **parameters** (values constant across all scenarios — including machine-specific ones), and **code** (which no longer changes when either of those do). Both CSVs live in a tracked `input_template/` directory next to the run file; constructing the ProjectFlow copies anything missing into the project's untracked `input/` working copy on first run, and the working copy is never overwritten — so per-machine values survive re-runs.
 
 `input_template/yield_scenarios.csv` — one row per unit of work:
 
-| scenario_label | yield_path                  | year |
-|----------------|-----------------------------|------|
-| cell_1         | data/yield_per_cell_1.tif   | 2017 |
-| cell_2         | data/yield_per_cell_2.tif   | 2017 |
-| cell_3         | data/yield_per_cell_3.tif   | 2017 |
-| cell_4         | data/yield_per_cell_4.tif   | 2017 |
+| scenario_label | yield_path                | year |
+|----------------|---------------------------|------|
+| cell_1         | data/yield_per_cell_1.tif | 2017 |
+| cell_2         | data/yield_per_cell_2.tif | 2017 |
+| cell_3         | data/yield_per_cell_3.tif | 2017 |
+| cell_4         | data/yield_per_cell_4.tif | 2017 |
 
 `input_template/yield_parameters.csv` — vertical `key,value`, constant per run. Machine-specific keys ship **blank** in the tracked template; each machine fills its own untracked `input/` copy:
 
@@ -604,15 +641,14 @@ def yield_summations(p):
 
 def run_project(scenario_definitions_filename='yield_scenarios.csv',
                 project_name='yield',
+                run_mode='check',
                 tasks_to_skip=None):
     """The full run and the test run differ ONLY by which scenarios CSV drives
-    the task tree. A stable project_name means repeated runs resume in place,
-    skipping anything already computed. Returns p."""
-    p = hb.ProjectFlow()
-
-    p.project_name = project_name
-    p.project_dir = os.path.join(os.path.expanduser('~'), 'Files', 'projects', p.project_name)
-    p.set_project_dir(p.project_dir)  # copies input_template/ -> input/ (skip-existing)
+    the task tree. A stable project_name (run_mode='check') means repeated runs
+    resume in place, skipping anything already computed. Returns p."""
+    # One call does the whole directory setup: it places the project, creates it,
+    # and copies input_template/ -> input/ (skip-existing).
+    p = hb.ProjectFlow(project_name=project_name, run_mode=run_mode)
 
     # Parameters: constant across scenarios. Hydrated onto p, so tasks just use
     # p.ndv, p.data_credentials_path, etc. Blank values read as None.
