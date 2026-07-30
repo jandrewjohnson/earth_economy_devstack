@@ -14,7 +14,7 @@ Below we summarize these two processes.
 
 Internal TEEMs members have push access to our repos. The repos themselves are already public, but unless you're on the team, you can only push changes to your GitHub User Account repo (not the main repo). Below we describe the standard command-line method for contributing in this way and then summarize how to do it in VS Code with a UI via GitGraph.
 
-### Command line contribution 
+### Command line contribution
 
 1.  Clone main repo. `git clone https://github.com/NatCapTEEMs/global_invest_dev`
 2.  Create feature branch: `git checkout -b feature/my-change`

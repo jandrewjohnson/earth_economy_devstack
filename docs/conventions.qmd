@@ -1,8 +1,5 @@
 # EE Spec Conventions
 
-These are the Earth-Economy (EE) coding and naming conventions used across the
-devstack. This page is the canonical, deduplicated reference; its contents are
-maintained in `_conventions_reference.md` and included here so the website and
-our tooling (e.g. Claude Code) read from a single source.
+These are the Earth-Economy (EE) coding and naming conventions used across the devstack. This page is the canonical, deduplicated reference; its contents are maintained in `_conventions_reference.md` and included here so the website and our tooling (e.g. Claude Code) read from a single source.
 
 {{< include _conventions_reference.md >}}

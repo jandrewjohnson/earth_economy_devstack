@@ -18,12 +18,10 @@ title: "NatCap TEEMs Skill Sessions"
 </style>
 ```
 
-<div>
-
+::: {}
 ```{=html}
 <iframe class="slide-deck" src="slides/msi_intro.html"></iframe>
 ```
-
-</div>
+:::
 
 <small>[Github Repo](https://github.com/m-braaksma/msi_intro)</small>

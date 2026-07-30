@@ -6,9 +6,9 @@ The InVEST software comprises an easy-to-use [graphical interface version](https
 
 The three main sources for Global InVEST is
 
--   Nature's Contributions to People: [Chaplin-Kramer et al. (2019)](https://www.science.org/doi/full/10.1126/science.aaw3372)
--   GTAP-InVEST: [Johnson et al. (2023)](https://www.pnas.org/doi/10.1073/pnas.2220401120)
--   Nature's Frontiers: [Damania et al. (2023)](https://www.worldbank.org/en/publication/natures-frontiers)
+- Nature's Contributions to People: [Chaplin-Kramer et al. (2019)](https://www.science.org/doi/full/10.1126/science.aaw3372)
+- GTAP-InVEST: [Johnson et al. (2023)](https://www.pnas.org/doi/10.1073/pnas.2220401120)
+- Nature's Frontiers: [Damania et al. (2023)](https://www.worldbank.org/en/publication/natures-frontiers)
 
 ![](images/paste-44.png)
 
@@ -31,19 +31,19 @@ global_invest
 │-- run_global_ES.py
 ```
 
--   `ecosystem_services_subfolders` contains the scripts for the specific ecosystem service models. Currently, it includes folders like `pollination_sufficiency` and `cnc_global_cv`.
+- `ecosystem_services_subfolders` contains the scripts for the specific ecosystem service models. Currently, it includes folders like `pollination_sufficiency` and `cnc_global_cv`.
 
--   `global_invest_main.py` is the primary script for running the global InVEST models.
+- `global_invest_main.py` is the primary script for running the global InVEST models.
 
--   `ecosystem_services_functions.py` includes general functions used by the global InVEST models. Files ending in **`_functions.py`** are not project-specific and contain general utility functions.
+- `ecosystem_services_functions.py` includes general functions used by the global InVEST models. Files ending in **`_functions.py`** are not project-specific and contain general utility functions.
 
--   `ecosystem_services_tasks.py` includes tasks specific to the global InVEST models. Files ending in **`_tasks.py`** are project-specific and include the project object `p`, which is handled by `Project Flow` in `hazelbean`.
+- `ecosystem_services_tasks.py` includes tasks specific to the global InVEST models. Files ending in **`_tasks.py`** are project-specific and include the project object `p`, which is handled by `Project Flow` in `hazelbean`.
 
--   `example_run_file.py` is a script to run an example at the global level. This script demonstrates how to run a carbon storage model for a specific area of interest (AOI). The default AOI is `RWA`.
+- `example_run_file.py` is a script to run an example at the global level. This script demonstrates how to run a carbon storage model for a specific area of interest (AOI). The default AOI is `RWA`.
 
--   `example_execute_invest_ES.py` is similar to the run script created by InVEST but uses different paths.
+- `example_execute_invest_ES.py` is similar to the run script created by InVEST but uses different paths.
 
--   `run_global_ES.py` is the script for running the global InVEST models for a specific Ecosystem Service. Files ending in **`_ES.py`** are provided as examples, such as the Global-InVEST-Carbon Storage model (`run_global_carbon.py`).
+- `run_global_ES.py` is the script for running the global InVEST models for a specific Ecosystem Service. Files ending in **`_ES.py`** are provided as examples, such as the Global-InVEST-Carbon Storage model (`run_global_carbon.py`).
 
 ## Run Global InVEST Models
 
@@ -52,16 +52,15 @@ To have a testing run of Global InVEST Model, you can run the `example_run_file.
 1.  Create a `Project` object `p`, and set up corresponding project-directories.
 
 ``` python
-# Create the project flow object
-p = hb.ProjectFlow()
-
-# Set project-directories
-p.user_dir = os.path.expanduser('~') # EE Devstack is defined relative to the user's directory, but could be overwritten if running not for the Devstack.    
-p.extra_dirs = ['Files', 'global_invest', 'projects'] # Extra directories used inside the user_dir
-p.project_name = 'test_global_invest' # Name of the project, which will be used to create the project_dir
-p.project_name = p.project_name + '_' + hb.pretty_time() # Comment this line out if you want it to use an existing project. Will skip recreation of files that already exist.
-p.project_dir = os.path.join(p.user_dir, os.sep.join(p.extra_dirs), p.project_name) # Combines above to set the user_dir. 
-p.set_project_dir(p.project_dir) # Based on the project_dir, create all other relevant dirs, like input, intermediate, and output.
+# Create the project flow object and set up its project-directories in one call.
+# extra_dirs are the directories used inside the user_dir: the EE Devstack is defined
+# relative to the user's directory, but could be overwritten if not running for the
+# Devstack. The project_name names the project_dir, and run_mode='full' gives each run
+# a fresh timestamped one — use run_mode='check' to reuse an existing project, which
+# skips recreation of files that already exist. From the project_dir, ProjectFlow
+# creates all other relevant dirs, like input, intermediate, and output.
+p = hb.ProjectFlow(project_name='test_global_invest', run_mode='full',
+                   extra_dirs=['Files', 'global_invest', 'projects'])
 
 # Set basa_data_dir. Will download required files here.
 p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data') # Could be anywhere, including external storage. But, should not be cloud-controlled (like Google Drive). 
@@ -81,10 +80,10 @@ p.global_regions_vector_path = p.get_path('cartographic/ee/eemarine_r566_corresp
 
 For example, in the following task tree, the project object `p` has 4 tasks:
 
--   `project_aoi_task`: Clips the global regions vector to the AOI selected.
--   `aoi_inputs_task`: Clips global inputs based on the AOI.
--   `ecosystem_services_task`: Empty task just to contain all the other ES tasks (by being set as their parent task).
--   `carbon_storage_biophysical_task`: Actually implements the model logic.
+- `project_aoi_task`: Clips the global regions vector to the AOI selected.
+- `aoi_inputs_task`: Clips global inputs based on the AOI.
+- `ecosystem_services_task`: Empty task just to contain all the other ES tasks (by being set as their parent task).
+- `carbon_storage_biophysical_task`: Actually implements the model logic.
 
 Note: if `parent=p.ecosystem_services_task` is not set for `carbon_storage_biophysical_task`, the task will not be set as the child-task of the `ecosystem_services_task`.
 

@@ -71,7 +71,7 @@ src_id,dst_id,src_label,dst_label,src_description,dst_description
 7,5,other,othernat,non-forest vegetation,
 ```
 
-Copy and paste this mapping into a CSV file and save it, e.g. under `base_data/seals/default_inputs/magpie_seals7_correspondence.csv`. The folder `base_data/seals/default_inputs` also contains other mappings such as a mapping betweehn LUH2v2 land types and SEALS. This mapping can now be used to set up the `scenario_definitions.csv`. The `scenario_definitions.csv` provides SEALS with all necessary information on the input data (or MAgPIE outputs), including the path to the MAgPIE outputs. The `scenario_definitions.csv` also allows the user to set up multiple SEALS runs (e.g. in the case of different scenario runs) in one go. One way to better understand the `scenario_definitions.csv` is to run SEALS on the test data without further modification. This will automatically generate a `scenario_definitions.csv` in a test project folder. This `scenario_definitions.csv` can then be tailored to your project needs.
+Copy and paste this mapping into a CSV file and save it, e.g. under `base_data/seals/default_inputs/magpie_seals7_correspondence.csv`. The folder `base_data/seals/default_inputs` also contains other mappings such as a mapping betweehn LUH2v2 land types and SEALS. This mapping can now be used to set up the **scenarios CSV**. The scenarios CSV provides SEALS with all necessary information on the input data (or MAgPIE outputs), including the path to the MAgPIE outputs. It also allows the user to set up multiple SEALS runs (e.g. in the case of different scenario runs) in one go. The file is named per project — the one shipped with SEALS is `standard_scenarios.csv` — and your run file points at it with `p.scenario_definitions_filename`. One way to better understand it is to run SEALS on the test data without further modification, which generates a default in the project folder that you can then tailor to your needs. The columns are documented in [scenarios_format.md](https://github.com/jandrewjohnson/seals_dev/blob/main/docs/scenarios_format.md).
 
 The following shows how an example `scenario_definitions_tutorial.csv` is created that provides relevant information for a set of different MAgPIE test runs. Assume we have created land use projections for three different test scenarios: a reference 'business-as-usual' scenario (`weeklyTests_SSP2EU-Ref`), a low ambition mitigation scenario, in which current nationally determined contributions (NDCs) under the Paris agreement for the land sector are fulfilled (`weeklyTests_SSP2EU-NDC`) and a highly ambitious mitigation scenario in line with the 1.5 degree target (`weeklyTests_SSP2EU-PkBudg650`). For each of the scenarios, we have created gridded land-use projections in a format that can be read by SEALS using the output script `extra/reportMAgPIE2SEALS.R` (see above).
 
@@ -115,10 +115,10 @@ Similarly, the same functionality can also be used to specify policy scenarios, 
 
 ![](images/magpie_regressors_30by30.png)
 
-Finally, the path to the regressor used during the downscaling must also be added to the `scenario_definitions.csv` file, while the base land-cover data `base_year_lulc_path` must refer to the same year as defined in the `Baseline` case.
+Finally, the path to the regressor used during the downscaling must also be added to the scenarios CSV, while the base land-cover data `base_year_lulc_path` must refer to the same year as defined in the `Baseline` case.
 
 ![](images/magpie_scenario_definitions5.png)
 
-Save the `scenario_definitions_tutorial.csv` under `./input` in your SEALS project folder and don't forget to add it to your SEALS run file and you are good to go.
+Save `scenario_definitions_tutorial.csv` in the `input_template/` directory beside your run file — it is tracked in git, and ProjectFlow copies it into the project's `input/` on first run. Then name it in the run file's `__main__` block with `p.scenario_definitions_filename = 'scenario_definitions_tutorial.csv'` and you are good to go.
 
 ![](images/magpie_scenario_definitions6.png)

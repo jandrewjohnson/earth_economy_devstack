@@ -160,3 +160,6 @@ cython_debug/
 #.idea/
 to_add_to_docs_UNTRACKED/GEP Repository and Data Organization.pptx
 to_add_to_docs_UNTRACKED/GEP Repository and Data Organization.pptx
+
+# macOS
+.DS_Store

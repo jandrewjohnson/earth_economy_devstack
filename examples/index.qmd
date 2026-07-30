@@ -1,0 +1,251 @@
+---
+title: "Examples: run templates and reference run files"
+---
+
+Everything in `examples/` exists to answer one question: **what should my run file
+look like?** A run file is the single script that builds a ProjectFlow, defines a
+task tree, and executes it — the file a collaborator opens first and the file you
+copy when you start a project.
+
+The directory holds four kinds of material:
+
+| what | where | use it for |
+|------|-------|------------|
+| **Run templates** — the configuration axis, levels 1–4, copy-me | `run_templates/` | starting a new project |
+| **Run templates, annotated** — the same levels with every decision explained | `run_templates_annotated/` | learning why the templates look like that |
+| **Real run files and raw research scripts** | `input_research_scripts/` | seeing the conventions applied to real models, and what they replace |
+| **Data examples** | `scenario_definitions_examples/`, each template dir's `input_template/` | the CSVs that drive the run files |
+
+## Start here
+
+The four numbered templates run with nothing downloaded — each generates its own
+synthetic arrays — so you can execute all of them before touching base data.
+(`run_template_seals_example.py` in the same directory is the exception: it drives
+a real model. See the note under the rung table.)
+
+``` bash
+conda activate env1
+cd earth_economy_devstack/examples/run_templates
+python run_template_1_minimal.py
+```
+
+Then run it a **second time**. It finishes almost instantly: every task is behind
+an existence check, so ProjectFlow skips what it already computed. That skip-if-
+already-computed behavior, one output folder per task, and logging are the whole
+payoff of the ~25 lines in template 1.
+
+Outputs do not land in the repo. Because the script lives inside a cloned repo,
+bare `hb.ProjectFlow()` places the project directory just *outside* it, at
+`<repo_parent>/projects/<name derived from the filename>` — the stem minus the
+`run_` prefix, so `run_template_1_minimal.py` writes to
+`Files/projects/template_1_minimal/`. Look inside: `input/`,
+`intermediate/`, `output/`, and a folder per task.
+
+## Three axes, and the one that is numbered
+
+A run file's complexity is three independent questions, and a project sits
+somewhere on each:
+
+- **Configuration** — how a run varies. Levels **1–4**, the four templates below.
+- **Code layout** — where the code lives: single file → split
+  (`<project>_tasks.py`, `_functions.py`, `_utils.py`, `_initialize_project.py`)
+  → library package.
+- **Ownership** — who owns the code you run: self-contained → devstack developer
+  → downstream user, where the library is a read-only dependency in your own repo.
+
+Only configuration is numbered, because only configuration is a ladder climbed in
+order. The axes are independent — `global_invest`'s service runners are
+configuration level 2 with a library-package layout. Every template's docstring
+states its position on all three. The full model is in
+[project_complexity.qmd](../docs/project_complexity.qmd).
+
+## The four configuration levels
+
+Templates 1–4 hold code layout and ownership **fixed** (single file,
+self-contained), so configuration is the only thing changing between them — that
+is what makes them readable as a diff. Read them in order. Each adds exactly one
+mechanism, and each docstring says when to move up — the point is to *earn*
+complexity rather than adopt it.
+
+| # | file | adds | promote when |
+|---|------|------|--------------|
+| 1 | `run_template_1_minimal.py` | one task function, `p.add_task()`, `p.execute()` | you add a second task |
+| 2 | `run_template_2_script_with_tree.py` | `build_task_tree(p)`; several tasks that chain by publishing paths; constants inline in `__main__` | you want a second *variant* of the run |
+| 3 | `run_template_3_canonical.py` | `run_project(p)` + a **scenarios CSV**; variants are data, not forked code | a machine-specific value tries to enter the code |
+| 4 | `run_template_4_data_driven.py` | a **parameters CSV**, nested tasks via `parent=`, a cross-scenario report task | you need parallel iterators or more CSV classes |
+
+Alongside the four rungs, `run_templates/run_template_seals_example.py` is the
+same anatomy applied to a **real model**: `build_task_tree` delegates unchanged to
+`seals_initialize_project.build_standard_task_tree(p)`, and `run_project` sets the
+base data dir, the processing resolution, and the scenarios CSV that SEALS
+generates in `input/` on first run. Copy this one to start a standalone SEALS
+project. It is the one template that moves along the *other two* axes while
+staying at configuration level 3: its code layout is a **library package**
+(nothing in the file defines a task) and its ownership is **devstack developer**
+(seals is imported, and you could edit it). Moving along code layout changed
+exactly one function — `build_task_tree`, which now delegates instead of
+containing. One practical difference from templates 3 and 4: it needs `seals`
+installed and will download base data on its first run, so it is not a
+five-second toy like the others. For ownership one step further — seals as a
+read-only dependency in your own repo — copy
+`run_template_downstream_user.py` instead.
+
+## The other two axes
+
+Two further templates in `run_templates/` hold configuration fixed at level 4 and
+move along one of the other axes each. Both compute exactly the same numbers as
+`run_template_4_data_driven.py`, which is the point — diff them against it and
+the only difference is the axis named.
+
+| file | axis it moves | what changes |
+|------|---------------|--------------|
+| `run_template_split_layout.py` | **Code layout** → split | tasks leave the run file for four siblings: `caloric_yield_tasks.py`, `_functions.py`, `_utils.py`, `_initialize_project.py`. Exactly one function in the run file changes — `build_task_tree` now delegates instead of containing. |
+| `run_template_downstream_user.py` | **Ownership** → downstream user | imports `caloric_yield_initialize_project` as a read-only dependency, then adds its *own* task after the library builder returns. Note it is back to a single-file layout while being further along ownership — the axes really are independent. |
+
+The `_utils` / `_functions` split is the rule worth internalising:
+`<project>_utils.py` is science-unaware and therefore a **promotion queue** — when
+a second project needs one of those helpers, it belongs in hazelbean.
+`<project>_functions.py` encodes the model's domain knowledge and is terminal.
+If nothing ever leaves your `_utils`, you are not applying the rule.
+
+`run_template_downstream_user.py` also states the one thing the ownership axis has
+*not* solved: attaching a task to a specific library task
+(`parent=p.yield_analysis_task`) works only because builders assign
+`p.<name>_task` as a side effect, and no contract says which of those names are
+public API. Until one exists, attach at the top level and depend on published
+paths rather than on task objects.
+
+Rung 3 is the canonical anatomy, and all four of its parts are required at that
+level:
+
+- `build_task_tree(p)` — *what* the pipeline is. Nothing but `add_task` calls.
+- `run_project(p)` — *how* it is executed. Returns `p`.
+- the `__main__` guard — importing a run file must never start a run. It is also
+  where this project's own configuration lives.
+- a scenarios CSV — the rows of work.
+
+### The rule that runs through rungs 3 and 4
+
+> `run_project(p)` sets what no variant ever changes. The caller sets what a
+> variant might.
+
+The caller builds the `ProjectFlow` and hangs configuration on it; `run_project`
+only runs it. When a constant starts varying, it moves one line up — out of
+`run_project`, into the caller. There is no signature to edit, no keyword to add,
+and no default that can drift out of sync. Template 4 shows the split working:
+`p.scenario_definitions_filename` is set by the caller (variants change it),
+`p.parameter_definitions_filename` is set inside `run_project` (no variant does).
+
+The cost, stated honestly: bare `run_project()` no longer works — the caller must
+hand it a ProjectFlow, and a variant wrapper is four lines instead of three. In
+exchange every knob a run uses is visible at the call site, and forgetting one
+raises a named `AttributeError` instead of silently using somebody else's default.
+
+### A variant run is its own file, never a fork
+
+This is the habit the ladder exists to build. `run_templates_annotated/run_template_3_canonical_test.py`
+is the whole answer to the "copy the run file and change one line" instinct:
+
+``` python
+import hazelbean as hb
+from run_template_3_canonical import run_project
+
+if __name__ == '__main__':
+    p = hb.ProjectFlow(project_name='..._test', run_mode='check')
+    p.scenario_definitions_filename = 'template_3_scenarios_test.csv'
+    # p.tasks_to_skip = ['yield_summations']
+    run_project(p)
+```
+
+It imports the pipeline *unchanged*. What differs is data (a one-row CSV) and
+placement (its own project dir) — never code. Both sets carry this file, because
+a wrapper is something you copy: `run_templates/run_template_3_canonical_test.py`
+is the one to start from.
+
+### run_mode
+
+Templates 3 and 4 pass `run_mode` to the constructor:
+
+- `'check'` — reuse the stable project dir; recompute only what is missing. The default working mode.
+- `'fresh_intermediate'` — redo all computation but keep `input/`. Test projects only.
+- `'full'` — a fresh, timestamped project dir; everything re-runs.
+
+### input_template/ and the machine-specific values
+
+Both template sets keep their CSVs in a tracked `input_template/` directory next
+to the run file. On first run ProjectFlow copies anything missing into the
+project's untracked `input/` and **never overwrites the working copy**. That is
+why `template_4_parameters.csv` ships with `data_credentials_path` blank: you
+fill it in your machine's `input/` copy, and it never reaches the code or git.
+
+| CSV | what it is |
+|-----|------------|
+| `template_3_scenarios.csv` | four scenario rows (`scenario_label`, `yield_offset`, `year`) |
+| `template_3_scenarios_test.csv` | the same schema, one row — the variant run |
+| `template_4_scenarios.csv` | scenarios for template 4 |
+| `template_4_parameters.csv` | `key,value` constants: `ndv`, `n_rows`, `n_cols`, and blank `data_credentials_path` |
+
+The three-column scenarios CSV in these templates is **illustrative only**. The
+real schema is specified in [scenario_definitions.qmd](../docs/scenario_definitions.qmd);
+worked instances of it are in `scenario_definitions_examples/`.
+
+## The two template sets
+
+`run_templates/` and `run_templates_annotated/` are the same four rungs computing
+the same toy project (sum caloric yield across scenarios). They differ only in
+how much they say:
+
+- **`run_templates/`** — concise. Comments only where a line is non-obvious. This
+  is the set to copy into a new project.
+- **`run_templates_annotated/`** — the same code with long docstrings covering
+  what each level is for, what it deliberately does *not* have, why the
+  conventions are what they are, and when to move along an axis. Read these once;
+  copy from the other directory.
+
+`run_templates/` additionally holds `run_template_split_layout.py` and
+`run_template_downstream_user.py` (the other two axes) with their
+`caloric_yield_*` modules; the annotated set covers the configuration axis only.
+The `input_template/` CSVs are otherwise identical between the sets.
+
+Templates 1 and 2 use bare `hb.ProjectFlow()` in both sets, so they share a
+project directory across the sets — harmless, since they compute the same thing.
+Templates 3 and 4 carry distinct project names and get their own directories.
+
+## input_research_scripts/
+
+Real scripts collected as source material: the *input* to conversion work, and
+the reference implementations that conversion produces. Read these; copy from
+`run_templates/`. Three groups:
+
+**Reference implementations** — the conventions at full scale:
+
+- `run_invest_carbon_in_projectflow.py` — the `run_project(p)` convention on the `global_invest` InVEST carbon task tree. The variant knob is `p.aoi` (an ISO3 code or `'global'`); paths resolve through `p.get_path()`, which searches the project input dir, then base data, then the cloud.
+- `ngfs_pnas.py` — the largest reference implementation of the canonical anatomy: a two-pass GTAP+SEALS pipeline whose `build_task_tree` is driven by a `shock_config` column in the scenarios CSV. Configured through a `run_project(...)` signature.
+- `ngfs_pnas_test.py` — its pared test run: same task tree, a minimal scenarios CSV, one policy scenario, one year, one region. The variant-is-a-file habit at full scale.
+- `seals_standard.py` — a standard SEALS run, identical to `run_templates/run_template_seals_example.py`.
+
+**Converted, but not exemplary** — useful for what they get wrong:
+
+- `yanxu_carbon.py`, `cc_carbon.py` — GEP carbon runs on ProjectFlow, with hardcoded absolute `base_data_dir` paths pointing at somebody else's machine. `cc_carbon.py` also has no `__main__` guard, so importing it starts a run.
+
+**Not on ProjectFlow at all** — the before-pictures:
+
+- `research_script.py` — a working pollination analysis with hardcoded `D:\Shared drives\...` paths throughout. The canonical example of a script that cannot run on any other machine.
+- `research_script_relative_paths.py` — the same script after one improvement: paths built from a single `base_data_dir`. Still not a ProjectFlow run file; a useful intermediate step.
+- `invest_carbon_script.py` — an InVEST-generated standalone script, the form the InVEST UI exports. Compare with `run_invest_carbon_in_projectflow.py` to see what wrapping it in a task tree buys.
+
+## Data examples
+
+`scenario_definitions_examples/` holds instances of the **v2** scenario
+definitions schema specified in [scenario_definitions.qmd](../docs/scenario_definitions.qmd):
+
+- `single_stage_seals.csv` — a SEALS-only project, including a hindcast year.
+- `multi_stage_ngfs.csv` — GTAP + SEALS: a 2020-anchored canonical clock with a `gtap` stage clock.
+- `hindcast_example.csv` — a minimal demonstration of backward years.
+
+## Where to go next
+
+- [project_complexity.qmd](../docs/project_complexity.qmd) — the ladder from a one-off script to a systematic project, and why each rung is earned.
+- [project_flow.qmd](../docs/project_flow.qmd) — the ProjectFlow engine itself: tasks, iterators, project dirs, `get_path`.
+- [conventions.qmd](../docs/conventions.qmd) — the full EE Spec naming and structure rules.
+- [scenario_definitions.qmd](../docs/scenario_definitions.qmd) — the scenarios CSV schema.
