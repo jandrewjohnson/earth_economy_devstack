@@ -7,14 +7,14 @@ look like?** A run file is the single script that builds a ProjectFlow, defines 
 task tree, and executes it — the file a collaborator opens first and the file you
 copy when you start a project.
 
-The directory holds three kinds of material:
+The directory holds four kinds of material:
 
 | what | where | use it for |
 |------|-------|------------|
 | **Run templates** — the configuration axis, levels 1–4, copy-me | `run_templates/` | starting a new project |
 | **Run templates, annotated** — the same levels with every decision explained | `run_templates_annotated/` | learning why the templates look like that |
 | **Real run files and raw research scripts** | `input_research_scripts/` | seeing the conventions applied to real models, and what they replace |
-| **Data examples** | `scenario_definitions_examples/`, each template dir's `input_template/`, `test_standard_scenarios.csv` | the CSVs that drive the run files |
+| **Data examples** | `scenario_definitions_examples/`, each template dir's `input_template/` | the CSVs that drive the run files |
 
 ## Start here
 
@@ -36,8 +36,9 @@ payoff of the ~25 lines in template 1.
 
 Outputs do not land in the repo. Because the script lives inside a cloned repo,
 bare `hb.ProjectFlow()` places the project directory just *outside* it, at
-`<repo_parent>/projects/<name derived from the filename>` — so `template_1_minimal.py`
-writes to `Files/projects/template_1_minimal/`. Look inside: `input/`,
+`<repo_parent>/projects/<name derived from the filename>` — the stem minus the
+`run_` prefix, so `run_template_1_minimal.py` writes to
+`Files/projects/template_1_minimal/`. Look inside: `input/`,
 `intermediate/`, `output/`, and a folder per task.
 
 ## Three axes, and the one that is numbered
@@ -87,7 +88,7 @@ containing. One practical difference from templates 3 and 4: it needs `seals`
 installed and will download base data on its first run, so it is not a
 five-second toy like the others. For ownership one step further — seals as a
 read-only dependency in your own repo — copy
-`seals_dev/seals/run_seals_standalone_project_template.py` instead.
+`run_template_downstream_user.py` instead.
 
 ## The other two axes
 
@@ -157,8 +158,9 @@ if __name__ == '__main__':
 ```
 
 It imports the pipeline *unchanged*. What differs is data (a one-row CSV) and
-placement (its own project dir) — never code. The concise set carries the same
-wrapper as a commented block at the bottom of `run_template_3_canonical.py`.
+placement (its own project dir) — never code. Both sets carry this file, because
+a wrapper is something you copy: `run_templates/run_template_3_canonical_test.py`
+is the one to start from.
 
 ### run_mode
 
@@ -200,8 +202,10 @@ how much they say:
   conventions are what they are, and when to move along an axis. Read these once;
   copy from the other directory.
 
-The annotated set adds `run_template_3_canonical_test.py` (the variant wrapper as
-a real file). The `input_template/` CSVs are identical between the sets.
+`run_templates/` additionally holds `run_template_split_layout.py` and
+`run_template_downstream_user.py` (the other two axes) with their
+`caloric_yield_*` modules; the annotated set covers the configuration axis only.
+The `input_template/` CSVs are otherwise identical between the sets.
 
 Templates 1 and 2 use bare `hb.ProjectFlow()` in both sets, so they share a
 project directory across the sets — harmless, since they compute the same thing.
@@ -230,13 +234,6 @@ the reference implementations that conversion produces. Read these; copy from
 - `research_script_relative_paths.py` — the same script after one improvement: paths built from a single `base_data_dir`. Still not a ProjectFlow run file; a useful intermediate step.
 - `invest_carbon_script.py` — an InVEST-generated standalone script, the form the InVEST UI exports. Compare with `run_invest_carbon_in_projectflow.py` to see what wrapping it in a task tree buys.
 
-## Supporting code
-
-`example_tasks.py` and `example_functions.py` at the top level hold task bodies
-that wrap InVEST models (water yield and friends) plus a couple of raster
-helpers. They show what a task function looks like when it drives an external
-model, and they are what the pre-conversion carbon example imported.
-
 ## Data examples
 
 `scenario_definitions_examples/` holds instances of the **v2** scenario
@@ -245,10 +242,6 @@ definitions schema specified in [scenario_definitions.qmd](../docs/scenario_defi
 - `single_stage_seals.csv` — a SEALS-only project, including a hindcast year.
 - `multi_stage_ngfs.csv` — GTAP + SEALS: a 2020-anchored canonical clock with a `gtap` stage clock.
 - `hindcast_example.csv` — a minimal demonstration of backward years.
-
-`test_standard_scenarios.csv` at the top level is a **v1** file (the older
-`baseline`/`base_years`/`comparison_counterfactual_labels` columns), kept for
-comparison with the v2 examples above.
 
 ## Where to go next
 

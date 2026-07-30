@@ -9,6 +9,8 @@ run_project(p) sets what no variant ever changes; the caller sets what a variant
 This template's three-column scenarios CSV is illustrative only; the real schema is
 specified in docs/scenario_definitions.qmd.
 
+A variant run is its own file, never a fork: run_template_3_canonical_test.py.
+
 Annotated version: ../run_templates_annotated/run_template_3_canonical.py
 """
 import os
@@ -104,15 +106,3 @@ if __name__ == '__main__':
     p.scenario_definitions_filename = 'template_3_scenarios.csv'
 
     run_project(p)
-
-
-# A variant run is its own file, never a fork. run_template_3_canonical_test.py:
-#
-#     import hazelbean as hb
-#     from run_template_3_canonical import run_project
-#
-#     if __name__ == '__main__':
-#         p = hb.ProjectFlow(project_name='template_3_concise_test', run_mode='check')
-#         p.scenario_definitions_filename = 'template_3_scenarios_test.csv'
-#         # p.tasks_to_skip = ['yield_summations']
-#         run_project(p)

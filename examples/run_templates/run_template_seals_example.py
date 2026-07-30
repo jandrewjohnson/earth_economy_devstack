@@ -10,9 +10,14 @@ with everything in one file -- that is the point of separating the axes. Moving
 along Code layout changed exactly one function here, build_task_tree, which now
 delegates instead of containing.
 
-For the Ownership axis one step further -- seals as a read-only dependency in
-your own repo -- copy seals_dev/seals/run_seals_standalone_project_template.py
-instead. See docs/project_complexity.qmd for the full model.
+This file is a teaching copy of seals_dev/seals/run_seals_standard.py, which is
+the real reference SEALS run. If you change the anatomy in one, change it in the
+other.
+
+For the Ownership axis one step further -- a library as a read-only dependency in
+your own repo, with your own tasks composed onto its tree -- see
+run_template_downstream_user.py next to this file. See
+docs/project_complexity.qmd for the full model.
 """
 import os
 

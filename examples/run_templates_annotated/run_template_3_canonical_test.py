@@ -7,7 +7,6 @@
 A variant sits at the SAME position on all three axes as the run it varies. That
 is the test: if a variant has to move along an axis, it is not a variant.
 
-
 This file is the whole answer to the "copy the run file and edit one line"
 instinct. It imports the pipeline unchanged and configures it differently. What
 differs from the full run is data (a one-row CSV) and placement (its own project

@@ -29,7 +29,7 @@ THREE AXES, NOT ONE LADDER
         devstack developer  you import a devstack library and could edit it
                             (run_template_seals_example.py)
         downstream user     the library is a read-only dependency in your own
-                            repo (seals: run_seals_standalone_project_template.py)
+                            repo (run_template_downstream_user.py)
 
     The axes are independent. global_invest's service runners are Configuration
     level 2 with a library-package layout; nothing forces you up one axis before
