@@ -1,5 +1,93 @@
 # Quickstart
 
-The simplest way to run SEALS is to clone the repository and then open run_test_standard.py in your preferred editor. Then, update the values in ENVIRONMENT SETTINGS near the top of run_test_standard.py for your local computer (ensuring this points to directories you have write-access for and is not a virtual/cloud directory).
+Get SEALS running, then make it your own. For the model itself see
+[SEALS](seals_overview.qmd); for the full install options see
+[Installation Steps](installation.qmd).
 
-Finally, run seals via the command line with the command `python run_test_standard.py` in the appropriate directory. If configured correctly, SEALS will download the required data at runtime (assuming you point to a data bucket you have access to). The default bucket is publicly available, though other configurations are provided for alternate uses.
+## 1. Install
+
+SEALS is distributed as `sealsmodel` and imported as `seals`. It needs
+[hazelbean](https://github.com/jandrewjohnson/hazelbean_dev), which supplies
+`ProjectFlow`.
+
+``` bash
+conda create -n <your_env> python=3.10
+conda activate <your_env>
+pip install hazelbean sealsmodel
+```
+
+Pick your own environment name. If you intend to edit SEALS rather than just run
+it, do a developer install from a clone instead — see
+[environment_setup.md](https://github.com/jandrewjohnson/seals_dev/blob/main/docs/environment_setup.md)
+in the seals repo, which also covers the C/C++ compiler SEALS needs to build its
+Cython extension.
+
+## 2. Run it
+
+Two run files ship with SEALS, in `seals_dev/seals/`:
+
+| file | what it runs |
+|------|--------------|
+| `run_seals_standard.py` | the standard pipeline: three scenarios, 2030 and 2050 |
+| `run_seals_standard_test.py` | the same pipeline pared down — baseline plus one BAU, one year, Rwanda |
+
+Start with the test:
+
+``` bash
+conda activate <your_env>
+cd seals_dev/seals
+python run_seals_standard_test.py
+```
+
+Required base data is downloaded at runtime from a public bucket; no credentials
+are needed for the default configuration.
+
+## 3. Where the output goes
+
+Not into the repo. Because the run file lives inside a cloned repo, ProjectFlow
+places the project directory just *outside* it:
+
+```
+~/Files/seals/projects/seals_standard_test/
+├── input/          seeded from the repo's input_template/
+├── intermediate/   one folder per task
+└── outputs/
+```
+
+Run the same command a second time and it finishes almost immediately — every
+task is behind an existence check, so completed work is skipped. That is the main
+thing ProjectFlow buys you: interrupt a long run, fix one input, re-run, and only
+what is missing recomputes.
+
+## 4. Make it your own
+
+Copy the run file into your own project repo as `run_<project>.py` and change the
+two lines in its `__main__` block — that is the whole of the configuration:
+
+``` python
+if __name__ == '__main__':
+    p = hb.ProjectFlow(project_name='my_project', run_mode='check')
+    p.scenario_definitions_filename = 'my_project_scenarios.csv'
+
+    run_project(p)
+```
+
+`run_mode` controls how much prior work is reused: `'check'` (the default)
+resumes in a stable project dir; `'full'` timestamps a fresh one.
+
+Put your scenarios CSV in an `input_template/` directory beside the run file. It
+is tracked in git, and ProjectFlow copies anything missing into the project's
+untracked `input/` on first run without ever overwriting your working copy. The
+columns are documented in
+[scenarios_format.md](https://github.com/jandrewjohnson/seals_dev/blob/main/docs/scenarios_format.md).
+
+To run the same pipeline a second way — a smoke test, a different AOI — write a
+*second run file* that imports the first rather than copying it.
+`run_seals_standard_test.py` is the worked example, and the pattern is explained
+in [conventions](conventions.qmd).
+
+## Next
+
+- [Walkthrough](seals_walkthrough.qmd) — a guided tour with screenshots
+- [Conventions](conventions.qmd) — the full run-file rules
+- [Project complexity](project_complexity.qmd) — why run files are shaped this way

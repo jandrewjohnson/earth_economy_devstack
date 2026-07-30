@@ -20,7 +20,11 @@ You can now import hazelbean and it will have precompiled binaries already worki
 
 ## 2. Project Installation
 
-If someone has given you a project repository that you want to run and it relies on some combination of our devstack tools, but you are not planning on *editing* any of the tools, a Project Installation is your best approach. Here we will use [seals_cgebox_dev](https://github.com/jandrewjohnson/seals_cgebox_dev) as an example project. See also our [video tutorial for Project installation](https://youtu.be/8QmE8BPK94s). The project repository should have steps included for installation, but check the [seals_cgebox_dev](https://github.com/jandrewjohnson/seals_cgebox_dev) readme.md for an example. Project Installations include a setup_environment.bat or shell file that will setup the environment for you. Note that you need to have a C/C++ compiler installed, so be sure to read that section below.
+If someone has given you a project repository that you want to run and it relies on some combination of our devstack tools, but you are not planning on *editing* any of the tools, a Project Installation is your best approach. See also our [video tutorial for Project installation](https://youtu.be/8QmE8BPK94s).
+
+A project repository is one that owns a `run_<project>.py` plus its `input_template/` CSVs, and imports a devstack library rather than modifying it. It should carry its own installation steps in its readme; some also include a `setup_environment.bat` or shell script that builds the environment for you. Note that you need a C/C++ compiler installed, so be sure to read that section below.
+
+If you are starting a project of your own rather than running someone else's, copy [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py) as the seed — it is the worked example of importing a library read-only and adding your own tasks around its task tree.
 
 ## 3. Developer Installation
 

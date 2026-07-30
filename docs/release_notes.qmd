@@ -1,6 +1,11 @@
 # Release Notes
 
-## Unreleased
+## SEALS v2.0.0 (2026-07-30)
+
+*Version numbers on this page belong to two different sequences. `SEALS v2.0.0`
+continues the seals repository's own tags (v1.2.0 before it). The `Update v4.0.0`
+entry below is on the older GTAP-InVEST-matched numbering described in that
+entry — it is not a later release than this one.*
 
 **Run-file spec: three complexity axes, and `run_project(p)`.**
 

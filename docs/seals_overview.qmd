@@ -4,4 +4,11 @@ SEALS, the Spatial Economic Allocation Landscape Simulator, is a land-use change
 
 ## Installation
 
-Full instructions for installing SEALS can be found in the [Installation Steps](installation.qmd). You will need to do the [Repository Installation](https://justinandrewjohnson.com/earth_economy_devstack/installation.html#repository-installation) for and pull from the latest seals_dev repository for it to work. SEALS is under active development and is changing rapidly. We have submitted this code for publication but are waiting on reviews.
+The fastest path from nothing to a downscaled map is the
+[Quickstart](seals_quickstart.qmd); [Installation Steps](installation.qmd) covers
+the full set of options, including the developer install from a clone. For a
+guided tour of a first run and the anatomy of a run file, see the
+[Walkthrough](seals_walkthrough.qmd).
+
+SEALS is under active development and changes rapidly, so pull the latest
+`seals_dev` before reporting a problem.

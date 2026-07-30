@@ -2,12 +2,27 @@
 title: "DEMETRA-SEALS-InVEST"
 subtitle: "Workflow Walkthrough"
 author: "Matthew Braaksma"
-date: today
+date: 2026-07-10
 format:
   html:
     toc: true
     toc-depth: 4
 ---
+
+::: {.callout-note appearance="simple"}
+## Historical report — not a current guide
+
+This documents the DEMETRA-SEALS-InVEST workflow **as it stood in July 2026**. It
+is kept as a record of that work and is not maintained against the current API.
+
+The run file it describes, `run_ken_demetra.py`, and the `ecosystem_services.py`
+module it used have since been retired to `seals_dev/seals/old_run_files/` and are
+no longer supported. Run files have also moved to the `run_project(p)` convention
+since this was written, so the code shown here will not match what is in the repo.
+
+For a current walkthrough see [SEALS Quickstart](seals_quickstart.qmd) and
+[First SEALS run walkthrough](seals_walkthrough.qmd).
+:::
 
 ## Overview
 

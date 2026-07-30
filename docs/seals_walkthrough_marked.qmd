@@ -2,162 +2,234 @@
 format: 
     revealjs:
         theme: simple
-        margin: 0       
-        self-contained: false
+        margin: 10       
+        self-contained: true
         scrollable: true
         code-fold: show
         slide-number: true  
         preview-links: auto
         css: styles.css
         incremental: true  
-        auto-stretch: false
+        auto-stretch: true
+        width: 1920
+        height: 1080
 ---
-
 # First SEALS run walkthrough
 
 ## Getting set up
 
 ::: r-fit-text
-- Make sure you have followed all of the steps in the [installation](installation.qmd) page.
-  - In particular, Clone the SEALS and Hazelbean repositories in the correct location, as [described here](installation.html#clone-the-required-repositories)
-  - You will know you've got them installed correctly if your VS Code Explorer tab shows the repositories without an error message (Figure 1)
+- Follow the [installation](installation.qmd) page first, or the shorter
+  [quickstart](seals_quickstart.qmd) if you just want to run the model
+- Clone SEALS and Hazelbean into the devstack layout — each repo in its own
+  project folder under `~/Files/`:
+  - `~/Files/hazelbean/hazelbean_dev`
+  - `~/Files/seals/seals_dev`
+- The layout is not cosmetic: ProjectFlow reads it to decide where project
+  directories go
+- You know the install worked if this prints two paths inside `~/Files/`, not
+  inside `site-packages`:
 
-![](images/paste-45.png){width="201"}
+``` bash
+python -c "import hazelbean, seals; print(hazelbean.__file__); print(seals.__file__)"
+```
 :::
 
 ## Explore the SEALS code
 
 ::: r-fit-text
-- In the VS Code Explorer tab, navigate to your seals_dev directory (Figure 1)
-  - Quick note about file organization
-    - The root directory of seals_dev contains more than just the seals library, such as directories for scripts, images, etc.
-    - The library itself is in the seals subdirectory `seals_dev/seals` which may seem redundant but is necessary for the way Python imports work.
-    - If you inspect the seals directory, you will see an `__init__.py` file. This make Python able to import the directory as a package.
-  - You will also see a `seals_main.py` file. This is where most of the actual logic of seals is.
-
-![](images/2024-03-06-04-41-48.png)
+- The repo root `seals_dev/` holds more than the library — docs, tests, scripts
+- The library itself is the `seals_dev/seals` subdirectory. The nesting looks
+  redundant but is how Python packaging works
+- Inside it, `__init__.py` is what makes the directory importable as a package
+- The modules are split by what they hold:
+  - `seals_main.py`, `seals_tasks.py`, `seals_generate_base_data.py` — task
+    functions, the actual model logic
+  - `seals_initialize_project.py` — the task-tree builders
+  - `seals_utils.py` — helpers
+  - `run_seals_standard.py` — the run file
 :::
 
 ## Run files
 
-:::::: columns
-:::: {.column width="70%"}
 ::: r-fit-text
-- One does not simply run a `main.py` (Figure 1)
-  - Instead, we're going to have a "run file" that sets up the code and then runs the `seals_main.py` file
-  - Open up the `run_test_standard.py` file in the seals directory (Figure 2)
-- We will setup this file and then finally run it (in debug mode via the launch configs in the earth_economy_devstack repository)
+- You do not run `seals_main.py` directly
+- A **run file** configures a project and executes a task tree built from the
+  library's task functions
+- Two ship with SEALS, both in `seals_dev/seals`:
+  - `run_seals_standard.py` — three scenarios, 2030 and 2050
+  - `run_seals_standard_test.py` — the same pipeline pared to a baseline, one
+    BAU scenario, one year, Rwanda. Start here
+- Open `run_seals_standard.py`. It is about 60 lines and has three parts
 :::
-::::
 
-::: {.column width="30%"}
-![](images/2024-03-06-04-53-49.png)
+## Part 1: the task tree
 
-![](images/2024-03-06-04-56-59.png)
-:::
-::::::
-
-## Setting up the run file
-
-::: r-fit-text - The run file begins with standard python imports - Then in the `if __name__ == '__main__':` block, we define the project directory and initialize the project flow object - The reason for putting it in this block is so that you don't accidentally run the code when you import the file in another script - This file then creates a ProjectFlow objected, assigned to the variable p. - Python is an object-oriented programming langage - The hb.ProjectFlow() defines a `class`, which is like a recipe for an object - When we call it, it generates on `object` of that class, which we assign to the variable `p`
+::: r-fit-text
+- `build_task_tree(p)` answers one question: *what is this pipeline?*
+- It contains nothing but tree construction. For stock SEALS it is one line,
+  delegating to the shared library builder
+- Compose extra library subtrees or your own tasks here if your project diverges
 
 ``` python
-import os, sys
-import seals_utils
-import seals_initialize_project
-import hazelbean as hb
-import pandas as pd
-
-main = ''
-if __name__ == '__main__':
-:::
-
-## Directories and project name
-
-::: r-fit-text
--   SEALS (and the EE Devstack) assumes (or softly requires) that you put all code and data somewhere relative to the user's home directory `os.path.expanduser('~')`
-    -   Can put it in sub-directories with `extra_dirs = ['Files', 'seals', 'projects']`
--   If you followed the EE method, you will have already created the `seals` directory at `<user_dir>/Files/seals`
-    -   In the `seals` directory, your code is in `seals_dev`
-    -   In the `seals` directory, you also will have a `projects` directory
-        -   This is created automatically if its not there
-        -   All data and outputs will be saved in this directory
-            -   As a best practice, you should not save data in the `seals_dev` directory
--   Given the directory structure above, p.project_name will also be use
-
-:::
-
-
-
-
-# files that already exist.
-::: r-fit-text
-# Naming the project explicitly places it at ~/<extra_dirs>/<project_name>.
-# run_mode='full' gives each run a fresh timestamped dir; use run_mode='check' if you
-# don't want to recreate everything each time.
-:::
-
-# All files will be created in this project_dir.
-p = hb.ProjectFlow(project_name='test_examples', run_mode='full',
-                   extra_dirs=['Files', 'seals', 'projects'])
+def build_task_tree(p):
+    seals_initialize_project.build_standard_task_tree(p)
 ```
-
-## Using Objects
-
-::: r-fit-text
-- The `p` object we created will organize input variables (called attributes when assigned to an object)
-  - Like this: `p.attribute_name = 'ItsName'`
-- The `p` object also has functions tied specificially to it (called methods when assigned to an object)
-  - Such as: `p.validate_name()`
-  - Methods operate on the object that defined it
-    - So `validate_name()` is specifically looking at the `p` object, often doing something to the `p` object, like fixing value of `p.attribute_name`
 :::
 
-# Scenario Definitions
-
-## Scenario definitions CSV
+## Part 2: run_project
 
 ::: r-fit-text
-- The `scenario_definitions` file specifies what defines the many different scenarios you want to run
-  - Each row will be one scenario
-  - Each time the model runs a new scenario, it will update its attributes based on this row
-- If you haven't run SEALS yet, you won't have a `scenario_defintions` file, so it will download the default one on the first run
+- `run_project(p)` answers *how is it executed?* It takes only `p`
+- The rule that decides what goes where:
+  - **`run_project(p)` sets what no variant ever changes** — base data location,
+    processing resolution
+  - **the caller sets what a variant might** — project name, run mode, scenarios CSV
+- When a constant starts varying, it moves one line up into the caller. There is
+  no signature to edit and no default to keep in sync
 
 ``` python
-    p.scenario_definitions_filename = 'test_standard_scenarios.csv' 
+def run_project(p):
+    p.run_in_parallel = 1        # before the tree: it has parallel iterators
+    build_task_tree(p)
+    p.skip_tasks(p.tasks_to_skip)
+
+    p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data')
+    p.processing_resolution = 1.0
+
     p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
     seals_initialize_project.initialize_scenario_definitions(p)
+    seals_initialize_project.set_advanced_options(p)
+
+    p.execute()
+    return p
+```
+:::
+
+## Part 3: the \_\_main\_\_ guard
+
+::: r-fit-text
+- This is where the project is configured — two lines of actual choice
+- The guard is mandatory: importing a run file must never start a run. That is
+  what lets a second run file import this pipeline instead of copying it
+
+``` python
+if __name__ == '__main__':
+    p = hb.ProjectFlow(project_name='seals_standard', run_mode='check')
+    p.scenario_definitions_filename = 'standard_scenarios.csv'
+
+    run_project(p)
+```
+:::
+
+## The p object
+
+::: r-fit-text
+- `hb.ProjectFlow()` is a class — a recipe for an object. Calling it produces an
+  object, which we assign to `p`
+- `p` carries the project's **attributes**: `p.base_data_dir`,
+  `p.scenario_definitions_filename`, and so on
+- It also has **methods** that act on it: `p.add_task()`, `p.skip_tasks()`,
+  `p.get_path()`, `p.execute()`
+- Every task receives `p` and reads its configuration from it. That is how
+  configuration set in `__main__` reaches code deep in the library
+:::
+
+## Where the project directory goes
+
+::: r-fit-text
+- Not into the repo. Because the run file sits inside a cloned repo, ProjectFlow
+  places the project dir just *outside* it, at
+  `~/Files/seals/projects/<project_name>/`
+- You do not compute this path yourself, and you should not save data in
+  `seals_dev`
+- `run_mode` decides how much prior work is reused:
+  - `'check'` — reuse the stable dir, recompute only what is missing (the default)
+  - `'fresh_intermediate'` — redo all computation, keep `input/` (test projects only)
+  - `'full'` — a fresh timestamped dir; everything re-runs
+:::
+
+# Scenario definitions
+
+## The scenarios CSV
+
+::: r-fit-text
+- The scenarios CSV specifies the runs you want. **Each row is one scenario**
+- As the model iterates, it re-hydrates `p` from the row it is on — which is why
+  scenario-varying values belong in the CSV and not in the run file
+- The tracked copy lives in `input_template/` beside the run file. ProjectFlow
+  copies anything missing into the project's `input/` on first run and never
+  overwrites your working copy
+- If the named file is nowhere to be found, SEALS generates a default so a first
+  run still works
+
+``` python
+p.scenario_definitions_filename = 'standard_scenarios.csv'
 ```
 :::
 
 ## Scenario types
 
-- Scenario type determines if it is historical (baseline) or future (anything else) as well as what the scenario should be compared against. I.e., Policy minus BAU.
-
-``` python
-p.scenario_type = 'bau'
-```
+::: r-fit-text
+- `scenario_type` is a **column in the CSV**, not something a run file sets
+- `baseline` — the observed anchor; not downscaled, supplies base-year LULC
+- `policy` — a trajectory to downscale, compared against a counterfactual
+- `bau` — business-as-usual, being deprecated in favour of `baseline`; it still
+  appears in shipped CSVs
+- Full column reference:
+  [scenarios_format.md](https://github.com/jandrewjohnson/seals_dev/blob/main/docs/scenarios_format.md)
+:::
 
 ## Automatically downloading data
 
 ::: r-fit-text
-- This computing stack also uses hazelbean to automatically download needed data at run time.
-  - In the code block below, we set p.base_data_dir to a location where we want to store lots of very large files.
-  - Hazelbean will look here for certain files that are necessary and will download them from a cloud bucket if they are not present. T
-  - This also lets you use the same base data across different projects.
-- The final directory has to be named base_data to match the naming convention on the google cloud bucket.
+- Paths in the CSV are **ref_paths** — relative locations resolved by
+  `p.get_path()`, which searches the project `input/` dir, then `base_data`, then
+  a cloud bucket, downloading what is missing
+- `p.base_data_dir` is where those downloads land. Point it somewhere with room
+  for very large files; the same base data serves every project
+- The directory must be named `base_data` to match the bucket convention
+- The default bucket is public — no credentials needed
 
 ``` python
-p.base_data_dir = os.path.join('Files/base_data')
+p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data')
 ```
 :::
 
-## Running the model
+# Running it
+
+## Run the model
 
 ::: r-fit-text
-After doing the above steps, you should be ready to run `run_test_seals.py`. Upon starting, SEALS will report the "task tree" of steps that it will compute in the ProjectFlow environment. To understand SEALS in more depth, inspect each of the functions that define these tasks for more documention in the code.
+``` bash
+conda activate <your_env>
+cd seals_dev/seals
+python run_seals_standard_test.py
+```
 
-Once the model is complete, go to your project directory, and then the intermediate directory. There you will see one directory for each of the tasks in the task tree. To get the final produce, go to the stitched_lulc_simplified_scenarios directory. There you will see the base_year lulc and the newly projected lulc map for the future year:
-
-\[THIS IS NOT THE CORRECT IMAGE\]
+- On startup SEALS prints the **task tree** it is about to compute
+- To understand the model in depth, read the task functions behind those names
+- Run the same command a second time: it finishes almost immediately, because
+  every task is behind an existence check and completed work is skipped
 :::
+
+## Find the output
+
+::: r-fit-text
+- Go to `~/Files/seals/projects/seals_standard_test/intermediate/`
+- There is one directory per task in the tree
+- The downscaled maps are in `stitched_lulc_simplified_scenarios/`, for example:
+
+```
+lulc_esa_seals7_ssp2_rcp45_luh2-message_bau_2030.tif
+```
+
+- Open it in QGIS alongside the base-year LULC and compare — that is your
+  high-resolution land-use change projection
+:::
+
+## Next
+
+- [Quickstart](seals_quickstart.qmd) — the condensed version of this page
+- [Conventions](conventions.qmd) — the full run-file rules
+- [Project complexity](project_complexity.qmd) — why run files are shaped this way

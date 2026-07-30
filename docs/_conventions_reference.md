@@ -690,6 +690,46 @@ splitting each multi-byte character into garbled pieces.
   Test files use the `_test` **suffix** (`run_<project>_test.py`,
   `run_<project>_<variant>_test.py`), never a `run_test_*` prefix.
 
+## Slides from prose: `*_marked.qmd` and revealjs
+
+Some pages double as **slide decks**. Rather than maintaining a prose page and a
+deck separately, we write one ordinary `.qmd` and generate the deck from it.
+
+- **`<page>.qmd` is the source and the only file you edit.** It is plain prose
+  with `#`/`##` headings, and renders normally as a website page.
+- **`<page>_marked.qmd` is GENERATED. Never edit it by hand** — your edits are
+  destroyed the next time the deck is built. The `_marked` suffix means exactly
+  this: "auto-generated slide version of the file with the same stem." Regenerate
+  it after any change to the source.
+- Generation is two hazelbean calls, usually wrapped in a small script (see
+  `website_dev/scripts/create_seals_walkthrough_slides.py`):
+
+  ``` python
+  marked_path = hb.suri(src_qmd_path, 'marked')          # <page>.qmd -> <page>_marked.qmd
+  hb.qmd_path_to_marked_qmd_path(src_qmd_path, marked_path)
+  hb.qmd_to_revealjs(marked_path)                        # quarto render
+  ```
+
+**What the marking pass does** (`hb.qmd_path_to_marked_qmd_path`): it prepends a
+revealjs YAML header if the source has none, splits content into slides at `#`
+and `##` headings, expands the slide tags below, and auto-wraps any slide whose
+content exceeds ~300 characters in `::: r-fit-text` so it scales to the slide.
+
+**Slide tags** are written inline in a heading in the *source* file and are
+expanded by the marking pass. They are inert in the prose rendering, so a tagged
+source page still reads correctly as a web page:
+
+| tag | effect on the generated slide |
+|-----|-------------------------------|
+| `<imgbg>` | uses the slide's image as a full-bleed background |
+| `<nonincremental>` | reveals the whole list at once instead of bullet by bullet |
+| `<list-left-images-right>` | two columns — list at 70% left, images at 30% right |
+
+Because the deck is generated, **keep the source free of anything that only makes
+sense in one medium**. Screenshots in particular age badly and are invisible to
+search; prefer text and fenced code blocks, which carry to both renderings and
+stay correct when the code changes.
+
 ## Git workflow
 
 We use **Git Flow** (a `main` branch plus a `develop` branch):

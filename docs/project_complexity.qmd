@@ -228,7 +228,7 @@ A run file's complexity is three independent questions. A project sits somewhere
 ### Configuration — how a run varies
 
 | level | what it adds | template |
-|------------------|--------------------------------|-----------------------|
+|------------------|-------------------------------|-----------------------|
 | 1 | one task; constants inline | `run_template_1_minimal.py` |
 | 2 | a task tree; constants inline | `run_template_2_script_with_tree.py` |
 | 3 | \+ a scenarios CSV: the rows of work become data | `run_template_3_canonical.py` |
