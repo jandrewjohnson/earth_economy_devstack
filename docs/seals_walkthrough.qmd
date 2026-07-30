@@ -67,18 +67,13 @@ if __name__ == '__main__':
 - Given the directory structure above, p.project_name will also be use
 
 ``` python
-# Assign project-level attributes to the p object (such as in p.base_data_dir = ... below)
-# including where the project_dir and base_data are located.
-# The project_name is used to name the project directory below. If the directory exists, each task will not recreate
-# files that already exist. 
-p.user_dir = os.path.expanduser('~')        
-p.extra_dirs = ['Files', 'seals', 'projects']
-p.project_name = 'test_examples'
-p.project_name = p.project_name + '_' + hb.pretty_time() # If don't you want to recreate everything each time, comment out this line.
-
-# Based on the paths above, set the project_dir. All files will be created in this directory.
-p.project_dir = os.path.join(p.user_dir, os.sep.join(p.extra_dirs), p.project_name)
-p.set_project_dir(p.project_dir) 
+# Instead of the bare hb.ProjectFlow() above, name the project explicitly and it is
+# placed at ~/<extra_dirs>/<project_name>. All files will be created in this directory.
+# run_mode='full' gives each run a fresh timestamped dir; use run_mode='check' if you
+# don't want to recreate everything each time — then each task will not recreate
+# files that already exist.
+p = hb.ProjectFlow(project_name='test_examples', run_mode='full',
+                   extra_dirs=['Files', 'seals', 'projects'])
 ```
 
 ## Using Objects

@@ -22,13 +22,13 @@
 
 **Step 1:**
 
--   Install RunGTAP at <https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp>
+- Install RunGTAP at <https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp>
 
--   At <https://www.copsmodels.com/gpeidl.htm> download: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe> 
+- At <https://www.copsmodels.com/gpeidl.htm> download: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.1.004-install.exe> 
 
-    -   OR FOR VERSION 12: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe>
+  - OR FOR VERSION 12: <https://www.copsmodels.com/ftp/ei12dl/gpei-12.0.004-install.exe>
 
--   Install to default location
+- Install to default location
 
 ![](images/paste-13.png)
 
@@ -44,13 +44,13 @@ TO PROCEED, YOU NEED TO HAVE A ACCESS TO THE GTAP DATABASE. OR YOU CAN ACCESS IT
 
 **Step 2.2:** - Install the GTAP Database itself from at : <https://www.gtap.agecon.purdue.edu/databases/download.asp>
 
--   Make sure to also get the AEZ version, which will also give a full pkg file.
+- Make sure to also get the AEZ version, which will also give a full pkg file.
 
 ![](images/paste-11.png)
 
--   Put this `.pkg` file in `GTPAg2` dir. 
+- Put this `.pkg` file in `GTPAg2` dir. 
 
--   Launch GTPAg2, identify pkg file for both default and AEZ data
+- Launch GTPAg2, identify pkg file for both default and AEZ data
 
 When running aggregations, make sure to choose the right product:
 
@@ -60,23 +60,23 @@ When running aggregations, make sure to choose the right product:
 
 ![](images/paste-14.png)
 
--   Use this to aggregate a 1-1 version.
+- Use this to aggregate a 1-1 version.
 
-    -   Create a 1-1 mapping
+  - Create a 1-1 mapping
 
-        -   View change regional aggregation, sector aggregation, setting to 1:1
+    - View change regional aggregation, sector aggregation, setting to 1:1
 
-        -   For factor aggregation, it defaults to 8-5, can set this to 8:8.
+    - For factor aggregation, it defaults to 8-5, can set this to 8:8.
 
-    -   Read aggregation scheme from file, loa default.agg is 10 by 10
+  - Read aggregation scheme from file, loa default.agg is 10 by 10
 
-    -   For factors, if using AEZ, there is land specified by each AEZ. Erwin is working to fix this. Because didn’t have it ready, went back to standard GTAP package of data.
+  - For factors, if using AEZ, there is land specified by each AEZ. Erwin is working to fix this. Because didn’t have it ready, went back to standard GTAP package of data.
 
-    -   Used full 8 factors, make new things “mobile factors”.
+  - Used full 8 factors, make new things “mobile factors”.
 
 <!-- -->
 
--   Save aggregation scheme to file to AggStore
+- Save aggregation scheme to file to AggStore
 
 ![](images/paste-15.png)
 
@@ -86,7 +86,7 @@ Save aggregation scheme to file to AggStore
 
 This could also be done by making the .agg file via text editing. 
 
--   Then finally Create aggregated database in GTAPAgg
+- Then finally Create aggregated database in GTAPAgg
 
 ![](images/paste-18.png)
 
@@ -96,47 +96,47 @@ Note that this creates two versions of the database, one for GTAP code v6.2, one
 
 **Getting the v7 code**
 
--   Extract from RunGTAP (lol)
+- Extract from RunGTAP (lol)
 
--   Under Version, Change, set to `NCORS3x3`
+- Under Version, Change, set to `NCORS3x3`
 
--   Under Version, New, use wizard using same aggregation and simply copying.
+- Under Version, New, use wizard using same aggregation and simply copying.
 
 ![](images/paste-19.png)
 
--   This will create a new folder in c:/runGTAP375 named v7all.
+- This will create a new folder in c:/runGTAP375 named v7all.
 
--   Now we will replace the data files in v7all with the fully disaggregated database (in the v7 dir) we created above.
+- Now we will replace the data files in v7all with the fully disaggregated database (in the v7 dir) we created above.
 
--   Notice also in the v7dir we have shock files, e.g. `tinc.shk`. 
+- Notice also in the v7dir we have shock files, e.g. `tinc.shk`. 
 
-    -   By default, these will be inherited from the old 3x3 version.
+  - By default, these will be inherited from the old 3x3 version.
 
-    -   Under Tools, Run Test Simulation. This will rewrite new shk files to match aggregation.
+  - Under Tools, Run Test Simulation. This will rewrite new shk files to match aggregation.
 
-        -   ALSO NOTE, this is the full run that tested it all worked.
+    - ALSO NOTE, this is the full run that tested it all worked.
 
-    -   To check that it worked, go to results, macros. 
+  - To check that it worked, go to results, macros. 
 
-    -   Or, could open results in `ViewSOL`. Use View -\> Results Using ViewSOL
+  - Or, could open results in `ViewSOL`. Use View -\> Results Using ViewSOL
 
-        -   `ViewSOL` has the full results, whereas RunGTAP only has a subset by the limited mapping specific to `RunGTAP`. `ViewSOL` loads the whole `sl4` file.
+    - `ViewSOL` has the full results, whereas RunGTAP only has a subset by the limited mapping specific to `RunGTAP`. `ViewSOL` loads the whole `sl4` file.
 
-        -   Here you could go to e.g. `pgdp` to see that prices all went up by 10%, which is the default shock i guess?
+    - Here you could go to e.g. `pgdp` to see that prices all went up by 10%, which is the default shock i guess?
 
-    -   OR, from `ViewSOL` File, can open in `ViewHAR`, which gives even more power, such as dimensional sorting.
+  - OR, from `ViewSOL` File, can open in `ViewHAR`, which gives even more power, such as dimensional sorting.
 
--   Now we can run a non-trivial shock. So for global ag productivity shock, let’s increase productivity.
+- Now we can run a non-trivial shock. So for global ag productivity shock, let’s increase productivity.
 
-    -   In `RunGTAP`, go to view `RunCMFSTART` file. Here we will define a new set for the new experiments. (`CMFSTART` files sets settings for runtime, but also which are the files that should be called, along with sets for the closure).
+  - In `RunGTAP`, go to view `RunCMFSTART` file. Here we will define a new set for the new experiments. (`CMFSTART` files sets settings for runtime, but also which are the files that should be called, along with sets for the closure).
 
-        -   To do this, go to `RunGTAP-\>View-\>Sets`, enable advanced editing, `Sets-\>View Set Library`
+    - To do this, go to `RunGTAP-\>View-\>Sets`, enable advanced editing, `Sets-\>View Set Library`
 
-            -   Here click on `COMM`, copy elements in `tablo` format. This will get the set definition in `tablo` format of ALL the commodities. From this you can pare down to which you want to shock,
+      - Here click on `COMM`, copy elements in `tablo` format. This will get the set definition in `tablo` format of ALL the commodities. From this you can pare down to which you want to shock,
 
-            -   For the moment, we will create two sets, one for ag commodities (`ag_comm`), and one for a smaller subset of agg commodities (`ag_comm_sm`).
+      - For the moment, we will create two sets, one for ag commodities (`ag_comm`), and one for a smaller subset of agg commodities (`ag_comm_sm`).
 
-            -   And will also define what is the complementary set (`xag_comm_sm`) of `ag_comm_sm`.
+      - And will also define what is the complementary set (`xag_comm_sm`) of `ag_comm_sm`.
 
 ![](images/paste-20.png)
 
@@ -144,41 +144,41 @@ Now that the sets are defined, can use them in defining the SHOCKS
 
 ![](images/paste-21.png)
 
--   Set the solution method to `gragg 2-4-6`
+- Set the solution method to `gragg 2-4-6`
 
--   Save experiment.
+- Save experiment.
 
--   Then Solve!
+- Then Solve!
 
-    -   Comment from TOM: If Gragg doesn’t work, use Euler with many steps 20-50
+  - Comment from TOM: If Gragg doesn’t work, use Euler with many steps 20-50
 
 **From second call with Erwin on cmd and rungtap versions**
 
--   Note that now we have a tax, we do it on both domestic and imported, then write a new equation that makes them sum up: 
+- Note that now we have a tax, we do it on both domestic and imported, then write a new equation that makes them sum up: 
 
-    -   E_tpm (all, c, COMM)(all, r, REG) tmp(c, r) = tpmall + tpreg + tpall
+  - E_tpm (all, c, COMM)(all, r, REG) tmp(c, r) = tpmall + tpreg + tpall
 
--   Note that we now set the rate% of beef tax to increase 50%. Before we were increasing it by a 50% POWER OF THE tariff.
+- Note that we now set the rate% of beef tax to increase 50%. Before we were increasing it by a 50% POWER OF THE tariff.
 
--   First run testsim.bat.
+- First run testsim.bat.
 
--   Then run the simulations.
+- Then run the simulations.
 
--   In rungtapv7.bat then, 
+- In rungtapv7.bat then, 
 
--   Simresults.bat last. Takes the sl4 files and converts it into a har file (.sol), and then combines them into 1 file, then splits to CSV.
+- Simresults.bat last. Takes the sl4 files and converts it into a har file (.sol), and then combines them into 1 file, then splits to CSV.
 
--   RMAC is full dimension, RMCA is aggregated by chosen aggregation simplification.
+- RMAC is full dimension, RMCA is aggregated by chosen aggregation simplification.
 
-    -   AggMap.har defines the aggregation.
+  - AggMap.har defines the aggregation.
 
--   Them Allres.CMF is run, which actually does the aggregation.
+- Them Allres.CMF is run, which actually does the aggregation.
 
-    -   Allres.cmf calls to allres.tab, which cleans the results. This would need to have new scenarios added to the top
+  - Allres.cmf calls to allres.tab, which cleans the results. This would need to have new scenarios added to the top
 
--   Allres.EXP also needs to be updated, along with the scenario EXP files to h
+- Allres.EXP also needs to be updated, along with the scenario EXP files to h
 
--   ave thecorrect exogenous variables, such as tpdall
+- ave thecorrect exogenous variables, such as tpdall
 
 **alternatively just specify they use hb.get_path() to the private database.**
 
@@ -234,13 +234,13 @@ THESE TWO STAY OUTSIDE THE RELEASE
 
 9.  Simple question: Is there any way to read the raw GEMPACK output to get a sense of how close to complete you are? I would like to make an approximate progress bar.
 
--   When you say "automatic accuracy", you can.
+- When you say "automatic accuracy", you can.
 
-    +++\> Beginning subinterval number 4.
+  +++\> Beginning subinterval number 4.
 
-    ---\> Beginning pass number 1 of 2-pass calculation, subinterval 4.
+  ---\> Beginning pass number 1 of 2-pass calculation, subinterval 4.
 
-    Beginning pass number 6 of 6-pass calculation, subinterval 6
+  Beginning pass number 6 of 6-pass calculation, subinterval 6
 
 10. Would it be possible to not put a Y in front of years like Y2018? This can mess up string-\>int conversions.
 

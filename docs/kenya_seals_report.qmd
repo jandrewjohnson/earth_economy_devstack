@@ -26,8 +26,8 @@ For complete details, see Justin Johnson's [installation guide](https://justinan
 
 Before beginning, ensure you have:
 
--   **Git** - [Download here](https://git-scm.com/downloads)
--   **Miniforge3** (Python distribution) - [Download here](https://conda-forge.org/download/)
+- **Git** - [Download here](https://git-scm.com/downloads)
+- **Miniforge3** (Python distribution) - [Download here](https://conda-forge.org/download/)
 :::
 
 ::: {.callout-note collapse="true"}
@@ -61,15 +61,15 @@ mamba install hazelbean
 
 **Windows Users - Choose One Option:**
 
--   **Option 1:** Download from [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and select "Download Build Tools"
+- **Option 1:** Download from [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and select "Download Build Tools"
 
--   **Option 2:** Use winget command:
+- **Option 2:** Use winget command:
 
-    ``` bash
-    winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
-    ```
+  ``` bash
+  winget install Microsoft.VisualStudio.2022.BuildTools --force --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
+  ```
 
--   **Option 3:** Run the `install.bat` file from the Earth Economy Devstack repository root (executes the winget command above)
+- **Option 3:** Run the `install.bat` file from the Earth Economy Devstack repository root (executes the winget command above)
 
 **Mac/Linux Users:**
 
@@ -149,10 +149,10 @@ SEALS automatically downloads base data on first run to:
 
 This includes:
 
--   Region border files (shapefiles and raster GeoTIFFs)
--   DEMETRA shock files (CSV)
--   Downscaling coefficient files (CSV and global rasters)
--   Scenario configuration files
+- Region border files (shapefiles and raster GeoTIFFs)
+- DEMETRA shock files (CSV)
+- Downscaling coefficient files (CSV and global rasters)
+- Scenario configuration files
 
 ------------------------------------------------------------------------
 
@@ -204,7 +204,7 @@ This scenario demonstrates land-use change modeling for Kenya using DEMETRA econ
 
 **Scripts:**
 
--   Main execution script: `run_ken_demetra.py`
+- Main execution script: `run_ken_demetra.py`
 
 **Data Files:**
 
@@ -280,12 +280,12 @@ Each task is explained in detail below.
 1.  Loads the area of interest boundary for Kenya from the input shapefile
 2.  Creates a vector geopackage (`.gpkg`) file for the AOI
 3.  Generates raster "pyramids" at different resolutions:
-    -   Fine resolution: Matches the base LULC data (typically 300m)
-    -   Coarse resolution: Matches the coarse projection data (typically 0.25°)
+    - Fine resolution: Matches the base LULC data (typically 300m)
+    - Coarse resolution: Matches the coarse projection data (typically 0.25°)
 
 **Input files:**
 
--   Region shapefile from `projects/run_ken_demetra/inputs/borders`
+- Region shapefile from `projects/run_ken_demetra/inputs/borders`
 
 **Output files:**
 
@@ -299,11 +299,11 @@ intermediate/project_aoi/
 
 **Significance:**
 
--   The AOI defines the study region
-    -   Can use default global country shapefile or project-specific
--   Pyramids allow multi-scale analysis
--   Fine resolution preserves local detail
--   Coarse resolution matches global projections
+- The AOI defines the study region
+  - Can use default global country shapefile or project-specific
+- Pyramids allow multi-scale analysis
+- Fine resolution preserves local detail
+- Coarse resolution matches global projections
 
 ![Area of Interest for Kenya with resolution pyramids](images/kenya_fig-aoi.png)
 
@@ -318,13 +318,13 @@ intermediate/project_aoi/
 1.  Generated Kernels: Creates Gaussian kernels for spatial smoothing
 2.  LULC Clip: Clips global LULC data to the Kenya AOI
 3.  LULC Simplifications: Reclassifies detailed ESA categories into 7 SEALS classes:
-    -   Cropland
-    -   Forest
-    -   Grassland
-    -   Urban
-    -   Water
-    -   Other natural (othernat)
-    -   Other
+    - Cropland
+    - Forest
+    - Grassland
+    - Urban
+    - Water
+    - Other natural (othernat)
+    - Other
 4.  LULC Binaries: Creates separate binary masks for each class (1 = present, 0 = absent)
 5.  LULC Convolutions: Applies Gaussian smoothing to capture neighborhood characteristics
 
@@ -351,10 +351,10 @@ intermediate/fine_processed_inputs/
 
 **Significance:**
 
--   Simplification reduces complexity while preserving key land-use patterns
--   Binary masks enable class-specific analysis
--   Convolutions capture spatial context
--   These features inform the allocation model's decision-making
+- Simplification reduces complexity while preserving key land-use patterns
+- Binary masks enable class-specific analysis
+- Convolutions capture spatial context
+- These features inform the allocation model's decision-making
 
 ![Fine processed inputs example: Cropland processing pipeline](images/kenya_fig-fine-inputs.png)
 
@@ -383,8 +383,8 @@ intermediate/coarse_change/coarse_simplified_ha_difference_from_previous_year/
 
 **Significance:**
 
--   Links exogenous global scenarios (SSP2, RCP4.5) to local allocation
--   Tracks changes over time (2035 baseline → 2050 projection)
+- Links exogenous global scenarios (SSP2, RCP4.5) to local allocation
+- Tracks changes over time (2035 baseline → 2050 projection)
 
 ![Coarse-resolution cropland change (2035-2050) under LP+FP scenario](images/kenya_fig-coarse-change.png)
 
@@ -410,8 +410,8 @@ intermediate/regional_change/
 
 **Significance:**
 
--   Accounts for local factors (infrastructure, topography, current land use)
--   Bridges the gap between coarse change and regional change
+- Accounts for local factors (infrastructure, topography, current land use)
+- Bridges the gap between coarse change and regional change
 
 ![Regional + Coarse change for cropland allocation](images/kenya_fig-regional-change.png)
 
@@ -425,9 +425,9 @@ intermediate/regional_change/
 
 1.  Divides Kenya into allocation zones (e.g., zone 213_84)
 2.  For each zone, runs an allocation algorithm that:
-    -   Considers spatial covariates (convolutions, distance, etc.)
-    -   Respects constraints (protected areas, water bodies)
-    -   Tracks cumulative change
+    - Considers spatial covariates (convolutions, distance, etc.)
+    - Respects constraints (protected areas, water bodies)
+    - Tracks cumulative change
 3.  Produces new LULC maps for each scenario and year
 
 **Key Output Structure:**
@@ -442,9 +442,9 @@ intermediate/allocations/ssp2/rcp45/luh2-message/bau/2050/
 
 **Significance:**
 
--   This is the core of SEALS, where changes actually get placed on the landscape
--   Allocation uses machine learning and optimization to find the "best" locations
--   Results are spatially explicit: you can see exactly where cropland expanded
+- This is the core of SEALS, where changes actually get placed on the landscape
+- Allocation uses machine learning and optimization to find the "best" locations
+- Results are spatially explicit: you can see exactly where cropland expanded
 
 ![Example allocation zone showing LULC projection and cumulative change](images/kenya_fig-allocations.png)
 
@@ -473,9 +473,9 @@ intermediate/stitched_lulc_simplified_scenarios/
 
 **Significance:**
 
--   Provides complete LULC projections
--   Enables comparison across scenarios
--   Serves as input to ecosystem service models (InVEST)
+- Provides complete LULC projections
+- Enables comparison across scenarios
+- Serves as input to ecosystem service models (InVEST)
 
 ![Complete LULC projection for Kenya under LP+FP scenario (2050)](images/kenya_fig-stitched.png)
 
@@ -555,8 +555,8 @@ Calculates agricultural value and applies DEMETRA economic shocks based on polli
 2.  Maximum potential loss: Calculates loss if pollination disappeared completely
 3.  Pollination sufficiency threshold: Uses 0.3 as the critical threshold
 4.  Adjusted crop value: For each scenario:
-    -   If below threshold → apply proportional loss
-    -   If at or above threshold → maintain baseline value
+    - If below threshold → apply proportional loss
+    - If at or above threshold → maintain baseline value
 5.  Regional shocks: Calculates `shock_value = scenario_value / baseline_value` by region
 
 ````{=html}
@@ -583,9 +583,9 @@ intermediate/calculate_crop_value_and_shock/
 
 **Significance:**
 
--   Translates ecological changes (pollination) into economic impacts
--   Provides spatially explicit economic loss estimates
--   Generates shock values for DEMETRA CGE model integration
+- Translates ecological changes (pollination) into economic impacts
+- Provides spatially explicit economic loss estimates
+- Generates shock values for DEMETRA CGE model integration
 
 ![Pollination change and Crop value change](images/kenya_fig-crop-shock.png)
 
@@ -649,25 +649,25 @@ Output files will be generated in:
 
 **SEALS outputs:**
 
--   LULC geotiff files: `intermediate/stitched_lulc_simplified_scenarios/`
-    -   Land-use/land-cover predictions for each scenario year
--   LULC png files: `intermediate/visualization/lulc_pngs/`
-    -   Spatial representation of land-use transitions
+- LULC geotiff files: `intermediate/stitched_lulc_simplified_scenarios/`
+  - Land-use/land-cover predictions for each scenario year
+- LULC png files: `intermediate/visualization/lulc_pngs/`
+  - Spatial representation of land-use transitions
 
 **Project outputs:**
 
--   Figures: `intermediate/summarize_and_visualize_multi_vector/`
-    -   `biodiversity_combined`
-    -   `carbon_combined`
-    -   `carbon_total_combined`
-    -   `lulc_combined`
-    -   `pollination_combined`
-    -   `summary_visualizations`
+- Figures: `intermediate/summarize_and_visualize_multi_vector/`
+  - `biodiversity_combined`
+  - `carbon_combined`
+  - `carbon_total_combined`
+  - `lulc_combined`
+  - `pollination_combined`
+  - `summary_visualizations`
 
 ------------------------------------------------------------------------
 
 ## Additional Resources
 
--   SEALS Repository: <https://github.com/jandrewjohnson/seals_dev>
--   InVEST Documentation: <https://naturalcapitalproject.stanford.edu/software/invest>
--   InVEST Python Documentation: <https://invest.readthedocs.io/en/latest/index.html>
+- SEALS Repository: <https://github.com/jandrewjohnson/seals_dev>
+- InVEST Documentation: <https://naturalcapitalproject.stanford.edu/software/invest>
+- InVEST Python Documentation: <https://invest.readthedocs.io/en/latest/index.html>
