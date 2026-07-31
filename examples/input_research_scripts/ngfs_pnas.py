@@ -166,7 +166,7 @@ def run_project(scenario_definitions_filename='ngfs_pnas_scenarios.csv',
     run_mode selects how much prior work is reused:
       'check'              : stable project dir; standard ProjectFlow skip-existing
                              logic, so only missing files are recomputed.
-      'fresh_intermediate' : stable project dir, but its intermediate/ and outputs/
+      'fresh_intermediate' : stable project dir, but its intermediate/ and output/
                              are deleted first so all computation reruns while
                              input/ (machine backend config in parameters.csv,
                              seeded templates) is kept. Destructive, so refused
