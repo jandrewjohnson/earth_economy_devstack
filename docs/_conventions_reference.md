@@ -346,6 +346,20 @@ guard with `hb.path_exists`).
 
 ## Directory and file naming
 
+- **Name a directory for its *kind* of content, in the singular.** `input/`,
+  `output/`, `intermediate/`, `input_template/` — never `inputs/`, `outputs/`,
+  or `input_templates/`. The directory holds one *kind* of thing, and the
+  plural adds nothing: `output/` already contains many outputs, exactly as
+  `input/` contains many inputs. This matches the Python ecosystem's dominant
+  convention and keeps the directory name identical to the stem of the
+  attribute that points at it, so `p.output_dir` → `output/` with no
+  translation step. Reserve the plural for a directory holding many
+  *heterogeneous* items that share no single kind.
+- **Corollary: the `*_dir` attribute and its directory must agree.** A
+  singular attribute pointing at a plural directory (`p.output_dir` →
+  `outputs/`) is the failure mode this rule exists to prevent; it was the
+  actual state of `ProjectFlow` until 2026-07-31, alongside a vestigial
+  `p.inputs_dir` → `inputs/` that nothing read. Both are now singular.
 - **dir** — avoid as a standalone noun (directory or direction?); **use
   `directory`**. It *can* be a suffix (`temp_dir`), and is fine inside function
   names for brevity (`delete_dir()`, `create_dir()`), matching Unix heritage.
@@ -589,7 +603,7 @@ splitting each multi-byte character into garbled pieces.
 - **`run_mode` selects how much prior work is reused** (since 2026-07-24,
   replacing the old `append_timestamp` boolean): `'check'` (default) reuses the
   stable project dir with standard skip-existing logic; `'fresh_intermediate'`
-  deletes the stable dir's `intermediate/` and `outputs/` in place so everything
+  deletes the stable dir's `intermediate/` and `output/` in place so everything
   recomputes while `input/` (machine config) is kept — refused unless the
   resolved project name contains `'test'`; `'full'` mints a timestamped fresh
   project dir, also exercising `input_template/` seeding. `run_mode` is about

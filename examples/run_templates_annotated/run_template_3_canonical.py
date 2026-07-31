@@ -176,7 +176,7 @@ if __name__ == '__main__':
     #   'check'              stable project dir; standard skip-existing logic, so
     #                        only missing files are recomputed. What you want
     #                        almost always.
-    #   'fresh_intermediate' stable project dir, but intermediate/ and outputs/ are
+    #   'fresh_intermediate' stable project dir, but intermediate/ and output/ are
     #                        deleted first so all computation reruns while input/
     #                        (your edited CSVs) is kept. Refused unless the project
     #                        name contains 'test'.
