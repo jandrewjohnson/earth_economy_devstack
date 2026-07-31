@@ -24,7 +24,7 @@ If someone has given you a project repository that you want to run and it relies
 
 A project repository is one that owns a `run_<project>.py` plus its `input_template/` CSVs, and imports a devstack library rather than modifying it. It should carry its own installation steps in its readme; some also include a `setup_environment.bat` or shell script that builds the environment for you. Note that you need a C/C++ compiler installed, so be sure to read that section below.
 
-If you are starting a project of your own rather than running someone else's, copy [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py) as the seed — it is the worked example of importing a library read-only and adding your own tasks around its task tree.
+If you are starting a project of your own rather than running someone else's, see [Run Templates](run_templates.qmd) and copy `run_template_downstream_user.py` as the seed — it is the worked example of importing a library read-only and adding your own tasks around its task tree.
 
 ## 3. Developer Installation
 

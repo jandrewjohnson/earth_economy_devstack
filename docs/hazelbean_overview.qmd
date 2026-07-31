@@ -1,19 +1,65 @@
 # Hazelbean
 
-Hazelbean is a collection of geospatial processing tools based on gdal, numpy, scipy, cython, pygeoprocessing, taskgraph, natcap.invest, geopandas and many others to assist in common spatial analysis tasks in sustainability science, ecosystem service assessment, global integrated modelling assessment, natural capital accounting, and/or calculable general equilibrium modelling.
+Hazelbean is the shared base library of the Earth-Economy Devstack. Every model
+in the stack — SEALS, GTAP-InVEST, GTAPpy, global_invest — imports it, and it
+supplies two distinct things:
 
-Note that for all of the features of hazelbean to work, your computer will need to be configured to compile Cython files to C code. This workflow is tested in a Python 3.10, 64 bit Windows environment. It should work on other system environments, but this is not yet tested.
+- **Geospatial and analytical utilities** built on GDAL, NumPy, SciPy, Cython,
+  pygeoprocessing, taskgraph, natcap.invest and geopandas, for common tasks in
+  sustainability science, ecosystem service assessment, integrated modelling,
+  natural capital accounting and CGE modelling.
+- **ProjectFlow**, the task-tree engine that gives every model its project
+  directory layout, skip-if-already-computed re-runs, automatic base-data
+  download, and parallel iteration.
 
 ## Installation
 
-Follow the instructions in the Earth-Economy Devstack repository.
+``` bash
+pip install hazelbean
+```
 
-## Quickstart
+For the developer install from a clone --- and the C/C++ compiler needed to build
+the Cython extensions --- see [Installation](installation.qmd).
 
-Test that hazelbean imports correctly. Importing it will trigger compilation of the C files if they are not there.
+Test that it imports. This also triggers compilation of the Cython files if they
+are not already built:
 
 ``` python
 import hazelbean as hb
 ```
 
-From here, explore examples of the useful spatial, statistical and economic functions in the examples section of this documentation. A good starting example would be the `zonal_statistics` function. These functions are documented in their code declarations and in the Hazelbean Spatial Algorithms section. #TODOO\[Make Link\]. Anothr good starting point would be to understand the `ProjectFlow()` object, which is described in the project_flow page #TODOO\[make link\]
+## Where to go next
+
+| page | what it covers |
+|------|----------------|
+| [Learning path](hazelbean_learning_path.qmd) | a guided route through the library, from first import to a full workflow |
+| [Tutorial examples](hazelbean_examples.qmd) | a worked progression: project setup, data loading, processing, analysis, exporting results |
+| [Troubleshooting](hazelbean_troubleshooting.qmd) | common environment, compilation and runtime problems |
+| [ProjectFlow](project_flow.qmd) | the task-tree engine in depth |
+| [Project complexity](project_complexity.qmd) | the three axes that describe how a run file is organized, and why |
+| [Conventions](conventions.qmd) | the naming, path and run-file rules every repo follows |
+
+## What it provides
+
+**Geospatial processing** --- raster read/write and processing, vector operations
+over shapefiles and GeoPackages, Cloud Optimized GeoTIFF (COG) creation and
+validation, and Performance Optimized GeoTIFFs (POG) for speed.
+
+**Larger-than-memory computation** --- `hb.raster_calculator()` streams a
+computation chunk by chunk across cores, so a global raster never has to load at
+once.
+
+**Path resolution and data acquisition** --- `p.get_path()` resolves a relative
+*ref_path* against the project input directory, then base data, then a cloud
+bucket, downloading whatever is missing. One `base_data` directory serves every
+project on a machine.
+
+**ProjectFlow** --- projects, task trees, existence-checked tasks, `run_mode`
+reuse policy, and parallel iterators. See [ProjectFlow](project_flow.qmd).
+
+## Source and release history
+
+Hazelbean is developed at
+[github.com/jandrewjohnson/hazelbean_dev](https://github.com/jandrewjohnson/hazelbean_dev).
+Its release history is in the repository's `CHANGELOG.md`, and is summarized on
+the [Release Notes](release_notes.qmd) page.

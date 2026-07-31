@@ -1,8 +1,8 @@
 ---
-title: "Examples: run templates and reference run files"
+title: "Run templates"
 ---
 
-Everything in `examples/` exists to answer one question: **what should my run file
+The `examples/` directory of the devstack repository exists to answer one question: **what should my run file
 look like?** A run file is the single script that builds a ProjectFlow, defines a
 task tree, and executes it — the file a collaborator opens first and the file you
 copy when you start a project.
@@ -15,6 +15,17 @@ The directory holds four kinds of material:
 | **Run templates, annotated** — the same levels with every decision explained | `run_templates_annotated/` | learning why the templates look like that |
 | **Real run files and raw research scripts** | `input_research_scripts/` | seeing the conventions applied to real models, and what they replace |
 | **Data examples** | `scenario_definitions_examples/`, each template dir's `input_template/` | the CSVs that drive the run files |
+
+## Where the files are
+
+The templates are Python files in the devstack repository, not on this site.
+Browse or copy them here:
+
+- [`examples/run_templates/`](https://github.com/jandrewjohnson/earth_economy_devstack/tree/main/examples/run_templates) --- the copy-me set
+- [`examples/run_templates_annotated/`](https://github.com/jandrewjohnson/earth_economy_devstack/tree/main/examples/run_templates_annotated) --- the same code with the reasoning written out
+- [`examples/input_research_scripts/`](https://github.com/jandrewjohnson/earth_economy_devstack/tree/main/examples/input_research_scripts) --- real run files and the raw scripts they replace
+
+Clone the repo, or copy a single file straight out of GitHub.
 
 ## Start here
 
@@ -57,7 +68,7 @@ Only configuration is numbered, because only configuration is a ladder climbed i
 order. The axes are independent — `global_invest`'s service runners are
 configuration level 2 with a library-package layout. Every template's docstring
 states its position on all three. The full model is in
-[project_complexity.qmd](../docs/project_complexity.qmd).
+[project_complexity.qmd](project_complexity.qmd).
 
 ## The four configuration levels
 
@@ -69,10 +80,10 @@ complexity rather than adopt it.
 
 | # | file | adds | promote when |
 |---|------|------|--------------|
-| 1 | `run_template_1_minimal.py` | one task function, `p.add_task()`, `p.execute()` | you add a second task |
-| 2 | `run_template_2_script_with_tree.py` | `build_task_tree(p)`; several tasks that chain by publishing paths; constants inline in `__main__` | you want a second *variant* of the run |
-| 3 | `run_template_3_canonical.py` | `run_project(p)` + a **scenarios CSV**; variants are data, not forked code | a machine-specific value tries to enter the code |
-| 4 | `run_template_4_data_driven.py` | a **parameters CSV**, nested tasks via `parent=`, a cross-scenario report task | you need parallel iterators or more CSV classes |
+| 1 | [`run_template_1_minimal.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_1_minimal.py) | one task function, `p.add_task()`, `p.execute()` | you add a second task |
+| 2 | [`run_template_2_script_with_tree.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_2_script_with_tree.py) | `build_task_tree(p)`; several tasks that chain by publishing paths; constants inline in `__main__` | you want a second *variant* of the run |
+| 3 | [`run_template_3_canonical.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_3_canonical.py) | `run_project(p)` + a **scenarios CSV**; variants are data, not forked code | a machine-specific value tries to enter the code |
+| 4 | [`run_template_4_data_driven.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_4_data_driven.py) | a **parameters CSV**, nested tasks via `parent=`, a cross-scenario report task | you need parallel iterators or more CSV classes |
 
 Alongside the four rungs, `run_templates/run_template_seals_example.py` is the
 same anatomy applied to a **real model**: `build_task_tree` delegates unchanged to
@@ -99,8 +110,8 @@ the only difference is the axis named.
 
 | file | axis it moves | what changes |
 |------|---------------|--------------|
-| `run_template_split_layout.py` | **Code layout** → split | tasks leave the run file for four siblings: `caloric_yield_tasks.py`, `_functions.py`, `_utils.py`, `_initialize_project.py`. Exactly one function in the run file changes — `build_task_tree` now delegates instead of containing. |
-| `run_template_downstream_user.py` | **Ownership** → downstream user | imports `caloric_yield_initialize_project` as a read-only dependency, then adds its *own* task after the library builder returns. Note it is back to a single-file layout while being further along ownership — the axes really are independent. |
+| [`run_template_split_layout.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_split_layout.py) | **Code layout** → split | tasks leave the run file for four siblings: `caloric_yield_tasks.py`, `_functions.py`, `_utils.py`, `_initialize_project.py`. Exactly one function in the run file changes — `build_task_tree` now delegates instead of containing. |
+| [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py) | **Ownership** → downstream user | imports `caloric_yield_initialize_project` as a read-only dependency, then adds its *own* task after the library builder returns. Note it is back to a single-file layout while being further along ownership — the axes really are independent. |
 
 The `_utils` / `_functions` split is the rule worth internalising:
 `<project>_utils.py` is science-unaware and therefore a **promotion queue** — when
@@ -186,7 +197,7 @@ fill it in your machine's `input/` copy, and it never reaches the code or git.
 | `template_4_parameters.csv` | `key,value` constants: `ndv`, `n_rows`, `n_cols`, and blank `data_credentials_path` |
 
 The three-column scenarios CSV in these templates is **illustrative only**. The
-real schema is specified in [scenario_definitions.qmd](../docs/scenario_definitions.qmd);
+real schema is specified in [scenario_definitions.qmd](scenario_definitions.qmd);
 worked instances of it are in `scenario_definitions_examples/`.
 
 ## The two template sets
@@ -237,7 +248,7 @@ the reference implementations that conversion produces. Read these; copy from
 ## Data examples
 
 `scenario_definitions_examples/` holds instances of the **v2** scenario
-definitions schema specified in [scenario_definitions.qmd](../docs/scenario_definitions.qmd):
+definitions schema specified in [scenario_definitions.qmd](scenario_definitions.qmd):
 
 - `single_stage_seals.csv` — a SEALS-only project, including a hindcast year.
 - `multi_stage_ngfs.csv` — GTAP + SEALS: a 2020-anchored canonical clock with a `gtap` stage clock.
@@ -245,7 +256,7 @@ definitions schema specified in [scenario_definitions.qmd](../docs/scenario_defi
 
 ## Where to go next
 
-- [project_complexity.qmd](../docs/project_complexity.qmd) — the ladder from a one-off script to a systematic project, and why each rung is earned.
-- [project_flow.qmd](../docs/project_flow.qmd) — the ProjectFlow engine itself: tasks, iterators, project dirs, `get_path`.
-- [conventions.qmd](../docs/conventions.qmd) — the full EE Spec naming and structure rules.
-- [scenario_definitions.qmd](../docs/scenario_definitions.qmd) — the scenarios CSV schema.
+- [project_complexity.qmd](project_complexity.qmd) — the ladder from a one-off script to a systematic project, and why each rung is earned.
+- [project_flow.qmd](project_flow.qmd) — the ProjectFlow engine itself: tasks, iterators, project dirs, `get_path`.
+- [conventions.qmd](conventions.qmd) — the full EE Spec naming and structure rules.
+- [scenario_definitions.qmd](scenario_definitions.qmd) — the scenarios CSV schema.

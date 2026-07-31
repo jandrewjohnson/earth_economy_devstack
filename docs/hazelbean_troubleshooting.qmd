@@ -1,0 +1,393 @@
+---
+title: "Troubleshooting Guide"
+---
+
+# Troubleshooting Guide
+
+This guide covers common issues you might encounter while working with Hazelbean documentation and development environment.
+
+## Quarto Documentation Server Issues
+
+### Server Won't Start
+
+**Symptom:** `quarto preview` command fails or hangs
+
+**Solutions:**
+
+1. **Check if Quarto is installed:**
+   ```bash
+   quarto --version
+   ```
+   If not installed, follow [Quarto installation guide](https://quarto.org/docs/get-started/)
+
+2. **Port already in use:**
+   ```bash
+   # Check if port 4200 is occupied
+   lsof -i :4200
+   
+   # Kill the process if needed
+   kill <PID>
+   
+   # Or use a different port
+   quarto preview --port 4201
+   ```
+
+3. **Permission issues:**
+   ```bash
+   # Ensure you're in the correct directory
+   cd docs-site/quarto-docs
+
+   # Check file permissions
+   ls -la _quarto.yml
+   ```
+
+### Infinite Loop During Preview
+
+**Symptom:** `quarto preview` keeps rebuilding endlessly, never stabilizing
+
+**Cause:** A `pre-render` hook in `_quarto.yml` generates `.qmd` files, which triggers Quarto's file watcher, which re-runs the pre-render hook, creating an infinite loop.
+
+**Solution:**
+
+1. **Check for pre-render hooks that generate files:**
+   ```bash
+   grep -n "pre-render" docs-site/quarto-docs/_quarto.yml
+   ```
+
+2. **Run report generation manually instead:**
+   ```bash
+   # From project root
+   python tools/generate_all_reports.py
+
+   # Then preview
+   cd docs-site/quarto-docs
+   quarto preview
+   ```
+
+3. **Or use the convenience script:**
+   ```bash
+   ./tools/preview_docs.sh
+   ```
+
+**Note:** The pre-render hook works fine with `quarto render` (one-time build), but causes issues with `quarto preview` (live file watching).
+
+### Rendering Failures
+
+**Symptom:** `quarto render` produces errors
+
+**Common causes and fixes:**
+
+1. **Missing dependencies:**
+   ```bash
+   conda activate <your_env>
+   conda install -c conda-forge quarto
+   ```
+
+2. **Broken links in QMD files:**
+   - Check error messages for specific file paths
+   - Verify all referenced files exist
+   - Use relative paths consistently
+
+3. **Malformed markdown:**
+   - Check fenced code blocks are properly closed
+   - Verify YAML front matter is valid
+   - Ensure callout blocks have proper syntax: `::: {.callout-note}`
+
+## Environment Issues
+
+### Conda Environment Activation
+
+**Symptom:** `conda: command not found` or environment won't activate
+
+**Solutions:**
+
+1. **Initialize conda:**
+   ```bash
+   # For bash
+   conda init bash
+   
+   # For zsh
+   conda init zsh
+   
+   # Restart your shell
+   ```
+
+2. **Verify environment exists:**
+   ```bash
+   conda env list
+   ```
+
+3. **Recreate environment if corrupted:**
+   ```bash
+   conda env remove -n <your_env>
+   conda env create -f environment.yml
+   ```
+
+### Import Errors
+
+**Symptom:** `ModuleNotFoundError: No module named 'hazelbean'`
+
+**Solutions:**
+
+1. **Ensure environment is activated:**
+   ```bash
+   conda activate <your_env>
+   python -c "import sys; print(sys.prefix)"
+   ```
+
+2. **Reinstall hazelbean:**
+   ```bash
+   cd /path/to/hazelbean_dev
+   pip install -e . --no-deps
+   ```
+
+3. **Check Python path:**
+   ```bash
+   python -c "import sys; print('\n'.join(sys.path))"
+   ```
+
+## Cython Compilation Issues (Windows)
+
+### Missing Compiler
+
+**Symptom:**
+```
+error: Microsoft Visual C++ 14.0 or greater is required
+```
+
+**Solutions:**
+
+1. **Install conda compiler (recommended):**
+   ```bash
+   conda activate <your_env>
+   conda install -c conda-forge m2w64-toolchain libpython
+   pip install -e . --no-deps --force-reinstall
+   ```
+
+2. **Install Visual Studio Build Tools:**
+   - Download from https://visualstudio.microsoft.com/downloads/
+   - Select "Build Tools for Visual Studio 2022"
+   - Check "Desktop development with C++"
+   - After install: `pip install -e . --no-deps --force-reinstall`
+
+### Import Error After Installation
+
+**Symptom:**
+```
+ImportError: cannot import name 'cython_functions' from 'hazelbean.calculation_core'
+```
+
+**Solution:**
+```bash
+python scripts/verify_installation.py
+```
+
+This script will diagnose the issue and provide specific solutions.
+
+## Testing and Coverage Issues
+
+### Coverage Report Shows 0%
+
+**Symptom:** Coverage reports show 0.0% coverage or no data
+
+**Solution:**
+
+1. **Run tests with coverage:**
+   ```bash
+   cd hazelbean_tests
+   conda activate <your_env>
+   pytest --cov=hazelbean --cov-report=json --cov-report=term
+   ```
+
+2. **Regenerate coverage report:**
+   ```bash
+   cd tools
+   python generate_coverage_report.py
+   ```
+
+3. **Verify coverage.json was created:**
+   ```bash
+   ls -lh hazelbean_tests/.coverage*
+   ls -lh hazelbean_tests/coverage.json
+   ```
+
+### Tests Failing
+
+**Common issues:**
+
+1. **Missing test data:**
+   - Check `data/` directories exist
+   - Verify test fixtures are properly set up
+   - Some tests auto-generate synthetic data if real data is missing
+
+2. **Environment issues:**
+   - Always activate `<your_env>` before running tests
+   - Verify all dependencies are installed: `conda list`
+
+3. **Path issues:**
+   - Run tests from `hazelbean_tests/` directory
+   - Use relative paths in test configurations
+
+## Report Generation Issues
+
+### Reports Not Updating
+
+**Symptom:** Documentation shows old or stale data
+
+**Solution:**
+
+1. **Regenerate all reports:**
+   ```bash
+   cd tools
+   ./generate_reports.sh
+   ```
+
+2. **Regenerate specific reports:**
+   ```bash
+   python generate_test_results_report.py ../hazelbean_tests/test-results.json
+   python generate_coverage_report.py
+   python generate_baseline_report.py
+   python generate_benchmark_summary.py
+   ```
+
+3. **Re-render Quarto site:**
+   ```bash
+   cd docs-site/quarto-docs
+   quarto render
+   ```
+
+### Missing Test Results
+
+**Symptom:** test-results.json not found
+
+**Solution:**
+
+```bash
+cd hazelbean_tests
+conda activate <your_env>
+pytest --json-report --json-report-file=test-results.json --quiet
+```
+
+## Port Conflicts
+
+### Multiple Servers Running
+
+**Symptom:** "Address already in use" error
+
+**Common ports:**
+- `4200` - Quarto preview
+- `8000` - MkDocs serve
+
+**Solution:**
+
+```bash
+# Check what's using the port
+lsof -i :4200
+lsof -i :8000
+
+# Kill the process
+kill <PID>
+
+# Or use a different port
+quarto preview --port 4201
+mkdocs serve --dev-addr 127.0.0.1:8001
+```
+
+## Documentation Not Found Issues
+
+### 404 Errors on Documentation Pages
+
+**Symptom:** Links to documentation pages return 404
+
+**Solutions:**
+
+1. **Ensure site is rendered:**
+   ```bash
+   cd docs-site/quarto-docs
+   quarto render
+   ls -la _site/  # Should contain HTML files
+   ```
+
+2. **Check link paths:**
+   - Use relative paths (e.g., `../reports/test-results.html`)
+   - Don't include `.qmd` extension in links
+   - Quarto converts `page.qmd` to `page.html`
+
+3. **Verify navigation configuration:**
+   - Check `_quarto.yml` for proper page structure
+   - Ensure all referenced files exist
+
+## Search Functionality Issues
+
+### Search Not Working
+
+**Symptom:** Search bar doesn't return results
+
+**Solution:**
+
+1. **Rebuild search index:**
+   ```bash
+   cd docs-site/quarto-docs
+   quarto render
+   ```
+
+2. **Check browser console:**
+   - Open browser dev tools (F12)
+   - Look for JavaScript errors
+   - Check if `search.json` was generated in `_site/`
+
+## Getting Additional Help
+
+If you're still experiencing issues:
+
+1. **Check logs:**
+   - Review terminal output for error messages
+   - Check browser console for JavaScript errors
+   - Look for `.log` files in the project
+
+2. **Verify installation:**
+   ```bash
+   python scripts/verify_installation.py
+   ```
+
+3. **GitHub Issues:**
+   - Search existing issues: https://github.com/jandrewjohnson/hazelbean_dev/issues
+   - Create a new issue with:
+     - OS and Python version
+     - Complete error message
+     - Steps to reproduce
+     - Output of `conda list`
+
+4. **Documentation:**
+   - [Getting Started Guide](installation.qmd)
+   - [Windows Setup Guide](installation.qmd)
+   - [GitHub Workflows](../../.github/workflows/)
+
+## Quick Diagnosis Commands
+
+Run these to quickly diagnose your setup:
+
+```bash
+# Environment check
+conda activate <your_env>
+python -c "import hazelbean as hb; print('Hazelbean imported successfully')"
+
+# Quarto check
+quarto --version
+
+# Location check
+pwd  # Should be in hazelbean_dev directory
+
+# Dependencies check
+conda list | grep -E "hazelbean|quarto|mkdocs|pytest"
+
+# File check
+ls -la environment.yml
+ls -la docs-site/quarto-docs/_quarto.yml
+```
+
+---
+
+*Last Updated: 2026-02-01*
+*For the most current troubleshooting information, visit the [GitHub repository](https://github.com/jandrewjohnson/hazelbean_dev).*
+

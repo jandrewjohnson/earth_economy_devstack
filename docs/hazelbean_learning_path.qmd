@@ -1,0 +1,477 @@
+---
+title: "Welcome to Hazelbean: Educational Learning Path"
+---
+
+::: {style="text-align: center; margin: 20px 0;"}
+![Learning Path Badge](https://img.shields.io/badge/Learning%20Path-Beginner%20to%20Expert-brightgreen)
+![Time Badge](https://img.shields.io/badge/Time-~65%20minutes-blue)
+![Examples Badge](https://img.shields.io/badge/Hands%20On-5%20Examples-orange)
+:::
+
+## What is Hazelbean?
+
+**Hazelbean** is a powerful Python library designed to make geospatial processing accessible, organized, and efficient. Whether you're a researcher analyzing land cover changes, a student learning geospatial concepts, or a professional building environmental models, Hazelbean provides the tools to:
+
+- **Organize your workflows** with intelligent directory structures
+- **Discover and load data** from multiple sources automatically  
+- **Process raster data** with mathematical operations and transformations
+- **Perform spatial analysis** with multi-raster operations and zonal statistics
+- **Export professional results** with comprehensive documentation
+
+### Core Workflow Pattern
+
+Hazelbean follows a consistent, organized workflow pattern that makes geospatial analysis predictable and reproducible:
+
+```{mermaid}
+flowchart TD
+    A[Initialize ProjectFlow] --> B[Create Directory Structure]
+    B --> C[Discover and Load Data]
+    C --> D[Process and Transform]
+    D --> E[Analyze and Compute]
+    E --> F[Export Results]
+    F --> G[Document and Share]
+    
+    A1["p = hb.ProjectFlow(project_name=...)"] --> A
+    B1["input/, intermediate/, output/"] --> B
+    C1["p.get_path() intelligent search"] --> C
+    D1["Array operations & transformations"] --> D
+    E1["Multi-raster analysis & statistics"] --> E
+    F1[Organized file structure] --> F
+    G1[Automated documentation] --> G
+    
+    classDef stepBox fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef codeBox fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
+    
+    class A,B,C,D,E,F,G stepBox
+    class A1,B1,C1,D1,E1,F1,G1 codeBox
+```
+
+### Detailed ProjectFlow Execution Model
+
+Understanding how ProjectFlow coordinates complex geospatial workflows:
+
+```{mermaid}
+flowchart TD
+    Start([p = hb.ProjectFlow]) --> CreateDir{"Create project_dir?"}
+    CreateDir -->|Fails| Error[NotADirectoryError]
+    CreateDir -->|Success| SetupDirs["Set input_dir, intermediate_dir, output_dir"]
+
+    SetupDirs --> InitTree["Initialize task_tree root"]
+    InitTree --> UserTasks[User adds tasks via add_task]
+
+    UserTasks --> Execute["p.execute()"]
+    Execute --> RegisterDirs["Register search directories"]
+    RegisterDirs --> ShowTasks["show_tasks() displays tree"]
+    ShowTasks --> RunTask["run_task(task_tree)"]
+
+    RunTask --> GetTask["Get next task from tree"]
+    GetTask --> SetTaskDir["Set task_dir based on parent type"]
+    SetTaskDir --> CheckSkip{"skip_existing and dir exists?"}
+
+    CheckSkip -->|Yes| SkipRun["Set run_this = False"]
+    CheckSkip -->|No| CreateTaskDir["Create task directory"]
+
+    SkipRun --> RunFunc
+    CreateTaskDir --> RunFunc["Run task.function(p)"]
+
+    RunFunc --> IsIterator{"Task is iterator?"}
+    IsIterator -->|Yes| CheckParallel{"run_in_parallel?"}
+    IsIterator -->|No| HasChildren{"Has children?"}
+
+    CheckParallel -->|Yes| ParallelExec["multiprocessing.Pool.starmap()"]
+    CheckParallel -->|No| SeqExec["Sequential child execution"]
+
+    ParallelExec --> HasChildren
+    SeqExec --> HasChildren
+
+    HasChildren -->|Yes| RunTask
+    HasChildren -->|No| Complete([Script complete])
+
+    %% Styling
+    classDef process fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef decision fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    classDef success fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+
+    class SetupDirs,InitTree,UserTasks,Execute,RegisterDirs,ShowTasks,RunTask,GetTask,SetTaskDir,CreateTaskDir,RunFunc,ParallelExec,SeqExec,SkipRun process
+    class CreateDir,CheckSkip,IsIterator,CheckParallel,HasChildren decision
+    class Error error
+    class Complete success
+```
+
+This workflow ensures that every analysis is:
+
+- **Organized**: Clear directory structure and file management
+- **Reproducible**: Consistent patterns and automated documentation  
+- **Discoverable**: Intelligent file location and path resolution
+- **Scalable**: Efficient processing suitable for large datasets
+
+## Learning Journey Overview
+
+This educational system is designed for **progressive learning** - each step builds naturally on the previous ones. Complete the journey in order for the best experience.
+
+### Learning Objectives
+
+By the end of this tutorial series, you will be able to:
+
+1. **Initialize organized geospatial projects** using ProjectFlow
+2. **Locate and load geospatial data** efficiently across multiple directories
+3. **Process raster datasets** with mathematical operations and coordinate transformations
+4. **Perform spatial analysis** combining multiple datasets and computing regional statistics
+5. **Export professional results** with proper organization and documentation
+6. **Apply Hazelbean patterns** to your own geospatial research and analysis
+
+---
+
+## Educational Resources
+
+### [Step-by-Step Tutorial Examples](hazelbean_examples.qmd)
+
+**Perfect for:** First-time users, guided learning, hands-on practice  
+**Time Commitment:** ~65 minutes total  
+**Prerequisites:** Basic Python knowledge
+
+Our comprehensive tutorial takes you through five progressive examples:
+
+| Step | Focus Area | Time | Key Skills |
+|------|------------|------|------------|
+| **[Step 1](hazelbean_examples.qmd#step-1-project-setup)** | Project Setup | 5 min | ProjectFlow, Directory Structure |
+| **[Step 2](hazelbean_examples.qmd#step-2-data-loading)** | Data Loading | 10 min | get_path(), File Discovery, Metadata |
+| **[Step 3](hazelbean_examples.qmd#step-3-processing)** | Processing | 15 min | Array Operations, Transformations |
+| **[Step 4](hazelbean_examples.qmd#step-4-analysis)** | Analysis | 20 min | Multi-raster Operations, Statistics |
+| **[Step 5](hazelbean_examples.qmd#step-5-export-results)** | Export Results | 15 min | Professional Organization, Documentation |
+
+::: {.callout-tip title="Why This Works"}
+Each example includes complete, runnable code with extensive comments, error handling for missing data, and immediate visual feedback. The progression is carefully designed to introduce concepts incrementally.
+:::
+
+### [Test Documentation](https://github.com/jandrewjohnson/hazelbean_dev)
+
+**Perfect for:** Understanding implementation details, advanced patterns, maintainers  
+**Prerequisites:** Completion of tutorial examples  
+
+Comprehensive test documentation organized by category, showing real-world usage patterns and edge cases.
+
+### [Reports and Metrics](https://github.com/jandrewjohnson/hazelbean_dev)
+
+**Perfect for:** Performance analysis, system status, quality metrics  
+**Use Case:** Understanding system health and performance characteristics
+
+---
+
+## Learning Paths for Different Users
+
+### New to Hazelbean (Start Here!)
+
+**Goal:** Get up and running quickly with guided examples
+
+1. **Start:** [Tutorial Examples Step 1](hazelbean_examples.qmd#step-1-project-setup)
+2. **Continue:** Follow the complete 5-step progression
+3. **Practice:** Try modifying the examples with your own data
+4. **Explore:** Browse test documentation for advanced patterns
+
+**Estimated Time:** 1-2 hours including practice
+
+### Learning Geospatial Concepts
+
+**Goal:** Understand both Hazelbean and geospatial processing concepts
+
+1. **Background:** Familiarize yourself with raster data concepts
+2. **Foundation:** Complete the tutorial examples with extra attention to spatial concepts
+3. **Deep Dive:** Study the implementation details in test documentation
+4. **Application:** Apply concepts to a small project in your domain
+
+**Estimated Time:** 3-5 hours including background learning
+
+### Research and Analysis Focus
+
+**Goal:** Efficiently apply Hazelbean to research workflows
+
+1. **Quick Start:** Complete tutorial examples focusing on workflow patterns
+2. **Adaptation:** Identify how patterns apply to your research domain
+3. **Implementation:** Build your research workflow using Hazelbean patterns
+4. **Optimization:** Use test documentation to understand performance characteristics
+
+**Estimated Time:** 2-3 hours including adaptation
+
+### Contributing to Hazelbean
+
+**Goal:** Understand the codebase for contribution and extension
+
+1. **User Perspective:** Complete all tutorial examples
+2. **Implementation Study:** Deep dive into test documentation and source code
+3. **Architecture:** Review system architecture and design patterns
+4. **Contribution:** Identify improvement opportunities and implementation approaches
+
+**Estimated Time:** 5-10 hours depending on contribution scope
+
+---
+
+## Prerequisites and Setup
+
+### System Requirements
+
+::: {.panel-tabset}
+
+## macOS
+
+```bash
+# Recommended: Use conda/mamba for environment management
+conda create -n <your_env> python=3.8+
+conda activate <your_env>
+conda install -c conda-forge hazelbean
+
+# Alternative: pip installation
+pip install hazelbean
+
+# macOS-specific: Install spatial libraries if needed
+brew install geos proj gdal
+```
+
+**Common macOS paths:**
+
+- Home directory: `/Users/username/`
+- Default conda envs: `/opt/homebrew/Caskroom/mambaforge/base/envs/`
+- Example project path: `/Users/username/hazelbean_projects/`
+
+## Windows
+
+```cmd
+REM Recommended: Use conda/mamba for environment management
+conda create -n <your_env> python=3.8+
+conda activate <your_env>
+conda install -c conda-forge hazelbean
+
+REM Alternative: pip installation  
+pip install hazelbean
+
+REM Windows-specific: May need Visual C++ Build Tools
+REM Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+```
+
+**Common Windows paths:**
+
+- Home directory: `C:\Users\username\`
+- Default conda envs: `C:\Users\username\miniconda3\envs\`
+- Example project path: `C:\Users\username\hazelbean_projects\`
+
+## Linux
+
+```bash
+# Recommended: Use conda/mamba for environment management
+conda create -n <your_env> python=3.8+
+conda activate <your_env>
+conda install -c conda-forge hazelbean
+
+# Alternative: pip installation
+pip install hazelbean
+
+# Linux-specific: Install system dependencies if needed
+# Ubuntu/Debian:
+sudo apt-get install libgeos-dev libproj-dev libgdal-dev
+# CentOS/RHEL:
+# sudo yum install geos-devel proj-devel gdal-devel
+```
+
+**Common Linux paths:**
+
+- Home directory: `/home/username/`
+- Default conda envs: `/home/username/miniconda3/envs/`
+- Example project path: `/home/username/hazelbean_projects/`
+
+:::
+
+### Knowledge Prerequisites
+
+::: {.callout-note title="Required Knowledge"}
+- **Python Fundamentals**: Variables, functions, basic data structures
+- **File System Concepts**: Understanding paths, directories, file operations
+:::
+
+::: {.callout-tip title="Helpful (Not Required)"}
+- **NumPy Basics**: Array operations and indexing
+- **Geospatial Concepts**: Understanding of raster data, coordinate systems
+- **GIS Experience**: Familiarity with geospatial analysis workflows
+:::
+
+### Validation Check
+
+Test your setup by running this simple validation:
+
+::: {.panel-tabset}
+
+## macOS/Linux
+
+```python
+import hazelbean as hb
+import numpy as np
+
+# Create a simple test
+p = hb.ProjectFlow(project_name='setup_test')
+test_array = np.random.rand(10, 10)
+print(f"Setup successful! Project directory: {p.project_dir}")
+print(f"Array processing working: {test_array.shape}")
+
+# ProjectFlow is git-aware: run from inside a cloned repo it places the project
+# just OUTSIDE the repo, so outputs never land in your working tree. E.g.
+# Project dir: ~/Files/<stack>/projects/setup_test
+# Run from outside a repo, pass extra_dirs to say where project dirs live.
+```
+
+## Windows
+
+```python
+import hazelbean as hb
+import numpy as np
+
+# Create a simple test
+p = hb.ProjectFlow(project_name='setup_test')
+test_array = np.random.rand(10, 10)
+print(f"Setup successful! Project directory: {p.project_dir}")
+print(f"Array processing working: {test_array.shape}")
+
+# Expected output path on Windows (same rule, same layout):
+# Project dir: C:/Users/username/Files/<stack>/projects/setup_test
+```
+
+:::
+
+If this runs without errors, you're ready to begin!
+
+### Platform-Specific Project Organization
+
+Understanding how Hazelbean organizes projects on your platform:
+
+::: {.panel-tabset}
+
+## macOS
+
+```
+/Users/username/my_analysis/          # Project root
+├── input/                          # Input data
+│   ├── rasters/
+│   └── vectors/
+├── intermediate/                    # Processing files
+│   ├── aligned/
+│   └── processed/
+└── output/                        # Final results
+    ├── YYYYMMDD_analysis/
+    └── reports/
+```
+
+**Path handling:** Uses forward slashes, case-sensitive filesystem
+
+## Windows
+
+```
+C:\Users\username\my_analysis\        # Project root
+├── inputs\                          # Input data
+│   ├── rasters\
+│   └── vectors\
+├── intermediate\                    # Processing files
+│   ├── aligned\
+│   └── processed\
+└── outputs\                        # Final results
+    ├── YYYYMMDD_analysis\
+    └── reports\
+```
+
+**Path handling:** Uses backslashes, case-insensitive filesystem
+
+## Linux
+
+```
+/home/username/my_analysis/          # Project root
+├── input/                          # Input data
+│   ├── rasters/
+│   └── vectors/
+├── intermediate/                    # Processing files  
+│   ├── aligned/
+│   └── processed/
+└── output/                        # Final results
+    ├── YYYYMMDD_analysis/
+    └── reports/
+```
+
+**Path handling:** Uses forward slashes, case-sensitive filesystem, supports symlinks
+
+:::
+
+---
+
+## Quick Start Options
+
+### I want to dive right in!
+**→ [Start with Step 1 of the Tutorial](hazelbean_examples.qmd#step-1-project-setup)**
+
+### I want to understand the big picture first
+**→ Continue reading this page, then start the tutorial**
+
+### I want to see what's possible
+**→ [Jump to Step 5 (Results Export)](hazelbean_examples.qmd#step-5-export-results) to see the end goal**
+
+### I have specific questions
+**→ [Browse the Test Documentation](https://github.com/jandrewjohnson/hazelbean_dev) for detailed implementation patterns**
+
+---
+
+## Learning Tips for Success
+
+::: {.callout-tip title="Maximize Your Learning"}
+
+**Learn by Doing**
+
+- Run every code example yourself
+- Modify parameters to see what happens  
+- Try using your own data files
+
+**Take Notes**
+
+- Document patterns that apply to your work
+- Note functions and workflows you'll reuse
+- Keep track of useful parameter combinations
+
+**Experiment Safely**
+
+- Each example includes error handling
+- ProjectFlow creates organized directories for easy cleanup
+- Start small and gradually increase complexity
+
+**Think Beyond the Examples**
+
+- How would you apply these patterns to your domain?
+- What data would you use in each step?
+- What analysis questions would you ask?
+:::
+
+::: {.callout-warning title="Common Gotchas"}
+
+**File Paths**
+
+- Hazelbean uses intelligent path resolution, but understanding the search order helps
+- Use ProjectFlow methods rather than hardcoded paths
+
+**Data Types**
+
+- Pay attention to raster data types and scaling factors
+- Always check coordinate reference systems when combining datasets
+
+**Memory Management**
+
+- Large raster datasets can consume significant memory
+- The examples show memory-efficient patterns
+:::
+
+---
+
+## Ready to Begin?
+
+The most effective way to learn Hazelbean is through hands-on practice. Our tutorial series is designed to get you productive quickly while building a solid foundation for advanced work.
+
+::: {style="text-align: center; margin: 30px 0;"}
+[Start Learning with Step 1 →](hazelbean_examples.qmd#step-1-project-setup){.btn .btn-primary style="background: linear-gradient(45deg, #1976d2, #42a5f5); color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"}
+:::
+
+---
+
+*This educational system is continuously updated to reflect the latest Hazelbean capabilities and best practices. Content is automatically extracted from working code examples to ensure accuracy and currency.*

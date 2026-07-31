@@ -256,6 +256,9 @@ The axes really are independent: `global_invest`'s service runners are configura
 
 ## Where to start: earning complexity rather than adopting it
 
+Every template below is described on the [Run Templates](run_templates.qmd)
+page, which is the place to start if you want to copy one.
+
 Each tool in the six stages was adopted only when the previous stage's pain demanded it — and that lesson applies to ProjectFlow itself. If your problem is still a stage-1 problem, do not start at configuration level 4. The spec scales down.
 
 **The smallest run file — a function becomes a task when you add it.** The minimal ProjectFlow script is one task function plus a guarded three-line main block: `p = hb.ProjectFlow()`, `p.add_task(your_function)`, `p.execute()`. Nothing is hidden — the `add_task` call *is* the moment a plain function becomes a task (and calling `execute()` with nothing added fails with a message telling you exactly that). See [`examples/run_templates/run_template_1_minimal.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_1_minimal.py) — about 30 lines, and in exchange for roughly the effort of the stage-1 script you get an organized project directory, one folder per task, skip-if-already-computed re-runs, and logging.

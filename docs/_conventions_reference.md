@@ -531,8 +531,8 @@ splitting each multi-byte character into garbled pieces.
   runs self-contained → devstack developer → downstream user, where the library
   is a read-only dependency in your own repo. The axes are independent: moving
   along one never requires moving along another, so **"level" unqualified always
-  means the configuration axis**. Copy-me templates live in
-  `examples/run_templates/`; the same code with the reasoning written out is in
+  means the configuration axis**. Copy-me templates are described on the [Run Templates](run_templates.qmd)
+  page; the same code with the reasoning written out is in
   `examples/run_templates_annotated/`. The six numbered stages in
   project_complexity.qmd are a historical narrative, not these levels.
 - A ProjectFlow project's root is the directory holding its `run_<project>.py`
@@ -609,8 +609,8 @@ splitting each multi-byte character into garbled pieces.
   project dir, also exercising `input_template/` seeding. `run_mode` is about
   reuse policy, not location, so it composes with an explicit `project_dir` as
   well as with `project_name`.
-- **Canonical examples of the shape:**
-  `examples/run_templates/run_template_3_canonical.py` (a scenarios CSV),
+- **Canonical examples of the shape** (see [Run Templates](run_templates.qmd)):
+  `run_template_3_canonical.py` (a scenarios CSV),
   `run_template_4_data_driven.py` (+ a parameters CSV), and
   `run_template_seals_example.py` (the same anatomy against a real library task
   tree). `examples/run_templates_annotated/` holds the same code with the
