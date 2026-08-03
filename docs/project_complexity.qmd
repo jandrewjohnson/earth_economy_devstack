@@ -1,5 +1,38 @@
 # The stages of project complexity
 
+## Why any of this exists
+
+The short answer: **research code fails at the seams between runs, not inside
+them.** A script that computes the right number once is easy. What is hard is
+everything that happens afterwards — running it again with one input changed,
+running it four hundred times over scenarios, running it on someone else's
+machine, running it on data too large to hold in memory, and still being able to
+say two years later exactly which code and which inputs produced figure 3.
+
+Almost every research codebase answers those by copying: copy the script and
+edit one line, copy the block and change the index, comment out the slow part
+with a boolean. That works until it doesn't, and when it stops working it does so
+silently — a stale intermediate file, a copied block where one index was never
+updated, a hardcoded path that meant something different on the machine the
+results came from.
+
+The devstack's answer is a single move applied over and over: **make the thing
+that varies data rather than code.** Scenarios become rows in a CSV instead of
+copied blocks. Machine-specific values become a parameters CSV instead of
+hardcoded paths. What has already been computed becomes files on disk instead of
+a commented-out boolean, so a re-run skips it automatically. What runs, and in
+what order, becomes a task tree instead of top-to-bottom statements — which is
+also what lets independent branches run in parallel. Hazelbean, and ProjectFlow
+inside it, are the machinery that makes that move cheap enough to be the default.
+
+None of this is adopted up front. Each piece exists because a specific pain
+demanded it, and the rest of this page is that history: the questions that got
+progressively harder, and the tool each one forced. If your problem is still a
+one-script problem, the honest advice is to write the one script — the point of
+the stages is to let you recognize the moment you have outgrown it.
+
+## The narrative
+
 As an introduction and/or motivation for using the software in the EE Devstack, I would like to talk through the process that I went through as a PhD student, postdoc and staff researcher to answer progressively harder questions. I break these out into 6 stages below. Solving these challenges is what led to the creation of Hazelbean and many other software solutions.
 
 ## Stage 1, the old way: Simple question answered well
@@ -263,7 +296,7 @@ Each tool in the six stages was adopted only when the previous stage's pain dema
 
 **The smallest run file — a function becomes a task when you add it.** The minimal ProjectFlow script is one task function plus a guarded three-line main block: `p = hb.ProjectFlow()`, `p.add_task(your_function)`, `p.execute()`. Nothing is hidden — the `add_task` call *is* the moment a plain function becomes a task (and calling `execute()` with nothing added fails with a message telling you exactly that). See [`examples/run_templates/run_template_1_minimal.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_1_minimal.py) — about 30 lines, and in exchange for roughly the effort of the stage-1 script you get an organized project directory, one folder per task, skip-if-already-computed re-runs, and logging.
 
-**The canonical form.** When you want variants, graduate to configuration level 3: `build_task_tree(p)`, `run_project(p)`, and a `__main__` guard that builds and configures the ProjectFlow. The rule that replaces a signature full of defaults: **`run_project(p)` sets what no variant ever changes; the caller sets what a variant might.** When a constant starts varying, it moves one line up, out of `run_project` and into the caller — no signature to edit and no default to keep in sync. See [`run_template_3_canonical.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_3_canonical.py), its annotated twin in `examples/run_templates_annotated/` for the reasoning, and the [conventions](conventions.qmd) page for the full rules. For a project of your own that imports a devstack library as a read-only dependency, copy [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py) into your repo as its `run_<project>.py`; for stock SEALS, copy [`run_seals_standard.py`](https://github.com/jandrewjohnson/seals_dev/blob/main/seals/run_seals_standard.py). The full-scale reference implementation is [ngfs_pnas](https://github.com/jandrewjohnson/ngfs_pnas).
+**The canonical form.** When you want variants, graduate to configuration level 3: `build_task_tree(p)`, `run_project(p)`, and a `__main__` guard that builds and configures the ProjectFlow. The rule that replaces a signature full of defaults: **`run_project(p)` sets what no variant ever changes; the caller sets what a variant might.** When a constant starts varying, it moves one line up, out of `run_project` and into the caller — no signature to edit and no default to keep in sync. See [`run_template_3_canonical.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_3_canonical.py), its annotated twin in `examples/run_templates_annotated/` for the reasoning, and the [conventions](conventions.qmd) page for the full rules. For a project of your own that imports a devstack library as a read-only dependency, copy [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py) into your repo as its `run_<project>.py`; for stock SEALS, copy [`run_seals_standard.py`](https://github.com/jandrewjohnson/seals/blob/main/seals/run_seals_standard.py). The full-scale reference implementation is `ngfs_pnas` (a private repository — ask for access).
 
 **When to move along an axis.** *Configuration:* add a scenarios CSV when you first have two variants of the same run (the CSV, not the code, is what varies); add a `parameters.csv` key the first time a machine-specific value — an ssh host, a credentials path — tries to enter your code; add a thin `run_<project>_test.py` wrapper when the full run gets long enough to want a pared smoke test. *Code layout:* split when a task module gets big enough to navigate, or when a second run file needs the same task. *Ownership:* you cross into downstream-user territory the moment the library you import is one you should not be editing.
 
@@ -689,4 +722,4 @@ if __name__ == '__main__':
 
 Run `run_yield.py` twice: the second run loads the CSVs, checks four existence checks, and exits — everything finished is skipped, which is what makes a stable project dir the default (the test project resumes in place the same way). Add a fifth row to `yield_scenarios.csv` and re-run: only the new scenario computes. Change a machine value (a credentials path, an ssh host) in `input/yield_parameters.csv` and no code changes anywhere. That is the whole canon in miniature: *code defines the pipeline once; scenarios say what to run over; parameters say what is constant; the filesystem remembers what is done.*
 
-This is where the walkthrough ends and the spec begins. The full rules — variant runs via `tasks_to_skip`, shared library builders, ref_paths in scenario CSVs, the `run_<project>_test.py` conventions — live on the [conventions](conventions.qmd) page; a copy-me seed for a project that imports a devstack library is [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py); and the full-scale reference implementation, running a two-pass global economy-environment pipeline with exactly this anatomy, is [ngfs_pnas](https://github.com/jandrewjohnson/ngfs_pnas). What was deliberately *not* shown here: the libraries' richer scenario hydration (rows assigned onto `p` and iterated through the tree), parallel iterators, and the machine-config registry — each is the same idea you just saw, grown up.
+This is where the walkthrough ends and the spec begins. The full rules — variant runs via `tasks_to_skip`, shared library builders, ref_paths in scenario CSVs, the `run_<project>_test.py` conventions — live on the [conventions](conventions.qmd) page; a copy-me seed for a project that imports a devstack library is [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py); and the full-scale reference implementation, running a two-pass global economy-environment pipeline with exactly this anatomy, is `ngfs_pnas` (a private repository — ask for access). What was deliberately *not* shown here: the libraries' richer scenario hydration (rows assigned onto `p` and iterated through the tree), parallel iterators, and the machine-config registry — each is the same idea you just saw, grown up.

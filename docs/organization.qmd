@@ -21,10 +21,10 @@ Next, create a folder for each of the five repositories in the Files directory, 
 Inside each of these folders, you will clone the corresponding repositories:
 
 1.  <https://github.com/jandrewjohnson/hazelbean_dev>
-2.  <https://github.com/jandrewjohnson/seals_dev>
+2.  <https://github.com/jandrewjohnson/seals>
 3.  <https://github.com/jandrewjohnson/gtappy_dev>
 4.  <https://github.com/jandrewjohnson/gtap_invest_dev>
-5.  <https://github.com/jandrewjohnson/global_invest_dev>
+5.  <https://github.com/NatCapTEEMs/global_invest_dev>
 
 If successful, you will have a new folder with `_dev` postpended, indicating that it is the repository itself (and is the dev, i.e., not yet public, version of it). For GTAPPy it should look like this:
 

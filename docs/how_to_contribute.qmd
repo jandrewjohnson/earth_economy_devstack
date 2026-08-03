@@ -112,14 +112,14 @@ Using SEALS as an example, this section walks through how a new user could contr
 
 ![](images/git_workflow.png)
 
-Before developing the code it is recommended to create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for
+Before developing the code it is recommended to create a [fork](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for
 
 1.  code development or fixes
 2.  submitting a pull request to the original SEALS repository.
 
 #### 1. Clone fork to your local machine
 
-Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). The figure below illustrates the relationship of the original repo, your own user repo (made by forking) and then the local set of files cloned onto your machine.
+Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). The figure below illustrates the relationship of the original repo, your own user repo (made by forking) and then the local set of files cloned onto your machine.
 
 ![](images/paste-68.png)
 
@@ -132,12 +132,12 @@ git clone -b <name-of-branch>` <url-to-github-repo> <name-of-local-clone-folder>
 For example, if you want to clone the develop branch of your SEALS fork type
 
 ```         
-git clone -b develop https://github.com/<username/seals_dev seals_develop
+git clone -b develop https://github.com/<username>/seals seals_develop
 ```
 
-Before making any changes, make sure that your fork and/or your local repository are up-to-date with the original SEALS repository. To pull changes from your fork use `git pull origin <name-of-branch>`. In order to pull the latest changes from the original SEALS repository you can set up a link to the original upstream repository with the command `git remote add upstream https://github.com/jandrewjohnson/seals_dev`. To pull the latest changes from the develop branch in the original upstream repository use `git pull upstream develop`.
+Before making any changes, make sure that your fork and/or your local repository are up-to-date with the original SEALS repository. To pull changes from your fork use `git pull origin <name-of-branch>`. In order to pull the latest changes from the original SEALS repository you can set up a link to the original upstream repository with the command `git remote add upstream https://github.com/jandrewjohnson/seals`. To pull the latest changes from the develop branch in the original upstream repository use `git pull upstream develop`.
 
-During code development, any changes or fixes that should go back to the fork and/or the original SEALS repository need to be ['staged'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) and then ['commited'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) with a commit message that succinctly describes the changes. By staging changes, **git** is informed that these changes should become part of the next 'commit', which essentially takes a snapshot of all staged changes thus far.
+During code development, any changes or fixes that should go back to the fork and/or the original SEALS repository need to be ['staged'](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) and then ['commited'](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) with a commit message that succinctly describes the changes. By staging changes, **git** is informed that these changes should become part of the next 'commit', which essentially takes a snapshot of all staged changes thus far.
 
 To stage all changes in the current repository use the command `git add .`. If you only want to stage changes in a certain file use `git add <(relative)-path-to-file-in-repo>`.
 
@@ -207,9 +207,9 @@ By following these steps, you will incorporate the latest changes from the origi
 
 Regardless of if your contributing via branches or teams, we will use Pull Requests to incorporate your changes into the main branch.
 
-In order to propose changes to the original SEALS repository, it is recommended to use [pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork). Pull requests inform other users about your code changes and allow them to review these changes by comparing and highlighting the parts of the code that have have been altered. They also highlight potential [merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts), which occur when git is trying to merge branches with competing commits within the same parts of the code. Pull requests can be done directly at GitHub by navigating to either the forked repository or the original SEALS repository and by clicking on 'Pull requests' and then 'New pull request'. This will open a new pull request page where changes can be described in more detail and code reviewers can be specified. Pull requests should be reviewed by at least one of the main code developers.
+In order to propose changes to the original SEALS repository, it is recommended to use [pull requests](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request-from-a-fork). Pull requests inform other users about your code changes and allow them to review these changes by comparing and highlighting the parts of the code that have have been altered. They also highlight potential [merge conflicts](https://docs.github.com/en/pull-requests/reference/merge-conflicts), which occur when git is trying to merge branches with competing commits within the same parts of the code. Pull requests can be done directly at GitHub by navigating to either the forked repository or the original SEALS repository and by clicking on 'Pull requests' and then 'New pull request'. This will open a new pull request page where changes can be described in more detail and code reviewers can be specified. Pull requests should be reviewed by at least one of the main code developers.
 
-Here is an example where you think some functions in `seals_process_coarse_timeseries.py` within the `seals_dev` project should be removed and relocated to a project-specific repository, rather than remaining in the core `seals_dev` repository. In your **forked** `seals_dev` repository:
+Here is an example where you think some functions in `seals_process_coarse_timeseries.py` within the `seals` project should be removed and relocated to a project-specific repository, rather than remaining in the core `seals` repository. In your **forked** `seals` repository:
 
 ![](images/pull_request_example_step1.png)
 

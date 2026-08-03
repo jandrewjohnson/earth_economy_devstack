@@ -16,7 +16,7 @@
 			"path": "../hazelbean/hazelbean_dev"
 		},
 		{
-			"path": "../seals/seals_dev"
+			"path": "../seals/seals"
 		}
 	],
 	"settings": {
@@ -35,9 +35,9 @@
 			"${workspaceFolder}/../../../hazelbean/hazelbean_dev",
 			"${workspaceFolder}/../../hazelbean/hazelbean_dev",
 			"${workspaceFolder}/../hazelbean/hazelbean_dev",
-			"${workspaceFolder}/../../../seals/seals_dev",
-			"${workspaceFolder}/../../seals/seals_dev",
-			"${workspaceFolder}/../seals/seals_dev",
+			"${workspaceFolder}/../../../seals/seals",
+			"${workspaceFolder}/../../seals/seals",
+			"${workspaceFolder}/../seals/seals",
 			
 		],
 		"python.autoComplete.extraPaths": [
@@ -53,9 +53,9 @@
 			"${workspaceFolder}/../../../hazelbean/hazelbean_dev",
 			"${workspaceFolder}/../../hazelbean/hazelbean_dev",
 			"${workspaceFolder}/../hazelbean/hazelbean_dev",
-			"${workspaceFolder}/../../../seals/seals_dev",
-			"${workspaceFolder}/../../seals/seals_dev",
-			"${workspaceFolder}/../seals/seals_dev",
+			"${workspaceFolder}/../../../seals/seals",
+			"${workspaceFolder}/../../seals/seals",
+			"${workspaceFolder}/../seals/seals",
 		]
 		
 	}

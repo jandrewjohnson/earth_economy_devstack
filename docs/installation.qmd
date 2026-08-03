@@ -42,11 +42,11 @@ The Developer Installation installs all (or a subset) of our full devstack. This
 
 Now that you have the developer version of hazelbean, you can add additional repositories from our devstack as desired. To do this, using SEALS as an example, follow these steps:
 
-1.  Clone the desired repository, e.g., <https://github.com/jandrewjohnson/seals_dev> into the proper Project Folder.
-    - In the SEALS Project Folder at `/Users/<YOUR_USERNAME>/Files/seals/` you will have the Project Repository at `/Users/<YOUR_USERNAME>/Files/seals/seals_dev/`
+1.  Clone the desired repository, e.g., <https://github.com/jandrewjohnson/seals> into the proper Project Folder.
+    - In the SEALS Project Folder at `/Users/<YOUR_USERNAME>/Files/seals/` you will have the Project Repository at `/Users/<YOUR_USERNAME>/Files/seals/seals/`
     - Navigate to the Project Repsoitory and make an editable install with pip. Make sure you have the right environment activated in your command prompt.
       - `pip install -e . --no-deps`
-2.  Step 1 can be repeated for any of the repositories below (presuming you have read access) - <https://github.com/jandrewjohnson/seals_dev> - <https://github.com/jandrewjohnson/gtap_invest_dev> - <https://github.com/jandrewjohnson/global_invest_dev> - <https://github.com/jandrewjohnson/gtappy_dev> - <https://github.com/jandrewjohnson/gep_dev>
+2.  Step 1 can be repeated for any of the repositories below (presuming you have read access) - <https://github.com/jandrewjohnson/seals> - <https://github.com/jandrewjohnson/gtap_invest_dev> - <https://github.com/NatCapTEEMs/global_invest_dev> - <https://github.com/jandrewjohnson/gtappy_dev> - <https://github.com/jandrewjohnson/gep_dev>
 
 ## Compiling C/C++ Code
 

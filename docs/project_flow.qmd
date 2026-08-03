@@ -191,7 +191,7 @@ Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading 
     # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
     # then you need to add the path to the seals directory to the system path.
     custom_seals_path = None
-    if custom_seals_path is not None: # G:/My Drive/Files/Research/seals/seals_dev/seals
+    if custom_seals_path is not None: # e.g. ~/Files/seals/seals/seals
         sys.path.insert(0, custom_seals_path)
 
     # SEALS will run based on the scenarios defined in a scenario_definitions.csv
@@ -432,7 +432,7 @@ Our goal now is to clone the IUCN project into a new project we can modify. Firs
 
 ![](images/paste-51.png)
 
-Now create a new Python run file. Go back to the code directory (Files/seals/seals_dev) and copy `run_iucn.py` in the same directory and rename it `run_test_iucn_30by30.py`. Note the word test her which means it is going to be a non-global, fast running script to prove the new code works. Eventually a new run file `run_iucn_30by30.py` will be created when we know it works. In the new file, rename `project_name = 'test_iucn_30by30'`. Also in the code, edit the line below to match the name of your new scenario_definitions file.
+Now create a new Python run file. Go back to the code directory (Files/seals/seals) and copy `run_iucn.py` in the same directory and rename it `run_test_iucn_30by30.py`. Note the word test her which means it is going to be a non-global, fast running script to prove the new code works. Eventually a new run file `run_iucn_30by30.py` will be created when we know it works. In the new file, rename `project_name = 'test_iucn_30by30'`. Also in the code, edit the line below to match the name of your new scenario_definitions file.
 
 ``` python
 p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions_iucn_30by30.csv')

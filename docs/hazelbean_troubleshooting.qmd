@@ -360,8 +360,8 @@ If you're still experiencing issues:
 
 4. **Documentation:**
    - [Getting Started Guide](installation.qmd)
-   - [Windows Setup Guide](installation.qmd)
-   - [GitHub Workflows](../../.github/workflows/)
+   - [Windows Setup Guide](https://github.com/jandrewjohnson/hazelbean_dev/blob/main/docs/windows-setup.md)
+   - [GitHub Workflows](https://github.com/jandrewjohnson/hazelbean_dev/tree/main/.github/workflows)
 
 ## Quick Diagnosis Commands
 

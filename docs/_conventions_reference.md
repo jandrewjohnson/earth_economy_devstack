@@ -744,6 +744,22 @@ sense in one medium**. Screenshots in particular age badly and are invisible to
 search; prefer text and fenced code blocks, which carry to both renderings and
 stay correct when the code changes.
 
+## `external_repos/` is out of scope
+
+A directory named `external_repos/` holds checkouts that are *not ours to
+change*: someone else's repository, a second clone of one of ours pinned to a
+collaborator's branch, or a vendored dependency. **Never edit anything under an
+`external_repos/` directory**, and exclude it from every stack-wide sweep —
+renames, convention refactors, link fixes, grep-and-replace of any kind.
+
+- A hit inside `external_repos/` is not a finding. Do not report it as work
+  remaining, and do not "fix" it for consistency with the canonical copy.
+- If a file there genuinely needs to change, the change belongs upstream in the
+  repo that owns it, applied through that repo's own workflow.
+- When a path appears in both a canonical repo and `external_repos/`, the
+  canonical repo is the one to edit. The duplicate is a mirror, and editing it
+  creates spurious diffs on whatever branch it happens to be sitting on.
+
 ## Git workflow
 
 We use **Git Flow** (a `main` branch plus a `develop` branch):

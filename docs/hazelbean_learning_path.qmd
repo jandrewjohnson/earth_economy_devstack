@@ -20,91 +20,9 @@ title: "Welcome to Hazelbean: Educational Learning Path"
 
 ### Core Workflow Pattern
 
-Hazelbean follows a consistent, organized workflow pattern that makes geospatial analysis predictable and reproducible:
+Hazelbean follows a consistent, organized workflow pattern that makes geospatial analysis predictable and reproducible: initialize a ProjectFlow, let it create the directory structure, discover and load your data, process it, analyze it, and export organized results.
 
-```{mermaid}
-flowchart TD
-    A[Initialize ProjectFlow] --> B[Create Directory Structure]
-    B --> C[Discover and Load Data]
-    C --> D[Process and Transform]
-    D --> E[Analyze and Compute]
-    E --> F[Export Results]
-    F --> G[Document and Share]
-    
-    A1["p = hb.ProjectFlow(project_name=...)"] --> A
-    B1["input/, intermediate/, output/"] --> B
-    C1["p.get_path() intelligent search"] --> C
-    D1["Array operations & transformations"] --> D
-    E1["Multi-raster analysis & statistics"] --> E
-    F1[Organized file structure] --> F
-    G1[Automated documentation] --> G
-    
-    classDef stepBox fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef codeBox fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
-    
-    class A,B,C,D,E,F,G stepBox
-    class A1,B1,C1,D1,E1,F1,G1 codeBox
-```
-
-### Detailed ProjectFlow Execution Model
-
-Understanding how ProjectFlow coordinates complex geospatial workflows:
-
-```{mermaid}
-flowchart TD
-    Start([p = hb.ProjectFlow]) --> CreateDir{"Create project_dir?"}
-    CreateDir -->|Fails| Error[NotADirectoryError]
-    CreateDir -->|Success| SetupDirs["Set input_dir, intermediate_dir, output_dir"]
-
-    SetupDirs --> InitTree["Initialize task_tree root"]
-    InitTree --> UserTasks[User adds tasks via add_task]
-
-    UserTasks --> Execute["p.execute()"]
-    Execute --> RegisterDirs["Register search directories"]
-    RegisterDirs --> ShowTasks["show_tasks() displays tree"]
-    ShowTasks --> RunTask["run_task(task_tree)"]
-
-    RunTask --> GetTask["Get next task from tree"]
-    GetTask --> SetTaskDir["Set task_dir based on parent type"]
-    SetTaskDir --> CheckSkip{"skip_existing and dir exists?"}
-
-    CheckSkip -->|Yes| SkipRun["Set run_this = False"]
-    CheckSkip -->|No| CreateTaskDir["Create task directory"]
-
-    SkipRun --> RunFunc
-    CreateTaskDir --> RunFunc["Run task.function(p)"]
-
-    RunFunc --> IsIterator{"Task is iterator?"}
-    IsIterator -->|Yes| CheckParallel{"run_in_parallel?"}
-    IsIterator -->|No| HasChildren{"Has children?"}
-
-    CheckParallel -->|Yes| ParallelExec["multiprocessing.Pool.starmap()"]
-    CheckParallel -->|No| SeqExec["Sequential child execution"]
-
-    ParallelExec --> HasChildren
-    SeqExec --> HasChildren
-
-    HasChildren -->|Yes| RunTask
-    HasChildren -->|No| Complete([Script complete])
-
-    %% Styling
-    classDef process fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef decision fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef error fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    classDef success fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-
-    class SetupDirs,InitTree,UserTasks,Execute,RegisterDirs,ShowTasks,RunTask,GetTask,SetTaskDir,CreateTaskDir,RunFunc,ParallelExec,SeqExec,SkipRun process
-    class CreateDir,CheckSkip,IsIterator,CheckParallel,HasChildren decision
-    class Error error
-    class Complete success
-```
-
-This workflow ensures that every analysis is:
-
-- **Organized**: Clear directory structure and file management
-- **Reproducible**: Consistent patterns and automated documentation  
-- **Discoverable**: Intelligent file location and path resolution
-- **Scalable**: Efficient processing suitable for large datasets
+That pattern — and the execution model ProjectFlow runs underneath it — are drawn out as flowcharts on the [workflow diagrams](workflow_diagram.qmd) page.
 
 ## Learning Journey Overview
 

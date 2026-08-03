@@ -10,7 +10,7 @@ with everything in one file -- that is the point of separating the axes. Moving
 along Code layout changed exactly one function here, build_task_tree, which now
 delegates instead of containing.
 
-This file is a teaching copy of seals_dev/seals/run_seals_standard.py, which is
+This file is a teaching copy of seals/seals/run_seals_standard.py, which is
 the real reference SEALS run. If you change the anatomy in one, change it in the
 other.
 
