@@ -760,6 +760,32 @@ renames, convention refactors, link fixes, grep-and-replace of any kind.
   canonical repo is the one to edit. The duplicate is a mirror, and editing it
   creates spurious diffs on whatever branch it happens to be sitting on.
 
+## Archived paths are frozen
+
+Alongside the live tree, every repo accumulates superseded work kept for
+reference. **Never edit, delete, reformat, or "fix" anything under an archived
+path**, even though it sits inside a canonical repo and even when it contains a
+genuine bug. It is a record of what we did, and its value is that it still says
+what it said.
+
+A path is archived if any component of it is — case-insensitively, with or
+without surrounding underscores — `old`, `older`, `oldest`, `archive`,
+`archived`, `deprecated`, `bork`, `bak`, `backup`, `legacy`, `attic`, or an
+obvious variant (`*_old_spec.py`, `run_seals_old/`, `_BORK/`). When the name
+says the content has been superseded, treat it as superseded.
+
+- A hit inside an archived path is not a finding, exactly as with
+  `external_repos/`. Mention it if it explains something; do not report it as
+  work remaining.
+- Exclude archived paths from stack-wide sweeps: renames, convention
+  refactors, link fixes, grep-and-replace of any kind.
+- If live code needs something an archived file has, copy the content into a
+  live path and change it there. Do not revive the archived file, and do not
+  import from it.
+- Archiving is a deliberate act by a person. Do not create archive directories,
+  move files into them, or rename a file to `*_old` on your own initiative —
+  propose it and let the owner decide.
+
 ## Git workflow
 
 We use **Git Flow** (a `main` branch plus a `develop` branch):
