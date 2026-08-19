@@ -31,7 +31,9 @@ If you are starting a project of your own rather than running someone else's, se
 The Developer Installation installs all (or a subset) of our full devstack. This requires you to have a C/C++ compiler installed (see below). It also specifies canonical file names and structures for where to put the various repositories.
 
 1.  Create a new environment and follow the basic installation steps above.
-2.  Remove hazelbean from the new environment with `conda remove hazelbean --force`. This gets rid of the condaforge version of Hazelbean but keeps its dependencies (NOTE: simple pip uninstalling leaves behind Zombie Folders).
+2.  Remove the packaged hazelbean from the new environment, keeping its dependencies. Which command you need depends on how it got there, so check first with `conda list hazelbean` and read the **Channel** column:
+    - a conda channel (`conda-forge`) — `conda remove hazelbean --force` (NOTE: simple pip uninstalling leaves behind Zombie Folders)
+    - `pypi` — `pip uninstall hazelbean`. Conda has no record of a pip-installed package, so `conda remove` fails with `PackagesNotFoundError` and leaves it in place.
 3.  Create the hazelbean Project Folder at `C:/Users/<YOUR_USERNAME>/Files/hazelbean/` (PC) or `/Users/<YOUR_USERNAME>/Files/hazelbean/` (Mac/Linux)
 4.  Clone the desired branch from the hazelbean GitHub repository into your hazelbean Project Folder.
     - `git clone -b main https://github.com/jandrewjohnson/hazelbean_dev.git`
@@ -48,22 +50,42 @@ Now that you have the developer version of hazelbean, you can add additional rep
       - `pip install -e . --no-deps`
 2.  Step 1 can be repeated for any of the repositories below (presuming you have read access) - <https://github.com/jandrewjohnson/seals> - <https://github.com/jandrewjohnson/gtap_invest_dev> - <https://github.com/NatCapTEEMs/global_invest_dev> - <https://github.com/jandrewjohnson/gtappy_dev> - <https://github.com/jandrewjohnson/gep_dev>
 
+#### `--no-deps` is not optional here
+
+Some devstack repositories declare a hazelbean floor — SEALS, for instance, requires `hazelbean>=2.0.0`. Omit `--no-deps` and pip will try to satisfy that from PyPI: it **uninstalls your editable hazelbean and replaces it with a released wheel**. Nothing appears to go wrong at the time. You find out weeks later, when a change you know you made to hazelbean has no effect.
+
+Two things guard against this, and it is worth knowing both:
+
+- Always pass `--no-deps`. Install dependencies deliberately, never as a side effect of installing a devstack repo.
+- Keep your hazelbean clone on a branch whose derived version is at or above the floor. Versions come from git tags via `setuptools_scm`, so a branch that cannot *reach* the release tag derives a lower version — a clone on `develop` after a release tagged only on `main` reports something like `1.8.1.dev59`, which does not satisfy `>=2.0.0`, and pip replaces it even though your code is newer than the release. Back-merging `main` into `develop` after each release keeps release tags reachable and closes this off.
+
+#### Check you are running the code you think you are
+
+After adding each repository, confirm the imports still resolve to your clones rather than to a packaged copy:
+
+``` python
+import hazelbean as hb
+print(hb.__file__)
+```
+
+This must print a path inside your clone (`.../Files/hazelbean/hazelbean_dev/hazelbean/__init__.py`). If it prints something under `site-packages`, a packaged copy is shadowing your clone: uninstall it as in step 2 above and redo the editable install. Check here rather than only after installing hazelbean itself — the shadowing is caused by installing the *other* repositories, so it cannot show up until this point.
+
 ## 4. Per-machine configuration
 
 Installing the code is not quite the whole setup. A few settings differ on every machine — where your lab drive is mounted, which SLURM account to charge — and none of them can be committed, because they are true only of your computer. They live in a single never-committed file:
 
-```
+```         
 ~/.config/hazelbean/machine.env
 ```
 
-Hazelbean loads it the moment you `import hazelbean`. The format is plain `KEY=value` lines; a leading `export ` and a trailing `# comment` are both tolerated, so the same file can also be sourced from a shell. Values are applied with *setdefault* semantics — a real environment variable always wins — so you can override any of it for one run without editing the file.
+Hazelbean loads it the moment you `import hazelbean`. The format is plain `KEY=value` lines; a leading `export` and a trailing `# comment` are both tolerated, so the same file can also be sourced from a shell. Values are applied with *setdefault* semantics — a real environment variable always wins — so you can override any of it for one run without editing the file.
 
 **Nothing here is required.** A machine with no `machine.env` at all works; you just lose the conveniences below.
 
 ### The keys that exist
 
 | key | what it does |
-|---------------------|--------------------------------------------------|
+|----------------------|--------------------------------------------------|
 | `HB_SHARED_DATA_DIRS` | Directories that mirror `base_data`'s layout and can be read directly — usually a mounted lab drive. `get_path` searches them after your local `base_data` and before the cloud bucket, and copies anything it finds into `base_data` so later runs resolve locally. `os.pathsep`-separated for more than one. |
 | `GTAP_SC_SLURM_ACCOUNT`, `GTAP_SC_SLURM_PARTITION`, `GTAP_SC_SLURM_TIME`, `GTAP_SC_SLURM_CPUS`, `GTAP_SC_SLURM_MEM` | How gtappy sizes and charges the `sbatch` jobs it submits when solving GTAP on a SLURM cluster. |
 | `GTAP_SC_WINE_SIF` | Path to the Apptainer image that runs GEMPACK under Wine on the cluster. |
@@ -92,24 +114,9 @@ Finding nothing is a normal outcome, not a failure. Without a shared root, `get_
 
 ### Check it worked
 
-Two checks, in order. First, confirm you are running the code you think you are:
+On a Developer Installation, first confirm you are running your clones rather than a packaged copy — see [Check you are running the code you think you are](#check-you-are-running-the-code-you-think-you-are) above. That check is worth repeating any time a change you know you made appears to have no effect.
 
-``` python
-import hazelbean as hb
-print(hb.__file__)
-```
-
-After a Developer Installation this must print a path inside your cloned repo (`.../Files/hazelbean/hazelbean_dev/hazelbean/__init__.py`). If it prints something under `site-packages` instead, a non-editable copy is shadowing your clone, and none of your local changes are being used. Fix it by re-running the removal and editable install from step 3:
-
-``` bash
-conda remove hazelbean --force
-cd ~/Files/hazelbean/hazelbean_dev
-pip install -e . --no-deps
-```
-
-This is worth checking whenever something you know you changed appears to have no effect: the two copies are easy to confuse, because which one wins can depend on the directory you started Python from.
-
-Second, confirm data resolution is wired up, without starting a real run:
+Then confirm data resolution is wired up, without starting a real run:
 
 ``` python
 import os
