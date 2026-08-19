@@ -322,6 +322,14 @@ project — a Drive mount embeds the signed-in account:
 HB_SHARED_DATA_DIRS=/Users/you/Library/CloudStorage/GoogleDrive-you@umn.edu/Shared drives/NatCapTEEMs/Files/base_data
 ```
 
+Onboarding shortcut: `hb-setup-machine-env` scans the handful of places a mounted
+lab drive can live on this OS, accepts a candidate only if it actually contains
+base_data's top-level directories, and appends the line above for you. It runs
+once, deliberately — never at install or import time — and it reports rather than
+overwrites when the key is already set. `--print` shows the line without writing.
+Finding nothing is a normal outcome: `get_path` then falls through to the cloud
+bucket, which needs no configuration and is the only option on Linux anyway.
+
 On a hit, `get_path` **copies the file into `base_data_dir` and returns the local
 path**, so every later run resolves locally and never touches the root again. The
 copy is atomic (temp file, size check, `os.replace`) and brings GDAL sidecars
