@@ -17,9 +17,14 @@ are recomputed. See run_ngfs_pnas_test_fresh_intermediate.py to rerun all
 computation while keeping input/, and run_ngfs_pnas_test_full.py for a fully
 fresh timestamped project dir.
 """
+import hazelbean as hb
+
 from run_ngfs_pnas import run_project
 
 # START HERE: Failing on pick_modality. Next, to do is validating the below_2c policy run end-to-end at 2024 — your policy_*.cmf templates are placed and the test CSV points at them, so it's ready to exercise the full two-pass policy solve (just_cc → cc_es, combined-shock injection, fisheries line). Just say the word.
 
 if __name__ == '__main__':
-    run_project('ngfs_pnas_scenarios_test.csv', project_name='ngfs_pnas_test', run_mode='check')
+    p = hb.ProjectFlow(project_name='ngfs_pnas_test', run_mode='check')
+    p.scenario_definitions_filename = 'ngfs_pnas_scenarios_test.csv'
+
+    run_project(p)

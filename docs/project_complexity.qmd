@@ -675,17 +675,10 @@ def yield_summations(p):
                 hb.log('Summed ' + row['scenario_label'] + ': ' + str(total))
 
 
-def run_project(scenario_definitions_filename='yield_scenarios.csv',
-                project_name='yield',
-                run_mode='check',
-                tasks_to_skip=None):
+def run_project(p):
     """The full run and the test run differ ONLY by which scenarios CSV drives
-    the task tree. A stable project_name (run_mode='check') means repeated runs
-    resume in place, skipping anything already computed. Returns p."""
-    # One call does the whole directory setup: it places the project, creates it,
-    # and copies input_template/ -> input/ (skip-existing).
-    p = hb.ProjectFlow(project_name=project_name, run_mode=run_mode)
-
+    the task tree. run_project(p) sets what no variant ever changes; the caller
+    built and configured p. Returns p."""
     # Parameters: constant across scenarios. Hydrated onto p, so tasks just use
     # p.ndv, p.data_credentials_path, etc. Blank values read as None.
     parameters_df = pd.read_csv(os.path.join(p.input_dir, 'yield_parameters.csv'))
@@ -693,12 +686,12 @@ def run_project(scenario_definitions_filename='yield_scenarios.csv',
         setattr(p, row['key'], None if pd.isna(row['value']) else row['value'])
     p.ndv = float(p.ndv)
 
-    # Scenarios: the rows of work. Which CSV loads is the run_project argument —
+    # Scenarios: the rows of work. Which CSV loads is the caller's choice —
     # this is the ONLY thing the test wrapper changes.
-    p.scenarios_df = pd.read_csv(os.path.join(p.input_dir, scenario_definitions_filename))
+    p.scenarios_df = pd.read_csv(os.path.join(p.input_dir, p.scenario_definitions_filename))
 
     build_task_tree(p)
-    p.skip_tasks(tasks_to_skip)
+    p.skip_tasks(p.tasks_to_skip)
 
     p.L = hb.get_logger(p.project_name)
     p.execute()
@@ -706,20 +699,30 @@ def run_project(scenario_definitions_filename='yield_scenarios.csv',
 
 
 if __name__ == '__main__':
-    run_project()
+    # One call does the whole directory setup: it places the project, creates it,
+    # and copies input_template/ -> input/ (skip-existing). A stable project_name
+    # with run_mode='check' means repeated runs resume in place.
+    p = hb.ProjectFlow(project_name='yield', run_mode='check')
+    p.scenario_definitions_filename = 'yield_scenarios.csv'
+
+    run_project(p)
 ```
 
 And the smoke test, `run_yield_test.py`, is the whole answer to the Level 2 copy-the-file instinct — the variant is a CSV plus a few lines, never a fork:
 
 ``` python
 """Pared test of the yield project: same task tree, a one-row scenarios CSV, stable dir."""
+import hazelbean as hb
+
 from run_yield import run_project
 
 if __name__ == '__main__':
-    run_project(scenario_definitions_filename='yield_scenarios_test.csv',
-                project_name='yield_test')
+    p = hb.ProjectFlow(project_name='yield_test', run_mode='check')
+    p.scenario_definitions_filename = 'yield_scenarios_test.csv'
+
+    run_project(p)
 ```
 
 Run `run_yield.py` twice: the second run loads the CSVs, checks four existence checks, and exits — everything finished is skipped, which is what makes a stable project dir the default (the test project resumes in place the same way). Add a fifth row to `yield_scenarios.csv` and re-run: only the new scenario computes. Change a machine value (a credentials path, an ssh host) in `input/yield_parameters.csv` and no code changes anywhere. That is the whole canon in miniature: *code defines the pipeline once; scenarios say what to run over; parameters say what is constant; the filesystem remembers what is done.*
 
-This is where the walkthrough ends and the spec begins. The full rules — variant runs via `tasks_to_skip`, shared library builders, ref_paths in scenario CSVs, the `run_<project>_test.py` conventions — live on the [conventions](conventions.qmd) page; a copy-me seed for a project that imports a devstack library is [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py); and the full-scale reference implementation, running a two-pass global economy-environment pipeline with exactly this anatomy, is `ngfs_pnas` (a private repository — ask for access). What was deliberately *not* shown here: the libraries' richer scenario hydration (rows assigned onto `p` and iterated through the tree), parallel iterators, and the machine-config registry — each is the same idea you just saw, grown up.
+This is where the walkthrough ends and the spec begins. The full rules — variant runs via `p.tasks_to_skip`, shared library builders, ref_paths in scenario CSVs, the `run_<project>_test.py` conventions — live on the [conventions](conventions.qmd) page; a copy-me seed for a project that imports a devstack library is [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py); and the full-scale reference implementation, running a two-pass global economy-environment pipeline with exactly this anatomy, is `ngfs_pnas` (a private repository — ask for access). What was deliberately *not* shown here: the libraries' richer scenario hydration (rows assigned onto `p` and iterated through the tree), parallel iterators, and the machine-config registry — each is the same idea you just saw, grown up.

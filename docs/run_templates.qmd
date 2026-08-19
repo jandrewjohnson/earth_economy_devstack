@@ -231,7 +231,7 @@ the reference implementations that conversion produces. Read these; copy from
 **Reference implementations** — the conventions at full scale:
 
 - `run_invest_carbon_in_projectflow.py` — the `run_project(p)` convention on the `global_invest` InVEST carbon task tree. The variant knob is `p.aoi` (an ISO3 code or `'global'`); paths resolve through `p.get_path()`, which searches the project input dir, then base data, then the cloud.
-- `ngfs_pnas.py` — the largest reference implementation of the canonical anatomy: a two-pass GTAP+SEALS pipeline whose `build_task_tree` is driven by a `shock_config` column in the scenarios CSV. Configured through a `run_project(...)` signature.
+- `ngfs_pnas.py` — the largest reference implementation of the canonical anatomy: a two-pass GTAP+SEALS pipeline whose `build_task_tree` is driven by a `shock_config` column in the scenarios CSV. It shows the anatomy holding at a scale where the task tree runs to hundreds of lines: `run_project(p)` is still nothing but constants, and every knob a run varies is still visible in the `__main__` guard.
 - `ngfs_pnas_test.py` — its pared test run: same task tree, a minimal scenarios CSV, one policy scenario, one year, one region. The variant-is-a-file habit at full scale.
 - `seals_standard.py` — a standard SEALS run, identical to `run_templates/run_template_seals_example.py`.
 

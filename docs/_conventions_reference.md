@@ -615,9 +615,9 @@ splitting each multi-byte character into garbled pieces.
   `run_template_seals_example.py` (the same anatomy against a real library task
   tree). `examples/run_templates_annotated/` holds the same code with the
   reasoning written out, including the variant wrapper as a real file.
-  `gtap_invest/projects/ngfs/ngfs_pnas/ngfs_pnas/run_ngfs_pnas.py` remains the
-  largest real pipeline on this anatomy, but is still configured through a
-  `run_project(...)` signature and is pending conversion.
+  `gtap_invest/projects/ngfs/ngfs_pnas/ngfs_pnas/run_ngfs_pnas.py` is the
+  largest real pipeline on this anatomy, and shows it holding at a scale where
+  the task tree runs to hundreds of lines.
 - **Machine-specific configuration lives in `parameters.csv`, never in code and
   never in environment variables.** Connection settings (`vm_ssh_host`,
   `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`), credentials
