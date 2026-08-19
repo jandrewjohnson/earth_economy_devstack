@@ -48,6 +48,82 @@ Now that you have the developer version of hazelbean, you can add additional rep
       - `pip install -e . --no-deps`
 2.  Step 1 can be repeated for any of the repositories below (presuming you have read access) - <https://github.com/jandrewjohnson/seals> - <https://github.com/jandrewjohnson/gtap_invest_dev> - <https://github.com/NatCapTEEMs/global_invest_dev> - <https://github.com/jandrewjohnson/gtappy_dev> - <https://github.com/jandrewjohnson/gep_dev>
 
+## 4. Per-machine configuration
+
+Installing the code is not quite the whole setup. A few settings differ on every machine — where your lab drive is mounted, which SLURM account to charge — and none of them can be committed, because they are true only of your computer. They live in a single never-committed file:
+
+```
+~/.config/hazelbean/machine.env
+```
+
+Hazelbean loads it the moment you `import hazelbean`. The format is plain `KEY=value` lines; a leading `export ` and a trailing `# comment` are both tolerated, so the same file can also be sourced from a shell. Values are applied with *setdefault* semantics — a real environment variable always wins — so you can override any of it for one run without editing the file.
+
+**Nothing here is required.** A machine with no `machine.env` at all works; you just lose the conveniences below.
+
+### The keys that exist
+
+| key | what it does |
+|---------------------|--------------------------------------------------|
+| `HB_SHARED_DATA_DIRS` | Directories that mirror `base_data`'s layout and can be read directly — usually a mounted lab drive. `get_path` searches them after your local `base_data` and before the cloud bucket, and copies anything it finds into `base_data` so later runs resolve locally. `os.pathsep`-separated for more than one. |
+| `GTAP_SC_SLURM_ACCOUNT`, `GTAP_SC_SLURM_PARTITION`, `GTAP_SC_SLURM_TIME`, `GTAP_SC_SLURM_CPUS`, `GTAP_SC_SLURM_MEM` | How gtappy sizes and charges the `sbatch` jobs it submits when solving GTAP on a SLURM cluster. |
+| `GTAP_SC_WINE_SIF` | Path to the Apptainer image that runs GEMPACK under Wine on the cluster. |
+
+### machine.env or parameters.csv?
+
+Both hold per-machine values, and the rule for which is which is simple:
+
+- If a project's `input_template/` ships the key with a blank value, it belongs in **that project's `input/` copy of `parameters.csv`**. The GTAP solve-backend connection settings work this way — `vm_ssh_host`, `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`. They used to be environment variables and deliberately are not any more.
+- Everything else — settings no project varies, that are simply true of the machine — belongs in **`machine.env`**.
+
+Many projects need neither. `global_invest`, for example, has no `parameters.csv` at all, so running one of its services needs nothing beyond an optional `HB_SHARED_DATA_DIRS`.
+
+### Setting up a shared data root
+
+If you have been given access to a lab drive and mounted it (Google Drive for Desktop, Dropbox), let hazelbean find it:
+
+``` bash
+hb-setup-machine-env            # scan, show what was found, confirm, write
+hb-setup-machine-env --print    # show the line without writing anything
+```
+
+It checks the handful of places such a mount can live on your OS, accepts a directory only if it really contains `base_data`'s top-level folders, and appends the `HB_SHARED_DATA_DIRS` line for you. Run it once, whenever your situation changes — it is not an install step, and it never overwrites a value you set by hand.
+
+Finding nothing is a normal outcome, not a failure. Without a shared root, `get_path` falls through to the public cloud bucket, which needs no credentials and works everywhere. That is also the only option on Linux, since Google Drive for Desktop has no Linux client — so cluster machines are expected to have no shared root configured, and pipelines must never depend on one being present.
+
+### Check it worked
+
+Two checks, in order. First, confirm you are running the code you think you are:
+
+``` python
+import hazelbean as hb
+print(hb.__file__)
+```
+
+After a Developer Installation this must print a path inside your cloned repo (`.../Files/hazelbean/hazelbean_dev/hazelbean/__init__.py`). If it prints something under `site-packages` instead, a non-editable copy is shadowing your clone, and none of your local changes are being used. Fix it by re-running the removal and editable install from step 3:
+
+``` bash
+conda remove hazelbean --force
+cd ~/Files/hazelbean/hazelbean_dev
+pip install -e . --no-deps
+```
+
+This is worth checking whenever something you know you changed appears to have no effect: the two copies are easy to confuse, because which one wins can depend on the directory you started Python from.
+
+Second, confirm data resolution is wired up, without starting a real run:
+
+``` python
+import os
+import hazelbean as hb
+
+p = hb.ProjectFlow(project_dir=os.path.expanduser('~/onboarding_check'))
+print(p.shared_data_dirs)   # [] if no shared root is configured -- that is fine
+print(p.get_path('cartographic', 'ee', 'ee_r264_correspondence.gpkg'))
+```
+
+A path printed under your local `base_data` means it worked, whether the file came from the drive or was downloaded from the bucket. If instead it raises, the error lists every root it searched, marks each shared root available or not, and tells you what to do next — so a missing mount is never confused with a missing file.
+
+(The explicit `project_dir` keeps this snippet runnable from anywhere. Real run files pass `project_name` instead and let ProjectFlow infer the location from the repo they live in, which needs the script to be inside a git repo — see [Run Templates](run_templates.qmd).)
+
 ## Compiling C/C++ Code
 
 Windows:
