@@ -279,7 +279,8 @@ the most useful hit:
    output already exists),
 2. `input_dir` — project-specific inputs,
 3. `base_data_dir` — cross-project data (also the default download location),
-4. the cloud storage location.
+4. any **shared data roots** configured on this machine (see below),
+5. the cloud storage location.
 
 ``` python
 p.ha_per_cell_10sec_ref_path = os.path.join('pyramids', 'ha_per_cell_10sec.tif')
@@ -308,6 +309,37 @@ next task that actually consumes the file. This makes `p.get_path()` safe to
 use in the project-level-variables zone above `if p.run_this:`; a task that is
 about to *generate* a file should still pass `raise_error_if_fail=False` (or
 guard with `hb.path_exists`).
+
+**Shared data roots are an opportunistic local cache, never a dependency.**
+(Since 2026-08-19.) A shared data root is a **read-only** directory that mirrors
+`base_data`'s ref_path layout — a mounted lab drive (the TEEMs Google Drive under
+`Files/base_data`), a group scratch dir, an external disk. Configure them per
+machine, because a mount path is a property of the machine and not of any
+project — a Drive mount embeds the signed-in account:
+
+``` bash
+# ~/.config/hazelbean/machine.env — never committed, os.pathsep-separated
+HB_SHARED_DATA_DIRS=/Users/you/Library/CloudStorage/GoogleDrive-you@umn.edu/Shared drives/NatCapTEEMs/Files/base_data
+```
+
+On a hit, `get_path` **copies the file into `base_data_dir` and returns the local
+path**, so every later run resolves locally and never touches the root again. The
+copy is atomic (temp file, size check, `os.replace`) and brings GDAL sidecars
+(`.aux.xml`, `.ovr`, …) along; Drive's native placeholders (`.gsheet`, `.gdoc`)
+are never treated as data. Nothing is ever written back to the root — publishing
+into shared data stays a deliberate act.
+
+Three rules make this safe to rely on *without* depending on it:
+
+- **Unset is the default and a strict no-op.** A machine with no roots configured
+  behaves exactly as it did before the tier existed.
+- **An absent root is normal, not an error.** Google Drive for Desktop has no
+  Linux client, so the cluster will never have the mount; `get_path` skips it and
+  falls through to the bucket. Never write a run that only works because a root
+  happens to be mounted — the cloud tier is the one that works everywhere.
+- **Point a root at a ref_path-compatible mirror only** (`Files/base_data`), never
+  at someone's project folder. Resolution must not depend on personal directory
+  names.
 
 **Factory / creation**
 - **make** — factory functions/methods that create new *instances*
