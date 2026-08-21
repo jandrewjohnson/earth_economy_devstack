@@ -59,7 +59,7 @@ Two things guard against this, and it is worth knowing both:
 - Always pass `--no-deps`. Install dependencies deliberately, never as a side effect of installing a devstack repo.
 - Keep your hazelbean clone on a branch whose derived version is at or above the floor. Versions come from git tags via `setuptools_scm`, so a branch that cannot *reach* the release tag derives a lower version — a clone on `develop` after a release tagged only on `main` reports something like `1.8.1.dev59`, which does not satisfy `>=2.0.0`, and pip replaces it even though your code is newer than the release. Back-merging `main` into `develop` after each release keeps release tags reachable and closes this off.
 
-#### Check you are running the code you think you are
+#### Check you are running the code you think you are {#check-you-are-running-the-code-you-think-you-are}
 
 After adding each repository, confirm the imports still resolve to your clones rather than to a packaged copy:
 
@@ -85,7 +85,7 @@ Hazelbean loads it the moment you `import hazelbean`. The format is plain `KEY=v
 ### The keys that exist
 
 | key | what it does |
-|----------------------|--------------------------------------------------|
+|-----------------------|------------------------------------------------|
 | `HB_SHARED_DATA_DIRS` | Directories that mirror `base_data`'s layout and can be read directly — usually a mounted lab drive. `get_path` searches them after your local `base_data` and before the cloud bucket, and copies anything it finds into `base_data` so later runs resolve locally. `os.pathsep`-separated for more than one. |
 | `GTAP_SC_SLURM_ACCOUNT`, `GTAP_SC_SLURM_PARTITION`, `GTAP_SC_SLURM_TIME`, `GTAP_SC_SLURM_CPUS`, `GTAP_SC_SLURM_MEM` | How gtappy sizes and charges the `sbatch` jobs it submits when solving GTAP on a SLURM cluster. |
 | `GTAP_SC_WINE_SIF` | Path to the Apptainer image that runs GEMPACK under Wine on the cluster. |
