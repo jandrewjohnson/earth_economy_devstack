@@ -197,7 +197,7 @@ fill it in your machine's `input/` copy, and it never reaches the code or git.
 | `template_4_parameters.csv` | `key,value` constants: `ndv`, `n_rows`, `n_cols`, and blank `data_credentials_path` |
 
 The three-column scenarios CSV in these templates is **illustrative only**. The
-real schema is specified in [scenario_definitions.qmd](scenario_definitions.qmd);
+real schema is specified in [proposed_changes.qmd](proposed_changes.qmd);
 worked instances of it are in `scenario_definitions_examples/`.
 
 ## The two template sets
@@ -248,7 +248,7 @@ the reference implementations that conversion produces. Read these; copy from
 ## Data examples
 
 `scenario_definitions_examples/` holds instances of the **v2** scenario
-definitions schema specified in [scenario_definitions.qmd](scenario_definitions.qmd):
+definitions schema specified in [proposed_changes.qmd](proposed_changes.qmd):
 
 - `single_stage_seals.csv` — a SEALS-only project, including a hindcast year.
 - `multi_stage_ngfs.csv` — GTAP + SEALS: a 2020-anchored canonical clock with a `gtap` stage clock.
@@ -259,4 +259,4 @@ definitions schema specified in [scenario_definitions.qmd](scenario_definitions.
 - [project_complexity.qmd](project_complexity.qmd) — the ladder from a one-off script to a systematic project, and why each rung is earned.
 - [project_flow.qmd](project_flow.qmd) — the ProjectFlow engine itself: tasks, iterators, project dirs, `get_path`.
 - [conventions.qmd](conventions.qmd) — the full EE Spec naming and structure rules.
-- [scenario_definitions.qmd](scenario_definitions.qmd) — the scenarios CSV schema.
+- [proposed_changes.qmd](proposed_changes.qmd) — the scenarios CSV schema.

@@ -2,7 +2,7 @@
 title: "Model specs and iterator-driven staging (design)"
 ---
 
-**Status:** design specification. No code implements this yet. It builds on the [scenario definitions v2 schema](scenario_definitions.qmd) (the CSV *instance* layer) and specifies the *model-schema* and *execution* layers above it. The canonical parser, the model-spec registry, and the iterator builder will live in hazelbean next to `project_flow.py`.
+**Status:** design specification. No code implements this yet. It builds on the [scenario definitions v2 schema](proposed_changes.qmd) (the CSV *instance* layer) and specifies the *model-schema* and *execution* layers above it. The canonical parser, the model-spec registry, and the iterator builder will live in hazelbean next to `project_flow.py`.
 
 ## The three layers
 

@@ -7,7 +7,7 @@
 run_project(p) sets what no variant ever changes; the caller sets what a variant might.
 
 This template's three-column scenarios CSV is illustrative only; the real schema is
-specified in docs/scenario_definitions.qmd.
+specified in docs/proposed_changes.qmd.
 
 A variant run is its own file, never a fork: run_template_3_canonical_test.py.
 

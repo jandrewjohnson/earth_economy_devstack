@@ -508,7 +508,10 @@ Three rules make this safe to rely on *without* depending on it:
 We follow PEP 8 with a few departures:
 
 - **Line length** — more than 80 characters is allowed; keep lines within
-  **160** characters (except comments trailing a code line).
+  **160** characters (except comments trailing a code line). Generally, prefer
+  keeping a statement on **one line** rather than wrapping it: the VS Code
+  debugger steps through each continuation line of a wrapped statement, which
+  makes stepping painfully slow.
 - **Blank lines** — use a **single** blank line between functions, not two, so
   more functions are visible when folded.
 - **Case** — `snake_case` for variables and functions, `CamelCase` for classes.

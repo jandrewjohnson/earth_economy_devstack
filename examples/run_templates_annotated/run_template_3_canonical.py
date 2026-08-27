@@ -52,7 +52,7 @@ THE ANATOMY (all four parts are required at this level)
     a scenarios CSV      the rows of work -- what varies
 
     This template's three-column scenarios CSV is illustrative only; the real
-    schema is specified in docs/scenario_definitions.qmd.
+    schema is specified in docs/proposed_changes.qmd.
 
 THE VARIANT RUN IS FOUR LINES, NEVER A FORK
     See run_template_3_canonical_test.py next to this file.

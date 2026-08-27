@@ -1,5 +1,5 @@
 ---
-title: "Scenario definitions (v2 schema)"
+title: "Proposed changes"
 ---
 
 **Status:** design specification. No code implements this yet. The canonical parser and run-step iterator will live in hazelbean (next to `project_flow.py`); seals, gtappy, gtap_invest and global_invest will import it and delete their local copies of `assign_df_row_to_object_attributes`.
@@ -324,3 +324,29 @@ Row surgery:
 ## Future implementation
 
 The canonical parser, validator, migrator and `RunStep` iterator belong in hazelbean next to `project_flow.py`, reusing `cat_ears.py` for templating, plus three harmonization pieces: a semantics-aware `hb.resample_years` (the single temporal resampling utility — levels interpolate, rates compound, differences scale; hazelbean currently has spatial interpolation only, nothing temporal), a `coarse_interpolation`-aware `extract_global_netcdf` (which today silently skips requested years the source lacks), and the shock-preparation step that writes a stage-chain-aligned `.har` from Erwin-style driver files. Key v1 code to replace when implementing: `seals/seals_utils.py:586-724` (row→attributes parsing, including the `seals_years` override tail), `seals/seals_main.py:1400-1560` (scenario/year iteration), the gtappy/gtap_invest copies, and the interpolation blocks in `gtappy_tasks.py`.
+
+# Additional ideas
+
+**1. One row per solved counterfactual (retire `shock_config`)**
+
+> Every counterfactual the CGE model solves is an explicit row in scenarios.csv — no mechanism may graft, suffix, or otherwise synthesize counterfactuals at run time. Decomposition variants of a policy (`below_2c`, `below_2c-noes`) are sibling rows sharing the same exogenous/climate/model labels, distinguished by the counterfactual processing-step suffix (hyphen + 4 chars, already in the scenario-naming rules). Pass ordering is expressed with `depends_on`, not loop order in task code. Rationale: v1's `shock_config` produced counterfactuals (`*_cc_es`) that existed in results but not in the CSV, breaking the "scenarios.csv is authoritative" contract and forcing downstream consumers to discover scenarios by disk-scanning and suffix-matching — a documented source of silent-empty-figure bugs.
+
+**2. A first-class static clock**
+
+> `clock_type` (or an empty `years` with a defined meaning): `static` declares a comparative-static solve — base data plus shocks, no elapsed time. A static scenario has no year dimension: no year path segment in outputs, no year column joins across projects, and appending years to it is a load-time error. Rationale: v1 forces a fake bookkeeping year (e.g. 2024) into every path and figure; the number is economically inert but invites temporal misreading, permits silent shock-compounding if someone extends `years`, and creates meaningless joins against projects where the same year is real. Note the closure caveat: whether a solve is truly static or one recursive-dynamic period is a property of the CMF/closure (`cmf_template`), which the clock declaration does not override — the spec should require the two to agree.
+
+**3. Shock composition is data, not code**
+
+> Which shocks a row applies is expressed in columns — a `*_path` column per shock channel (hydration is name-driven) and a shocks-snippet path for the CMF statement — never as tokens interpreted by task code, in-code label-to-file correspondence dicts, or derived filename conventions. The two path kinds are distinct and both required: `shocks_path` names a **CMF text fragment** (appended verbatim, written in final cat-ear form); `<channel>_shock_path` names the **data** a project task converts to the HAR the fragment references.
+
+**4. Stage ownership of scenario columns (the layering rule)**
+
+> A model stage's initializer may hydrate and validate only its own column group, and no stage's initializer may hard-wire another stage's post-processing (the standing violation: gtappy's scenario init unconditionally running seals' `set_derived_attributes`, which forces LULC-raster and correspondence-file dependencies onto pure GTAP projects). What a project *includes* is declared by its task tree — `build_task_tree` is already the canonical answer to "what is this pipeline" — and each stage present validates its required columns at load time via its `MODEL_SPEC`, failing with a named column list rather than a downstream `AttributeError`. Machinery (registry, validator, template generation) lives in hazelbean; content (each stage's spec and hooks) lives in each model's repo. Corollary: a scenarios CSV carries only the column groups of stages its project uses — ballast columns for absent stages are a v1 compatibility artifact, not a convention.
+
+**5. Downstream consumers read the CSV, not the disk**
+
+> Reporting and visualization derive the scenario/counterfactual universe from scenarios.csv (labels + `comparison_counterfactual_labels`), never by globbing result directories or pattern-matching label suffixes. Suffix conventions are for humans and filenames; they are not an API.
+
+**6. Solve steps are explicit tasks** *(small, run-file anatomy bullet)*
+
+> A pipeline whose generation step defers execution to a dispatch (CMF generation vs GEMPACK solve) must carry the solve as its own named task in the tree — the tree should read as the complete causal chain, and a missing solve step should be visible in `build_task_tree`, not discovered as a missing-results crash three tasks downstream.
