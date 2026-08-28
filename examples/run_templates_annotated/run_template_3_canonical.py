@@ -64,7 +64,6 @@ PROMOTE TO TEMPLATE 4 WHEN
 import os
 
 import numpy as np
-import pandas as pd
 import hazelbean as hb
 
 
@@ -148,8 +147,8 @@ def run_project(p):
     # directory next to this run file; ProjectFlow copied anything missing into the
     # project's untracked input/ when the caller constructed it, and never
     # overwrites the working copy -- so your edits survive re-runs.
-    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
-    p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+    # hb.initialize_scenarios loads p.scenarios_df and hydrates row 0 onto p.
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
 
     # Base data: the model checks here for everything it needs and downloads
     # anything missing. The directory must be named base_data to match the naming

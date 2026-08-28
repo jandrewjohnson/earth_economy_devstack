@@ -27,7 +27,7 @@ GTAPpy sits on top of the GEMPACK executables and supplies the parts around them
 
 ## How a GTAPpy run works
 
-**1. The user writes a run file.** A run file (e.g. `run_standard.py`,
+**1. The user writes a run file.** A run file (e.g. `run_gtappy.py`,
 `run_process_aez_results.py`) follows the devstack
 [run-file convention](conventions.qmd): a `run_project(p)` entry point that
 creates a `ProjectFlow` object, sets `run_mode`, points at the base data

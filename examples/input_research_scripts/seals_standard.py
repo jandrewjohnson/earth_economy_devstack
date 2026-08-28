@@ -2,7 +2,7 @@
 
 A reference implementation -- the conventions at full scale on a real model. The
 code below is identical to run_templates/run_template_seals_example.py, which is
-the copy to start a new project from, and to seals/seals/run_seals_standard.py,
+the copy to start a new project from, and to seals/seals/run_seals.py,
 the run file SEALS itself ships. If you change the anatomy in one, change it in
 all three.
 
@@ -69,7 +69,7 @@ def run_project(p):
 if __name__ == '__main__':
     # run_mode: 'check' resumes in place | 'fresh_intermediate' rebuilds all
     # computation but keeps input/ (test projects only) | 'full' timestamps a new dir.
-    p = hb.ProjectFlow(project_name='seals_standard', run_mode='check')
+    p = hb.ProjectFlow(project_name='seals', run_mode='check')
     p.scenario_definitions_filename = 'standard_scenarios.csv'
     # p.tasks_to_skip = ['stitched_lulc_simplified_scenarios']
 

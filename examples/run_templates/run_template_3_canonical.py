@@ -16,7 +16,6 @@ Annotated version: ../run_templates_annotated/run_template_3_canonical.py
 import os
 
 import numpy as np
-import pandas as pd
 import hazelbean as hb
 
 
@@ -85,8 +84,8 @@ def run_project(p):
     p.ndv = -9999.0
 
     # Tracked in input_template/ next to this file; ProjectFlow seeds input/ from it.
-    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
-    p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+    # Loads p.scenarios_df and hydrates row 0 onto p.
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
 
     p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data')
 

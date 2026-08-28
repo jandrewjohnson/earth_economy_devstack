@@ -88,9 +88,11 @@ complexity rather than adopt it.
 Alongside the four rungs, `run_templates/run_template_seals_example.py` is the
 same anatomy applied to a **real model**: `build_task_tree` delegates unchanged to
 `seals_initialize_project.build_standard_task_tree(p)`, and `run_project` sets the
-base data dir, the processing resolution, and the scenarios CSV that SEALS
-generates in `input/` on first run. Copy this one to start a standalone SEALS
-project. It is the one template that moves along the *other two* axes while
+base data dir and the processing resolution and loads the scenarios CSV, which
+ships in seals' tracked `input_template/` and is seeded into `input/` on first
+run (runtime CSV generation was retired 2026-08; it returns typed as
+`generate_scenarios_csv_from_model_spec`). Copy this one to start a standalone
+SEALS project. It is the one template that moves along the *other two* axes while
 staying at configuration level 3: its code layout is a **library package**
 (nothing in the file defines a task) and its ownership is **devstack developer**
 (seals is imported, and you could edit it). Moving along code layout changed
@@ -147,9 +149,11 @@ and no default that can drift out of sync. One deliberate exception (2026-08
 amendment): the **full definitions-filename block** (parameters, scenarios,
 outputs, figures, sections, descriptions) is set by the caller even though most
 members never vary — it is the project's interface manifest, and variants copy
-the block and override only the member that differs. (The numbered templates
-still show the older split, with the parameter filename inside `run_project` —
-pending update to the amended convention.)
+the block and override only the member that differs. Template 4 shows it working: the
+block sits in `__main__`, and `run_project` only loads it via
+`hb.initialize_parameters` / `hb.initialize_scenarios`. The split, downstream and
+seals templates additionally end their init with the model's
+`initialize_project(p)` — the model-initializer anatomy.
 
 The cost, stated honestly: bare `run_project()` no longer works — the caller must
 hand it a ProjectFlow, and a variant wrapper is four lines instead of three. In

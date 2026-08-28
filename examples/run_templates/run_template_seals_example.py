@@ -10,7 +10,7 @@ with everything in one file -- that is the point of separating the axes. Moving
 along Code layout changed exactly one function here, build_task_tree, which now
 delegates instead of containing.
 
-This file is a teaching copy of seals/seals/run_seals_standard.py, which is
+This file is a teaching copy of seals/seals/run_seals.py, which is
 the real reference SEALS run. If you change the anatomy in one, change it in the
 other.
 
@@ -60,17 +60,13 @@ def run_project(p):
     p.processing_resolution = 1.0 # In degrees. Must be in pyramid_compatible_resolutions
 
     # Scenarios: the rows of work. The caller chose which CSV, because that is
-    # exactly what a variant run varies. SEALS generates a default in the
-    # project's input_dir if this is your first run.
-    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
-    seals_initialize_project.initialize_scenario_definitions(p)
+    # exactly what a variant run varies. The CSV ships in seals' tracked
+    # input_template/ and is seeded into the project's input/ on first run.
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
 
-    seals_initialize_project.set_advanced_options(p)
-
-    p.L = hb.get_logger(p.project_name)
-    hb.log('Created ProjectFlow object at ' + p.project_dir +
-           '\n    from script ' + p.calling_script +
-           '\n    with base_data set at ' + p.base_data_dir)
+    # Seals' model initializer: advanced options, derived attributes, calibration
+    # override dict, logger. Must come AFTER the scenarios load (EE Spec ordering rule).
+    seals_initialize_project.initialize_project(p)
 
     p.execute()
 
@@ -80,7 +76,9 @@ def run_project(p):
 if __name__ == '__main__':
     # run_mode: 'check' resumes in place | 'fresh_intermediate' rebuilds all
     # computation but keeps input/ (test projects only) | 'full' timestamps a new dir.
-    p = hb.ProjectFlow(project_name='seals_standard', run_mode='check')
+    p = hb.ProjectFlow(project_name='seals', run_mode='check')
+    # NOTE: standard_scenarios.csv is GLOBAL; for a quick first run point at
+    # standard_scenarios_test.csv (RWA, one projection year) instead.
     p.scenario_definitions_filename = 'standard_scenarios.csv'
     # p.tasks_to_skip = ['stitched_lulc_simplified_scenarios']
 

@@ -145,5 +145,19 @@
     "title": "Scenario definitions (v2 schema)",
     "section": "Future implementation",
     "text": "Future implementation\nThe canonical parser, validator, migrator and RunStep iterator belong in hazelbean next to project_flow.py, reusing cat_ears.py for templating. Key v1 code to replace when implementing: seals/seals_utils.py:586-724 (row→attributes parsing), seals/seals_main.py:1400-1560 (scenario/year iteration), and the gtappy/gtap_invest copies."
+  },
+  {
+    "objectID": "making_a_pog.html#the-pog-spec-in-summary",
+    "href": "making_a_pog.html#the-pog-spec-in-summary",
+    "title": "",
+    "section": "The POG spec, in summary",
+    "text": "The POG spec, in summary\nOther sources, including an in-prep manuscript, define fully the pog spec, but for now, the summary is: a POG is a GeoTIFF that passes both checks below (this is literally what hb.is_path_pog tests — is_path_global_pyramid and is_path_cog).\n1. It is a global pyramid:\n\nGlobal extent, exact geotransform. The raster spans the whole globe, (-180, res, 0, 90, 0, -res), matching the canonical geotransform for its resolution exactly (not approximately).\nA supported resolution. Cell size is one of the pyramid-compatible resolutions, named by arcseconds:\n\n\n\nArcseconds\nDegrees\nApprox. at equator\nShape (rows × cols)\n\n\n\n\n1\n1/3600\n~30 m\n648,000 × 1,296,000\n\n\n10\n1/360\n~300 m\n64,800 × 129,600\n\n\n30\n1/120\n~1 km\n21,600 × 43,200\n\n\n150\n1/24\n~5 km\n4,320 × 8,640\n\n\n300\n1/12\n~10 km\n2,160 × 4,320\n\n\n900\n0.25\n~25 km\n720 × 1,440\n\n\n1800\n0.5\n~50 km\n360 × 720\n\n\n3600\n1.0\n~110 km\n180 × 360\n\n\n7200\n2.0\n\n90 × 180\n\n\n14400\n4.0\n\n45 × 90\n\n\n36000\n10.0\n\n18 × 36\n\n\n\nThe standard no-data value for its data type. NDV is not a free choice: signed integers and floats use -9999; unsigned integers use the maximum value of the type (e.g., 255 for Byte, 65535 for UInt16). make_path_pog sets this for you (it will override whatever NDV the input had).\nCompressed with DEFLATE or LZW.\nInternal overviews at exactly the prescribed levels for its resolution (e.g., 10 arcseconds requires levels [3, 15, 30, 90, 180, 360], so its overviews land exactly on the coarser supported resolutions). The full mapping is hb.pyramid_compatible_overview_levels. Overview resampling is mode for integer types and average for floats.\nExact statistics stored internally. Band statistics must be present and computed exactly (STATISTICS_APPROXIMATE=NO), with no stale .aux.xml sidecar shadowing them.\n\n2. It is a valid COG: it passes GDAL’s COG validation — tiled layout, properly ordered internal overviews, cloud-readable header structure. make_path_pog writes through the GDAL COG driver (BIGTIFF, 512-pixel blocks by default), so this comes for free."
+  },
+  {
+    "objectID": "making_a_pog.html#handy-extras",
+    "href": "making_a_pog.html#handy-extras",
+    "title": "",
+    "section": "Handy extras",
+    "text": "Handy extras\n\nhb.make_paths_pogs_in_parallel(...) converts a list of rasters across multiple processes.\nhb.write_pog_of_value_from_scratch(output_path, value, arcsecond_resolution, output_data_type) and hb.write_pog_of_value_from_match(output_path, match_path, value) create constant-valued POGs, useful as templates or masks.\nmake_path_pog also accepts ndv_above / ndv_below (censor out-of-range values to NDV) and value_reclassification_dict (reclassify while converting) so you can clean a raster in the same pass that pog-ifies it."
   }
 ]

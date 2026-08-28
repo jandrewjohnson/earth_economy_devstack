@@ -4,7 +4,9 @@
     Code layout:   single file -- tasks are defined here
     Ownership:     self-contained -- you own every file this run touches
 
-run_project(p) sets what no variant ever changes; the caller sets what a variant might.
+run_project(p) sets what no variant ever changes; the caller sets what a variant
+might -- with one deliberate exception: the caller sets the FULL definitions-filename
+block (the project's interface manifest), and run_project only loads it.
 Machine-specific keys ship blank in the tracked input_template/ CSV and are filled in
 each machine's untracked input/ copy, so they never reach the code or git.
 
@@ -94,20 +96,18 @@ def run_project(p):
     build_task_tree(p)
     p.skip_tasks(p.tasks_to_skip)
 
-    # Parameters: constant across scenarios AND across variants, so named here.
-    # Hydrated onto p; blank values read as None.
-    p.parameter_definitions_filename = 'template_4_parameters.csv'
-    p.parameter_definitions_path = os.path.join(p.input_dir, p.parameter_definitions_filename)
-    parameters_df = pd.read_csv(p.parameter_definitions_path)
-    for _, row in parameters_df.iterrows():
-        setattr(p, row['key'], None if pd.isna(row['value']) else row['value'])
+    # Parameters: constant across scenarios AND across variants. The caller named
+    # the file (full-block rule); run_project only loads it. Hydrated onto p;
+    # blank values read as None.
+    hb.initialize_parameters(p, p.parameter_definitions_filename)
+    # Cast the values used as numbers (hydration leaves plain numerics usable,
+    # but being explicit here keeps the tasks honest about their types).
     p.ndv = float(p.ndv)
     p.n_rows = int(p.n_rows)
     p.n_cols = int(p.n_cols)
 
     # Scenarios: the rows of work. The caller chose which CSV.
-    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
-    p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
 
     p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data')
 
@@ -124,6 +124,7 @@ if __name__ == '__main__':
     # run_mode: 'check' resumes in place | 'fresh_intermediate' rebuilds all
     # computation but keeps input/ (test projects only) | 'full' timestamps a new dir.
     p = hb.ProjectFlow(project_name='template_4_concise', run_mode='check')
+    p.parameter_definitions_filename = 'template_4_parameters.csv'
     p.scenario_definitions_filename = 'template_4_scenarios.csv'
     # p.tasks_to_skip = ['yield_report']
 

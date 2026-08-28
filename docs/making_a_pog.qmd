@@ -1,0 +1,73 @@
+# So you want to make a POG...
+
+Pogs are Pyramidal COGs. COGs are Cloud-Optimized Geotiffs which are super awesome and allow for, among other things, downloading only a small subset of a huge file. A COG is still a regular GeoTIFF that any GIS can open, but its internal layout (tiling, internal overviews, header placement) is arranged so that a remote reader can grab just the tiles and zoom level it needs via HTTP range requests.
+
+Pogs extend the concept to guarantee *global pyramidal alignment*: every POG covers the whole globe on one of a fixed set of supported resolutions, with a geotransform that is bit-for-bit identical across all files at that resolution. Because the grids nest exactly, any two POGs can be combined across resolutions with pure array indexing --- no reprojection, no resampling, no half-pixel shifts --- which is what makes fast exact zonal statistics and cross-resolution modeling in the devstack possible.
+
+The function for making a pog is in Hazelbean at `make_path_pog`. Here you can use this by pointing it at any GeoTIFF:
+
+``` python
+import hazelbean as hb
+
+# Rewrite the file in place as a POG
+hb.make_path_pog('my_raster.tif')
+
+# Or write to a new file and control the details
+hb.make_path_pog(
+    'my_raster.tif',
+    output_raster_path='my_raster_pog.tif',
+    output_data_type=6,        # optional; defaults to the input's data type
+    compression='DEFLATE',     # default
+    blocksize=512,             # default
+)
+```
+
+If the input is not already on a global pyramidal grid, `make_path_pog` resamples it onto the matching global grid for its resolution (nearest-neighbor for integer/categorical data, bilinear for floats), then computes exact statistics, builds the prescribed internal overviews, and writes the result through GDAL's COG driver. If the input already validates as a POG, it does nothing.
+
+You can verify the result (and see exactly which criterion fails, if one does) with:
+
+``` python
+hb.is_path_pog('my_raster_pog.tif', verbose=True)
+```
+
+Note that the most convenient way to ensure something is a pog is to point the function to an existing pog of the same resolution. A comprehensive set of files at all the supported pyramid resolutions are in our base data under `pyramids/`. The example for 300 meter (10 arcsecond) data would be the ref_path `os.path.join('pyramids', 'ha_per_cell_10sec.tif')` --- in a ProjectFlow project, `p.get_path()` on that ref_path resolves it against your data roots (and downloads it into `base_data` if you don't have it yet).
+
+## The POG spec, in summary
+
+Other sources, including an in-prep manuscript, define fully the pog spec, but for now, the summary is: a POG is a GeoTIFF that passes **both** checks below (this is literally what `hb.is_path_pog` tests --- `is_path_global_pyramid` and `is_path_cog`).
+
+**1. It is a global pyramid:**
+
+- **Global extent, exact geotransform.** The raster spans the whole globe, `(-180, res, 0, 90, 0, -res)`, matching the canonical geotransform for its resolution exactly (not approximately).
+
+- **A supported resolution.** Cell size is one of the pyramid-compatible resolutions, named by arcseconds:
+
+  | Arcseconds | Degrees | Approx. at equator | Shape (rows × cols) |
+  |-----------:|--------:|-------------------:|--------------------:|
+  |          1 |  1/3600 |             \~30 m | 648,000 × 1,296,000 |
+  |         10 |   1/360 |            \~300 m |    64,800 × 129,600 |
+  |         30 |   1/120 |             \~1 km |     21,600 × 43,200 |
+  |        150 |    1/24 |             \~5 km |       4,320 × 8,640 |
+  |        300 |    1/12 |            \~10 km |       2,160 × 4,320 |
+  |        900 |    0.25 |            \~25 km |         720 × 1,440 |
+  |       1800 |     0.5 |            \~50 km |           360 × 720 |
+  |       3600 |     1.0 |           \~110 km |           180 × 360 |
+  |       7200 |     2.0 |                    |            90 × 180 |
+  |      14400 |     4.0 |                    |             45 × 90 |
+  |      36000 |    10.0 |                    |             18 × 36 |
+
+- **The standard no-data value for its data type.** NDV is not a free choice: signed integers and floats use `-9999`; unsigned integers use the maximum value of the type (e.g., 255 for Byte, 65535 for UInt16). `make_path_pog` sets this for you (it will override whatever NDV the input had).
+
+- **Compressed** with DEFLATE. This is a choice we made and in most tests deflate performs better than the more common LZW. We have also tried out ZSTD which is way better than DEFLATE but is not universally supported (yet), so we don't use it in the definition.
+
+- **Internal overviews at exactly the prescribed levels** for its resolution (e.g., 10 arcseconds requires levels `[3, 15, 30, 90, 180, 360]`, so its overviews land exactly on the coarser supported resolutions). The full mapping is `hb.pyramid_compatible_overview_levels`. Overview resampling is `mode` for integer types and `average` for floats.
+
+- **Exact statistics stored internally.** Band statistics must be present and computed exactly (`STATISTICS_APPROXIMATE=NO`), with no stale `.aux.xml` sidecar shadowing them.
+
+**2. It is a valid COG:** it passes GDAL's COG validation --- tiled layout, properly ordered internal overviews, cloud-readable header structure. `make_path_pog` writes through the GDAL COG driver (BIGTIFF, 512-pixel blocks by default), so this comes for free.
+
+## Handy extras
+
+- `hb.make_paths_pogs_in_parallel(...)` converts a list of rasters across multiple processes.
+- `hb.write_pog_of_value_from_scratch(output_path, value, arcsecond_resolution, output_data_type)` and `hb.write_pog_of_value_from_match(output_path, match_path, value)` create constant-valued POGs, useful as templates or masks.
+- `make_path_pog` also accepts `ndv_above` / `ndv_below` (censor out-of-range values to NDV) and `value_reclassification_dict` (reclassify while converting) so you can clean a raster in the same pass that pog-ifies it.

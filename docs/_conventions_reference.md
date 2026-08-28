@@ -634,6 +634,19 @@ splitting each multi-byte character into garbled pieces.
   scenario filename lived in the caller; the cost is that a variant wrapper
   carries the full block rather than one line, and the payoff is the same as the
   parent rule's — omitting a member fails loudly with a named `AttributeError`.
+- **The run-file stem names the project: stem minus `run_` = `project_name`.**
+  The bare-constructor inference is the normative case; an explicit
+  `project_name` merely restates the stem. A mismatch (a `run_x.py` whose
+  constructor says `project_name='test_y'`) is a defect, not a variant
+  mechanism — variants get their own file with their own stem.
+- **Every supported model repo ships `run_<model>.py` — its default template
+  run — plus a fast `run_<model>_test.py` run_test file.** `run_<model>.py` is
+  the model's canonical pipeline at canonical scope (for seals that is a global
+  run) and the file the docs point new users at; the `_test` wrapper is the
+  pared fast configuration (small AOI, one projection year) and what the pytest
+  system test wraps. Project implementations live OUTSIDE the devstack (a
+  project repo a partner might clone), call supported models, and follow the
+  same pair: `run_<project>.py` plus one or more `run_<project>_test.py`.
 - **Model initializers: one `initialize_project(p)` per model library, called
   AFTER the definitions loads.** The successor anatomy to the per-model
   `initialize_*_definitions` wrappers: `hb.initialize_parameters(p, ...)` and
@@ -727,11 +740,11 @@ splitting each multi-byte character into garbled pieces.
   Scenario iteration re-hydrates `p` from the CSV row at each scenario, so a
   run-file assignment like `p.aoi = 'RWA'` made after scenario initialization
   wins only until the first scenario iterates, then is silently overwritten.
-  Run files may set scenario-varying attributes only inside the
-  generate-defaults branch
-  (`if not hb.path_exists(p.scenario_definitions_path):`), where they seed the
-  CSV about to be written — on later runs that branch is dead code and the CSV
-  rules. To run with a different AOI (or any other scenario-varying value),
+  (Run files on the retired legacy path could set scenario-varying attributes
+  inside a generate-defaults branch that seeded the CSV about to be written;
+  runtime generation was retired 2026-08 — scenarios CSVs ship in tracked
+  `input_template/`, and generation returns typed as
+  `generate_scenarios_csv_from_model_spec`.) To run with a different AOI (or any other scenario-varying value),
   point the run at a different scenarios CSV — set
   `p.scenario_definitions_filename` in the caller before `run_project(p)` — which
   is exactly what the pared `_test.csv` pattern is.
@@ -774,6 +787,46 @@ splitting each multi-byte character into garbled pieces.
   the task tree for tests.
   Test files use the `_test` **suffix** (`run_<project>_test.py`,
   `run_<project>_<variant>_test.py`), never a `run_test_*` prefix.
+
+## Testing across the stack
+
+Four kinds of test-adjacent file, two of which are not tests at all:
+
+- **`run_<model>.py` / `run_<project>.py`** — run files, the entry points
+  described in the ProjectFlow conventions. Never executed by any test runner.
+- **run_test files (`run_<model>_test.py`, `run_<project>_test.py`,
+  `run_*_test_full.py`, ...)** — pared configurations of a run file, sharing its
+  pipeline by import. These are NOT unit tests and are never auto-run: they can
+  be slow and can require large base_data downloads, so they are unsuitable for
+  CI. They are how a human (or an agent, deliberately) smoke-tests a project.
+- **pytest suites in `<model>_tests/`** — a sibling directory of the module
+  folder (`gtappy_tests/` beside `gtappy/`, `seals_tests/` beside `seals/`,
+  `hazelbean_tests/`). Everything here is pytest-based and fast by default, and
+  constructs its own test data (small committed fixtures in `testdata/`) unless
+  explicitly testing base_data itself.
+- **`manual_t_*.py`** — files in the tests directory that pytest must never
+  collect (interactive or destructive checks). The prefix, not a marker, keeps
+  them out of collection.
+
+**Markers partition the pytest suites** (registered in each repo's
+`conftest.py`, uniformly named across repos):
+
+- `requires_base_data` — needs the local `~/Files/base_data` store; SKIPS
+  cleanly when it is absent, so the suite passes on a CI runner with no data.
+- `slow` — minutes rather than seconds, even with data present.
+
+The automated tier is `pytest -m "not requires_base_data and not slow"` — this
+is the invocation a future GitHub Actions workflow runs; keeping every repo
+green under it IS the CI-readiness criterion. The full local tier is bare
+`pytest`.
+
+**System tests wrap run files — they never reimplement them.** When a model's
+run_test configuration is fast enough to pytest (the seals RWA test is the
+standing example), the pytest test imports `run_project` from `run_<model>.py`,
+constructs the ProjectFlow the `_test` wrapper would, calls it, and asserts on
+outputs. Marked `requires_base_data` (and `slow` where warranted). A pytest
+file that restates a run file's body is the fork-drift failure mode the
+variants rule exists to prevent, and is how `test_seals.py` originally rotted.
 
 ## Slides from prose: `*_marked.qmd` and revealjs
 

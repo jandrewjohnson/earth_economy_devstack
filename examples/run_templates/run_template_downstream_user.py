@@ -80,16 +80,13 @@ def run_project(p):
 
     # The library's own definition CSVs still drive the library's tasks. This
     # project supplies its own copies in input_template/ -- the library ships the
-    # schema, you ship the rows.
-    p.parameter_definitions_filename = 'caloric_yield_parameters.csv'
-    caloric_yield_initialize_project.initialize_parameter_definitions(p)
-    caloric_yield_initialize_project.initialize_scenario_definitions(p)
+    # schema, you ship the rows. Loads first, then the library's model initializer
+    # (the EE Spec ordering rule).
+    hb.initialize_parameters(p, p.parameter_definitions_filename)
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
+    caloric_yield_initialize_project.initialize_project(p)
 
     p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data')
-
-    p.L = hb.get_logger(p.project_name)
-    hb.log('Created ProjectFlow object at ' + p.project_dir +
-           '\n    with base_data set at ' + p.base_data_dir)
 
     p.execute()
 
@@ -101,6 +98,7 @@ if __name__ == '__main__':
     # scenario rows here against the library template's four -- the rows of work
     # are yours, the pipeline is theirs.
     p = hb.ProjectFlow(project_name='template_downstream_user', run_mode='check')
+    p.parameter_definitions_filename = 'caloric_yield_parameters.csv'
     p.scenario_definitions_filename = 'caloric_yield_scenarios_downstream.csv'
     # Drop a library task you do not want, without touching the library:
     # p.tasks_to_skip = ['yield_report']

@@ -61,18 +61,13 @@ def run_project(p):
     build_task_tree(p)
     p.skip_tasks(p.tasks_to_skip)
 
-    # Parameters: constant across scenarios AND across variants, so named here.
-    p.parameter_definitions_filename = 'caloric_yield_parameters.csv'
-    caloric_yield_initialize_project.initialize_parameter_definitions(p)
-
-    # Scenarios: the rows of work. The caller chose which CSV.
-    caloric_yield_initialize_project.initialize_scenario_definitions(p)
+    # Definitions loads first (the caller named the files), then the model's
+    # initializer -- the EE Spec ordering rule, which initialize_project enforces.
+    hb.initialize_parameters(p, p.parameter_definitions_filename)
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
+    caloric_yield_initialize_project.initialize_project(p)
 
     p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data')
-
-    p.L = hb.get_logger(p.project_name)
-    hb.log('Created ProjectFlow object at ' + p.project_dir +
-           '\n    with base_data set at ' + p.base_data_dir)
 
     p.execute()
 
@@ -83,6 +78,7 @@ if __name__ == '__main__':
     # run_mode: 'check' resumes in place | 'fresh_intermediate' rebuilds all
     # computation but keeps input/ (test projects only) | 'full' timestamps a new dir.
     p = hb.ProjectFlow(project_name='template_split_layout', run_mode='check')
+    p.parameter_definitions_filename = 'caloric_yield_parameters.csv'
     p.scenario_definitions_filename = 'caloric_yield_scenarios.csv'
     # p.tasks_to_skip = ['yield_report']
 
