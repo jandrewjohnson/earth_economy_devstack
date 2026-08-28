@@ -143,9 +143,13 @@ level:
 The caller builds the `ProjectFlow` and hangs configuration on it; `run_project`
 only runs it. When a constant starts varying, it moves one line up — out of
 `run_project`, into the caller. There is no signature to edit, no keyword to add,
-and no default that can drift out of sync. Template 4 shows the split working:
-`p.scenario_definitions_filename` is set by the caller (variants change it),
-`p.parameter_definitions_filename` is set inside `run_project` (no variant does).
+and no default that can drift out of sync. One deliberate exception (2026-08
+amendment): the **full definitions-filename block** (parameters, scenarios,
+outputs, figures, sections, descriptions) is set by the caller even though most
+members never vary — it is the project's interface manifest, and variants copy
+the block and override only the member that differs. (The numbered templates
+still show the older split, with the parameter filename inside `run_project` —
+pending update to the amended convention.)
 
 The cost, stated honestly: bare `run_project()` no longer works — the caller must
 hand it a ProjectFlow, and a variant wrapper is four lines instead of three. In

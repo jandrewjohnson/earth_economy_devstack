@@ -606,8 +606,9 @@ splitting each multi-byte character into garbled pieces.
     skips nothing and no guard is needed.
   - an `if __name__ == '__main__':` guard that **builds and configures the
     ProjectFlow** — `p = hb.ProjectFlow(project_name=..., run_mode=...)`, then the
-    attributes this run varies — and calls `run_project(p)`. The guard is
-    mandatory: run files must never execute on import.
+    full definitions-filename block and the attributes this run varies — and
+    calls `run_project(p)`. The guard is mandatory: run files must never execute
+    on import.
   - the definition CSVs the run reads, in `input_template/` beside the run file.
 - **The rule that decides what goes where: `run_project(p)` sets what no variant
   ever changes; the caller sets what a variant might.** When a project constant
@@ -622,6 +623,32 @@ splitting each multi-byte character into garbled pieces.
   longer works, and a variant wrapper is four lines instead of three — in
   exchange, every knob a run uses is visible at the call site, and omitting one
   raises a named `AttributeError` instead of silently using another run's default.
+- **Amendment (2026-08): the caller sets the full definitions-filename block.**
+  All `*_definitions_filename` attributes the run reads — parameters, scenarios,
+  outputs, figures, sections, figure descriptions — are set together in the
+  `__main__` guard (or variant wrapper), even though most never vary between
+  variants. The block is the project's **interface manifest**: one visible place
+  listing every definitions file the run consumes; `run_project` only reads it.
+  Variants copy the whole block and override the member(s) that differ (usually
+  just the scenarios CSV). This supersedes the older split where only the
+  scenario filename lived in the caller; the cost is that a variant wrapper
+  carries the full block rather than one line, and the payoff is the same as the
+  parent rule's — omitting a member fails loudly with a named `AttributeError`.
+- **Model initializers: one `initialize_project(p)` per model library, called
+  AFTER the definitions loads.** The successor anatomy to the per-model
+  `initialize_*_definitions` wrappers: `hb.initialize_parameters(p, ...)` and
+  `hb.initialize_scenarios(p, ...)` load and hydrate the definitions CSVs, and
+  each model library exposes one same-named
+  `<model>_initialize_project.initialize_project(p)` bundling that model's
+  setup (gtappy: advanced options + modality connections; seals: advanced
+  options + derived attributes). The run file's list of `initialize_project(p)`
+  calls is the project's stage declaration — a GTAP-only project simply never
+  calls seals'. **Ordering is load-bearing**: parameters first, then scenarios
+  (when the run has a scenarios file), then every model `initialize_project`
+  call — because model initializers read hydrated attributes (gtappy's modality
+  wiring reads parameters; seals' derived attributes read scenario row 0).
+  If a run declares a scenarios file, it MUST be initialized before any
+  `initialize_project` call; implementations enforce this with a named error.
 - **Directory setup is the single constructor call
   `hb.ProjectFlow(project_name=..., run_mode=...)`, made by the caller.** It
   validates `run_mode` and infers the project dir git-aware from the run file's
@@ -738,8 +765,9 @@ splitting each multi-byte character into garbled pieces.
 - **A test run differs from the full run only by its scenarios CSV.** Keep a pared
   `<project>_scenarios_test.csv` in `input_template/` (fewer scenarios, a single
   future year, a single AOI region) and a thin `run_<project>_test.py` (≤ ~25
-  lines) that imports `run_project` from `run_<project>.py` and calls it with that
-  filename, a stable `<project>_test` project name, and `run_mode='check'`
+  lines) that imports `run_project` from `run_<project>.py`, copies the full
+  definitions-filename block with the scenarios member pointed at the test CSV,
+  and uses a stable `<project>_test` project name and `run_mode='check'`
   so repeated test runs resume in place (`run_mode='fresh_intermediate'` on the
   same stable name forces full recompute while keeping `input/`'s machine
   config; `run_mode='full'` tests the fresh-machine first-run path). Don't fork
