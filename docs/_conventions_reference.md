@@ -291,7 +291,7 @@ fraction of each cell), resample in proportion space, and only as a last step
 multiply by the canonical `ha_per_cell_<res>sec.tif` at the target resolution.
 Because the ha_per_cell pyramids are themselves exact at every supported
 resolution, this guarantees sum-preserving aggregation. See
-`making_a_pog.qmd` for the POG spec these files follow.
+`pogs.qmd` for the POG spec these files follow.
 
 ## get_path and ref_path
 
@@ -603,7 +603,7 @@ splitting each multi-byte character into garbled pieces.
   means the configuration axis**. Copy-me templates are described on the [Run Templates](run_templates.qmd)
   page; the same code with the reasoning written out is in
   `examples/run_templates_annotated/`. The six numbered stages in
-  project_complexity.qmd are a historical narrative, not these levels.
+  levels_of_complexity.qmd are a historical narrative, not these levels.
 - A ProjectFlow project's root is the directory holding its `run_<project>.py`
   entry file (ProjectFlow auto-detects this as `script_dir`; `input_template/`
   lives beside the run file). There is no separate markerfile.

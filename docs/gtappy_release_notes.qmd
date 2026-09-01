@@ -1,13 +1,13 @@
-# GTAPpy development notes
+# GTAPPy release notes
 
 ::: {.callout-note appearance="simple"}
 ## Historical record, not a guide
 
-These are dated notes from the 2022–2023 build-out of GTAPpy, kept because they
+These are dated notes from the 2022–2023 build-out of GTAPPy, kept because they
 record *why* several conventions are the way they are and what was still open at
 the time. The code shown has since moved to the `run_project(p)` run-file
 convention described in [Conventions](conventions.qmd), so do not copy from it.
-For current usage start at [GTAPpy](gtappy.qmd).
+For current usage start at [GTAPPy](gtappy.qmd).
 :::
 
 ## v2023-12-18 — correspondence files into EE spec
@@ -117,7 +117,7 @@ tasks to it — the ancestor of today's task tree:
 Note the shape already visible here: a list of aggregation labels
 (`'10x10'`, `'65x141'`) and a list of experiment labels (`'agpr20b'`, `'beef50'`,
 `'rtms5'`), iterated over as a cross product. That is the multi-aggregation
-philosophy described on the [GTAPpy home page](gtappy.qmd), present from the
+philosophy described on the [GTAPPy home page](gtappy.qmd), present from the
 start.
 
 And the task that generated a CMF and called the executable:

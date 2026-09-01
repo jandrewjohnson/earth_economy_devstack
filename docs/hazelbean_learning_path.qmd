@@ -43,7 +43,7 @@ By the end of this tutorial series, you will be able to:
 
 ## Educational Resources
 
-### [Step-by-Step Tutorial Examples](hazelbean_examples.qmd)
+### [Step-by-Step Tutorial Examples](hazelbean_tutorials.qmd)
 
 **Perfect for:** First-time users, guided learning, hands-on practice  
 **Time Commitment:** ~65 minutes total  
@@ -53,11 +53,11 @@ Our comprehensive tutorial takes you through five progressive examples:
 
 | Step | Focus Area | Time | Key Skills |
 |------|------------|------|------------|
-| **[Step 1](hazelbean_examples.qmd#step-1-project-setup)** | Project Setup | 5 min | ProjectFlow, Directory Structure |
-| **[Step 2](hazelbean_examples.qmd#step-2-data-loading)** | Data Loading | 10 min | get_path(), File Discovery, Metadata |
-| **[Step 3](hazelbean_examples.qmd#step-3-processing)** | Processing | 15 min | Array Operations, Transformations |
-| **[Step 4](hazelbean_examples.qmd#step-4-analysis)** | Analysis | 20 min | Multi-raster Operations, Statistics |
-| **[Step 5](hazelbean_examples.qmd#step-5-export-results)** | Export Results | 15 min | Professional Organization, Documentation |
+| **[Step 1](hazelbean_tutorials.qmd#step-1-project-setup)** | Project Setup | 5 min | ProjectFlow, Directory Structure |
+| **[Step 2](hazelbean_tutorials.qmd#step-2-data-loading)** | Data Loading | 10 min | get_path(), File Discovery, Metadata |
+| **[Step 3](hazelbean_tutorials.qmd#step-3-processing)** | Processing | 15 min | Array Operations, Transformations |
+| **[Step 4](hazelbean_tutorials.qmd#step-4-analysis)** | Analysis | 20 min | Multi-raster Operations, Statistics |
+| **[Step 5](hazelbean_tutorials.qmd#step-5-export-results)** | Export Results | 15 min | Professional Organization, Documentation |
 
 ::: {.callout-tip title="Why This Works"}
 Each example includes complete, runnable code with extensive comments, error handling for missing data, and immediate visual feedback. The progression is carefully designed to introduce concepts incrementally.
@@ -83,7 +83,7 @@ Comprehensive test documentation organized by category, showing real-world usage
 
 **Goal:** Get up and running quickly with guided examples
 
-1. **Start:** [Tutorial Examples Step 1](hazelbean_examples.qmd#step-1-project-setup)
+1. **Start:** [Tutorial Examples Step 1](hazelbean_tutorials.qmd#step-1-project-setup)
 2. **Continue:** Follow the complete 5-step progression
 3. **Practice:** Try modifying the examples with your own data
 4. **Explore:** Browse test documentation for advanced patterns
@@ -320,13 +320,13 @@ C:\Users\username\my_analysis\        # Project root
 ## Quick Start Options
 
 ### I want to dive right in!
-**→ [Start with Step 1 of the Tutorial](hazelbean_examples.qmd#step-1-project-setup)**
+**→ [Start with Step 1 of the Tutorial](hazelbean_tutorials.qmd#step-1-project-setup)**
 
 ### I want to understand the big picture first
 **→ Continue reading this page, then start the tutorial**
 
 ### I want to see what's possible
-**→ [Jump to Step 5 (Results Export)](hazelbean_examples.qmd#step-5-export-results) to see the end goal**
+**→ [Jump to Step 5 (Results Export)](hazelbean_tutorials.qmd#step-5-export-results) to see the end goal**
 
 ### I have specific questions
 **→ [Browse the Test Documentation](https://github.com/jandrewjohnson/hazelbean_dev) for detailed implementation patterns**
@@ -387,7 +387,7 @@ C:\Users\username\my_analysis\        # Project root
 The most effective way to learn Hazelbean is through hands-on practice. Our tutorial series is designed to get you productive quickly while building a solid foundation for advanced work.
 
 ::: {style="text-align: center; margin: 30px 0;"}
-[Start Learning with Step 1 →](hazelbean_examples.qmd#step-1-project-setup){.btn .btn-primary style="background: linear-gradient(45deg, #1976d2, #42a5f5); color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"}
+[Start Learning with Step 1 →](hazelbean_tutorials.qmd#step-1-project-setup){.btn .btn-primary style="background: linear-gradient(45deg, #1976d2, #42a5f5); color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"}
 :::
 
 ---

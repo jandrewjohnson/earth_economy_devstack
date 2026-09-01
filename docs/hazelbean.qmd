@@ -1,7 +1,12 @@
+---
+aliases:
+  - /earth_economy_devstack/hazelbean_overview.html
+---
+
 # Hazelbean
 
 Hazelbean is the shared base library of the Earth-Economy Devstack. Every model
-in the stack — SEALS, GTAP-InVEST, GTAPpy, global_invest — imports it, and it
+in the stack — SEALS, GTAP-InVEST, GTAPPy, global_invest — imports it, and it
 supplies two distinct things:
 
 - **Geospatial and analytical utilities** built on GDAL, NumPy, SciPy, Cython,
@@ -33,10 +38,10 @@ import hazelbean as hb
 | page | what it covers |
 |------|----------------|
 | [Learning path](hazelbean_learning_path.qmd) | a guided route through the library, from first import to a full workflow |
-| [Tutorial examples](hazelbean_examples.qmd) | a worked progression: project setup, data loading, processing, analysis, exporting results |
+| [Tutorial examples](hazelbean_tutorials.qmd) | a worked progression: project setup, data loading, processing, analysis, exporting results |
 | [Troubleshooting](hazelbean_troubleshooting.qmd) | common environment, compilation and runtime problems |
 | [ProjectFlow](project_flow.qmd) | the task-tree engine in depth |
-| [Project complexity](project_complexity.qmd) | the three axes that describe how a run file is organized, and why |
+| [Project complexity](levels_of_complexity.qmd) | the three axes that describe how a run file is organized, and why |
 | [Conventions](conventions.qmd) | the naming, path and run-file rules every repo follows |
 
 ## What it provides

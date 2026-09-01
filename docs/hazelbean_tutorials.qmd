@@ -1,5 +1,7 @@
 ---
-title: "Tutorial Examples: Complete Workflow Progression"
+title: "Tutorials: Complete Workflow Progression"
+aliases:
+  - /earth_economy_devstack/hazelbean_examples.html
 ---
 
 Welcome to the Hazelbean tutorial series! This comprehensive learning journey takes you through the entire geospatial processing workflow, from initial project setup to professional result organization.

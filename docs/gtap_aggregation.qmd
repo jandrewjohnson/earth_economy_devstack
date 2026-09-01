@@ -1,8 +1,13 @@
-# Building an aggregated database with GTAPAgg2
+---
+aliases:
+  - /earth_economy_devstack/gtappy_aggregation.html
+---
 
-The GTAP database ships fully disaggregated — in GTAP 10A, 141 regions × 65 sectors × 8 endowments. Almost nothing is run at that resolution. GTAPAgg2 is the tool that collapses it to whatever regional, sectoral and factor aggregation a study needs, and the aggregated database it emits is what GTAPpy runs against.
+# GTAP Aggregation: building an aggregated database with GTAPAgg2
 
-The aggregation is named, versioned and treated as an input, following the `v11-s26-r50` style described in [Conventions](conventions.qmd): database version, sector count, region count. GTAPpy iterates over a list of these, so producing them is a prerequisite rather than a one-off.
+The GTAP database ships fully disaggregated — in GTAP 10A, 141 regions × 65 sectors × 8 endowments. Almost nothing is run at that resolution. GTAPAgg2 is the tool that collapses it to whatever regional, sectoral and factor aggregation a study needs, and the aggregated database it emits is what GTAPPy runs against.
+
+The aggregation is named, versioned and treated as an input, following the `v11-s26-r50` style described in [Conventions](conventions.qmd): database version, sector count, region count. GTAPPy iterates over a list of these, so producing them is a prerequisite rather than a one-off.
 
 This page walks through producing the *fully disaggregated* (1:1) case, because it is the one that trips people up — it is the same procedure as any other aggregation, just with an identity mapping. Any real aggregation is the same clicks with a different scheme.
 
@@ -42,7 +47,7 @@ An alternative to all of the above is **Read aggregation scheme from file**, whi
 
 ![Saving the scheme as gtp65_141_all.agg in AggStore](images/gtappy_gtapagg2_save_agg_file.png)
 
-The `.agg` file is plain text. Once you have seen one, the fastest way to produce a systematic family of aggregations is to write them with a text editor (or from Python) rather than clicking through the GUI each time — which is how the aggregations GTAPpy iterates over are actually maintained.
+The `.agg` file is plain text. Once you have seen one, the fastest way to produce a systematic family of aggregations is to write them with a text editor (or from Python) rather than clicking through the GUI each time — which is how the aggregations GTAPPy iterates over are actually maintained.
 
 ## Creating the database
 
@@ -64,7 +69,7 @@ The output is a zip in `AggStore` named for the aggregation — here `GTAP10A_GT
 | `gtp65_141_all.agg` | the aggregation mapping used to build it |
 | `gtapv7.zip` | **the v7-format version of the same database** |
 
-That last entry is the one to pay attention to. GTAPAgg2 emits the database in two formats: one for the GTAP v6.2 model code and one for v7.0, the latter nested inside `gtapv7.zip`. **GTAPpy uses v7.** Extracting the outer zip and pointing at its contents is a standard mistake that produces a database the v7 model will not read.
+That last entry is the one to pay attention to. GTAPAgg2 emits the database in two formats: one for the GTAP v6.2 model code and one for v7.0, the latter nested inside `gtapv7.zip`. **GTAPPy uses v7.** Extracting the outer zip and pointing at its contents is a standard mistake that produces a database the v7 model will not read.
 
 So the aggregated database you want ends up somewhere like:
 
@@ -72,4 +77,4 @@ So the aggregated database you want ends up somewhere like:
 C:\GTPAg2\AggStore\GTAP10A_GTAP_2014_65x141\gtapv7
 ```
 
-That directory is what gets copied into a model version directory in [Running GTAP by hand](gtappy_rungtap.qmd), and what a GTAPpy run file points at as its data directory for that aggregation label.
+That directory is what gets copied into a model version directory in [Run GTAP](gtappy_rungtap.qmd), and what a GTAPPy run file points at as its data directory for that aggregation label.

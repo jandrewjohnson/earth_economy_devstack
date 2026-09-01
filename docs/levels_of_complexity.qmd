@@ -1,3 +1,8 @@
+---
+aliases:
+  - /earth_economy_devstack/project_complexity.html
+---
+
 # The stages of project complexity
 
 ## Why any of this exists

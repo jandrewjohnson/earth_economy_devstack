@@ -1,13 +1,13 @@
 # Installing the GTAP toolchain
 
-GTAPpy is a thin Python layer over a stack of Windows programs from Purdue and
-CoPS. Installing GTAPpy itself is the easy part; the work is getting that stack
+GTAPPy is a thin Python layer over a stack of Windows programs from Purdue and
+CoPS. Installing GTAPPy itself is the easy part; the work is getting that stack
 in place and licensed. There are four pieces, and they have to be installed in
 roughly this order:
 
 | piece | what it is | why you need it |
 |-------|------------|-----------------|
-| Microsoft C++ Build Tools | MSVC compiler | builds the Cython extensions in Hazelbean, which GTAPpy imports |
+| Microsoft C++ Build Tools | MSVC compiler | builds the Cython extensions in Hazelbean, which GTAPPy imports |
 | GEMPACK (`gpei`) | the CGE solver | actually solves the GTAP model |
 | RunGTAP | GUI front end | ships the compiled v7 model code and is how you produce a working version directory |
 | GTAPAgg2 | database aggregator | turns the licensed GTAP database into the aggregation you want to run |
@@ -19,7 +19,7 @@ translator for exactly this.
 
 ## 1. C++ build tools (for Cython)
 
-This step is not about GTAP at all. Hazelbean, which GTAPpy depends on, contains
+This step is not about GTAP at all. Hazelbean, which GTAPPy depends on, contains
 Cython extension modules, and `pip` has to compile them on install. On Windows
 that requires the MSVC compiler, and the error you get without it ("Microsoft
 Visual C++ 14.0 or greater is required") is the most common first-run failure in
@@ -85,7 +85,7 @@ spaces, and a lot of downstream configuration assumes `C:\GP`:
 Proceed **without** selecting a licence file. That starts the six-month trial,
 which is enough to get a working setup before a licence is sorted out.
 
-The path you install to is the one GTAPpy needs to know about; in a run file it
+The path you install to is the one GTAPPy needs to know about; in a run file it
 is set as the GEMPACK utilities directory (historically `p.gempack_utils_dir`).
 
 ## 3. RunGTAP
@@ -93,9 +93,9 @@ is set as the GEMPACK utilities directory (historically `p.gempack_utils_dir`).
 Install RunGTAP from
 <https://www.gtap.agecon.purdue.edu/products/rungtap/default.asp>.
 
-RunGTAP is a GUI, and GTAPpy exists so you do not have to use it for production
+RunGTAP is a GUI, and GTAPPy exists so you do not have to use it for production
 runs. You still need it installed, for two reasons: it ships with a compiled
-copy of the GTAP v7 model code, which is where the version directory GTAPpy runs
+copy of the GTAP v7 model code, which is where the version directory GTAPPy runs
 against ultimately comes from; and it is the most convenient place to sanity-check
 a new database or a new shock before wiring it into a task tree. Both of those
 are covered in [Running GTAP by hand](gtappy_rungtap.qmd).
@@ -110,7 +110,7 @@ Purdue. Within our group you can instead reach an already-licensed copy through
 the `ee_internal` database — use `hb.get_path()` against the private bucket
 rather than downloading and aggregating yourself. The manual route is documented
 here because someone has to do it once per database release, and because it
-explains where the files GTAPpy consumes come from.
+explains where the files GTAPPy consumes come from.
 :::
 
 **Get GTAPAgg2** from <https://www.gtap.agecon.purdue.edu/private/secured.asp?Sec_ID=1055>.
@@ -135,4 +135,4 @@ perfectly valid database that simply has no AEZ detail in it:
 ![Choose source data: pick GTAP-AEZ, not plain GTAP, when you want land by AEZ](images/gtappy_gtapagg2_choose_source_data.png)
 
 With the toolchain installed, continue to
-[Building an aggregated database](gtappy_aggregation.qmd).
+[Building an aggregated database](gtap_aggregation.qmd).

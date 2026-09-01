@@ -13,8 +13,8 @@ this sidebar. It lives under each model's own home page:
 - [SEALS](https://justinandrewjohnson.com/seals/) — home page, [user guide](https://justinandrewjohnson.com/seals/user_guide/), and [GitHub](https://github.com/jandrewjohnson/seals)
 - [GTAP-InVEST](https://justinandrewjohnson.com/gtap_invest/) — home page, [user guide](https://justinandrewjohnson.com/gtap_invest/user_guide/), and [GitHub](https://github.com/jandrewjohnson/gtap_invest)
 
-The pages that remain here — Hazelbean, Global InVEST, GTAPpy, and the Methods
-section — cover the shared libraries and conventions that all of the models build on.
+The pages that remain here — Hazelbean, GTAPPy, Base Data, and the Code Standards
+section — cover the shared libraries, data and conventions that all of the models build on.
 
 Most of my Youtube playlists are publicly available but unlisted, so to access the rest of my videos, see the following links:
 

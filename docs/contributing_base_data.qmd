@@ -24,11 +24,11 @@ The above only works if your data is included in our base_data in the proper loc
 
 `data_ref_path = os.path.join("submissions", "air_quality", "emissions_factors.csv"`
 
-The `data_ref_path` is what we call a Reference Path (or Ref Path). This means it is a relative path relative to where we store our base_data (and can easily be found and downloaded by the `get_path(data_ref_path)` function.
+The `data_ref_path` is what we call a Reference Path (or Ref Path), which `get_path(data_ref_path)` can find and download; the canonical definition, including the full order of directories `get_path` searches, is in [Conventions](conventions.qmd#get_path-and-ref_path).
 
 3.  Put a Readme.md in your submission folder. It should reference the code used to produce it and basic information on units, interpretation, and how it should be used.
 4.  After you complete 1-3, email me! I will then test your repo and code by cloning the repo, modifying ONLY the base_data_dir, and then check that everything runs.
-5.  I will then further clean the data (to be compliant with the conventions defined here <https://justinandrewjohnson.com/earth_economy_devstack/conventions.html>, and specifically, to be a [POG](making_a_pog.qmd). I'm happy to do the cleaning, but if you want, you might want to consider following the conventions earlier in your project rather than later. 
+5.  I will then further clean the data (to be compliant with the conventions defined here <https://justinandrewjohnson.com/earth_economy_devstack/conventions.html>, and specifically, to be a [POG](pogs.qmd). I'm happy to do the cleaning, but if you want, you might want to consider following the conventions earlier in your project rather than later. 
 6.  I'll write "unittests" that ensure your code and data work, which will be automatically run when there's a new release of the devstack repo.
 7.  If everything passes, the data get "promoted" to base_data by eliminating the word "submissions" in their file path (e.g., `base_data\submissions\emissions_factors.csv` becomes `base_data\emissions_factors.csv`)
 

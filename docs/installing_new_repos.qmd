@@ -1,4 +1,9 @@
-# Organization
+---
+aliases:
+  - /earth_economy_devstack/organization.html
+---
+
+# Installing New Repos
 
 ## Getting the earth_economy_devstack repository
 
@@ -67,6 +72,6 @@ The earth_economy_devstack.code-workspace configures VS Code so that it includes
 ## Where to go next
 
 -   [Conventions](conventions.qmd) --- the EE Spec naming and structure rules the whole stack follows.
--   [Levels of complexity](project_complexity.qmd) --- the ladder from a one-off script to a systematic project.
+-   [Levels of complexity](levels_of_complexity.qmd) --- the ladder from a one-off script to a systematic project.
 -   [Run templates](run_templates.qmd) --- what a run file should look like, with copy-me templates for each rung.
 -   [ProjectFlow](project_flow.qmd) --- the task engine, project directories, and `get_path`.

@@ -1,3 +1,8 @@
+---
+aliases:
+  - /earth_economy_devstack/making_a_pog.html
+---
+
 # Pyramidal Cloud-Optimized Geotiffs (POGs)
 
 Pogs are Pyramidal COGs. COGs are Cloud-Optimized Geotiffs which are super awesome and allow for, among other things, downloading only a small subset of a huge file. A COG is still a regular GeoTIFF that any GIS can open, but its internal layout (tiling, internal overviews, header placement) is arranged so that a remote reader can grab just the tiles and zoom level it needs via HTTP range requests.

@@ -68,7 +68,7 @@ Only configuration is numbered, because only configuration is a ladder climbed i
 order. The axes are independent — `global_invest`'s service runners are
 configuration level 2 with a library-package layout. Every template's docstring
 states its position on all three. The full model is in
-[project_complexity.qmd](project_complexity.qmd).
+[levels_of_complexity.qmd](levels_of_complexity.qmd).
 
 ## The four configuration levels
 
@@ -264,7 +264,7 @@ definitions schema specified in [proposed_changes.qmd](proposed_changes.qmd):
 
 ## Where to go next
 
-- [project_complexity.qmd](project_complexity.qmd) — the ladder from a one-off script to a systematic project, and why each rung is earned.
+- [levels_of_complexity.qmd](levels_of_complexity.qmd) — the ladder from a one-off script to a systematic project, and why each rung is earned.
 - [project_flow.qmd](project_flow.qmd) — the ProjectFlow engine itself: tasks, iterators, project dirs, `get_path`.
 - [conventions.qmd](conventions.qmd) — the full EE Spec naming and structure rules.
 - [proposed_changes.qmd](proposed_changes.qmd) — the scenarios CSV schema.

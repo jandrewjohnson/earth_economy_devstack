@@ -1,6 +1,13 @@
-# Contributing code to the Earth Economy Devstack
+---
+aliases:
+  - /earth_economy_devstack/how_to_contribute.html
+  - /earth_economy_devstack/mergine_a_pr_into_main.html
+  - /earth_economy_devstack/replicable_science_gold_standard.html
+---
 
-The Earth Economy Devstack and all of its published article code is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development. We also create and host a curated base_data. This data can be seamlessly downloaded using ProjectFlow within the devstack via the `get_path()` method. See the last section of this page for details on contributing data.
+# Version Control
+
+The Earth Economy Devstack and all of its published article code is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development. We also create and host a curated base_data. This data can be seamlessly downloaded using ProjectFlow within the devstack via the `get_path()` method. This page covers contributing **code**; for contributing data, see [Contributing Base Data](contributing_base_data.qmd).
 
 There are two different ways to interact with a github repository:
 
@@ -235,4 +242,44 @@ On the pull request page, which appears on the `upstream` repository, you can ad
 
 Finally, the pull request will appear in the `upstream` repository. The main developers will review your changes and, if approved, will merge them into the `upstream` repository.
 
-#
+## Merging a PR into main
+
+If you are the reviewer, check out the pull request locally and run the tests before merging:
+
+- Install Github Pull Requests VS Code extension
+
+- In the left-hand sidebar, click on the Github Pull Requests icon
+
+![](images/paste-57.png)
+
+- Right-click and select "Checkout Pull Request"
+
+  ![](images/paste-58.png)
+
+- Now your local files will be those of the PR.
+
+- Run all relevant tests in the test suite.
+
+![](images/Screenshot%202024-08-02%20092520.png)
+
+![](images/Screenshot%202024-08-02%20093258.png)
+
+# Replicable science depends on simplicity and speed
+
+**2025-07-29**
+
+If replicating a project requires almost as much time as the doing original research, it is barely replication. Speed compression fully defines how valuable the science is. But what does that look like currently? Below I have a single screenshot of something pretty darn close to the "gold standard" of replicability. All the researcher told me was the "look it up on my github." The full process to replicate is then pictured below.
+
+![](images/paste-69.png)
+
+This produced identical CSVs to what the researcher claimed their research did. Total time from hearing about the github repository to fully replicating their result: about 30 seconds. THAT is replicable science.
+
+To showcase the simplicity exhibited here, there were only 3 real steps, highlighed below.
+
+![](images/paste-70.png)
+
+1.  I used git to get the full history of the code and cloned it onto my computer. In this case, the repository also included the data, which worked because the data were pretty small. Sometimes the data step is really hard if the data are too big to fit in git (less than 5mb or so).
+2.  I used Anaconda (specifically miniforge3) to install python and get the hundreds of open-source libraries a modern data scientist uses. This command simply activates that environment I already set up. On possible improvement to this repository would be to include the method for creating the environment itself (by including an environment.yml file which tells Anaconda what to install). Environment management is a very common time-sink/challenge, but it's getting easier. Check out our [devstack installation](https://justinandrewjohnson.com/earth_economy_devstack/installation.html) steps for more info.
+3.  I called the `python` command and pointed it to the `run_renewable_energy_production.py` file. Identifying the correct python file to run varies from project to project, but a good repo will have a readme.md file displayed at its root that give a "quickstart" explanation defining this file.
+
+In this wild west of AI, we need to ask "what does it even mean to be a good researcher", or even "what does it mean to be true". Effective replicability, in my opinion, is the best candidate to answer both of these.

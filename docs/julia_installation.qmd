@@ -1,4 +1,13 @@
+---
+aliases:
+  - /earth_economy_devstack/installation_julia.html
+---
+
 # Installation of Hazelbean in Julia
+
+::: {.callout-warning}
+This page is a work in progress.
+:::
 
 ## Install Julia
 

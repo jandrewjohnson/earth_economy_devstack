@@ -1,0 +1,20 @@
+# Base Data
+
+The Earth-Economy Devstack maintains a single shared, curated data store — **base_data** — that all projects in the stack draw from. Rather than each project bundling (or losing track of) its own copies of common inputs, code references data by a **ref path** (a path relative to the base_data root) and ProjectFlow's `get_path()` resolves it: locally if present, from a shared data root if one is mounted, and otherwise by downloading it from our cloud storage automatically. The full resolution order is defined in [Conventions](conventions.qmd#get_path-and-ref_path).
+
+Two properties make base_data more than a pile of files:
+
+1.  **It is automatically downloadable.** Any project that references data by ref path "just works" on a fresh machine — clone the repo, run it, and `get_path()` fetches what is missing. This is the backbone of our replicability story.
+2.  **All rasters are Pyramidal Cloud-Optimized GeoTIFFs ([POGs](pogs.qmd)).** Every raster spans the globe on one of a fixed set of nested resolutions with bit-identical geotransforms, which enables downloading a subset of a single raster, exact and very fast zonal statistics, and accurate area-per-cell calculations without ever using projected data.
+
+## What's in it
+
+Top-level directories group data by theme or by the tool that consumes them — for example `cartographic` (administrative and other boundary vectors, e.g. GADM), `pyramids` (the canonical `ha_per_cell_<res>sec.tif` grids the POG system is built on), `lulc` (land-use/land-cover time series such as ESA CCI and their simplified reclassifications), `gtappy` (GTAP aggregation mappings and correspondences), `luh2` and `iams` (coarse projection sources), plus `crops`, `soil`, `seals`, `global_invest`, `gtap_invest`, and `invest_sample_data`.
+
+Within these, files follow the EE Spec naming and organization rules in [Conventions](conventions.qmd), so a ref path is predictable from what the data is.
+
+## Contributing
+
+Lab members can contribute their project's input data so their work runs seamlessly for everyone else — see [Contributing Base Data](contributing_base_data.qmd) for the submissions workflow, and [POGs](pogs.qmd) for the raster format contributions are cleaned into.
+
+Changes to the store itself are tracked in the [Base Data release notes](base_data_release_notes.qmd).

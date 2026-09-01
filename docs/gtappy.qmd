@@ -1,6 +1,6 @@
-# GTAPpy
+# GTAPPy
 
-GTAPpy is the Python package that drives the [Global Trade Analysis
+GTAPPy is the Python package that drives the [Global Trade Analysis
 Project](https://www.gtap.agecon.purdue.edu/) (GTAP) computable general
 equilibrium model from a run file instead of from a GUI. GTAP itself is written
 in TABLO and solved by [GEMPACK](https://www.copsmodels.com/gempack.htm); the
@@ -9,23 +9,23 @@ That does not scale to the kind of work the devstack does, where a single study
 sweeps many scenarios across several database aggregations and each run has to
 be reproducible from a script.
 
-GTAPpy sits on top of the GEMPACK executables and supplies the parts around them:
+GTAPPy sits on top of the GEMPACK executables and supplies the parts around them:
 
 - **A ProjectFlow task tree.** Directory layout, skip-if-already-computed
   re-runs, automatic base-data download, and parallel iteration all come from
-  [ProjectFlow](project_flow.qmd) in [Hazelbean](hazelbean_overview.qmd), the
+  [ProjectFlow](project_flow.qmd) in [Hazelbean](hazelbean.qmd), the
   same engine SEALS and GTAP-InVEST use.
 - **CMF generation.** GEMPACK is configured by a command file (`.cmf`) per
-  experiment. GTAPpy writes those files from Python, so sets, subsets, shocks
+  experiment. GTAPPy writes those files from Python, so sets, subsets, shocks
   and closure swaps are defined once in code rather than typed into a dialog.
 - **Parallel execution across aggregations and experiments.** The same shock can
   be run against a 10×10 aggregation and a fully disaggregated 141×65 one in the
   same job.
-- **Output processing.** GEMPACK writes `.sl4` solution files; GTAPpy converts,
+- **Output processing.** GEMPACK writes `.sl4` solution files; GTAPPy converts,
   filters and aggregates them into the tables a study actually needs, usually
   tidy CSVs indexed by region, sector and year.
 
-## How a GTAPpy run works
+## How a GTAPPy run works
 
 **1. The user writes a run file.** A run file (e.g. `run_gtappy.py`,
 `run_process_aez_results.py`) follows the devstack
@@ -39,12 +39,12 @@ directory, and builds a task tree. Machine-specific configuration lives in a
 Devstack workspace open, so a failure inside a task drops you at the frame that
 raised it.
 
-**3. GTAPpy builds the task tree.** Functions in `gtappy_initialize_project.py`
+**3. GTAPPy builds the task tree.** Functions in `gtappy_initialize_project.py`
 (`build_standard_task_tree`, `build_extract_and_run_aez_task_tree`, and so on)
 assemble tasks from `gtappy_tasks.py` and register the dependencies between
 them, which is what lets independent branches run in parallel.
 
-**4. GTAPpy generates the CMF files.** `gtappy_cmf_generation.py` fills a
+**4. GTAPPy generates the CMF files.** `gtappy_cmf_generation.py` fills a
 template command file per experiment — `generate_cmf_file_for_scenario` — with
 that experiment's sets, shocks, closure and input/output paths.
 
@@ -53,14 +53,14 @@ GTAP executable against the generated CMF. (There is also a
 `run_gtap_cmf_on_vm` path, because GEMPACK is Windows-only and is often driven
 from a Mac or Linux workstation over SSH.)
 
-**6. GTAPpy processes the outputs.** Solution files are read back, aggregated to
+**6. GTAPPy processes the outputs.** Solution files are read back, aggregated to
 the reporting dimensions, and written as CSV — welfare, volumes, trade (`TRAD.csv`)
 and so on — into the project's output directory. GEMPACK's own log files are kept
 alongside them, since a failed solve is usually diagnosed there.
 
 ## Iterating over multiple aggregations
 
-GTAPpy is built to run the same experiment against several database
+GTAPPy is built to run the same experiment against several database
 aggregations at once. The premise is that for a well-specified model the results
 should be qualitatively similar whichever aggregation you use — if a 10-region
 run and a 141-region run disagree about the sign of an effect, that is a finding
@@ -68,16 +68,16 @@ about the model, not about the aggregation. Running the set of them is a cheap
 standing check, in the spirit of leave-one-out testing in regression.
 
 This is also why so much of the setup work below is about producing aggregated
-databases: each aggregation is a separate GTAPAgg2 product that GTAPpy then
+databases: each aggregation is a separate GTAPAgg2 product that GTAPPy then
 treats as one more axis to iterate over.
 
 ## Where to go next
 
 | page | what it covers |
 |------|----------------|
-| [Installation](gtappy_installation.qmd) | the Windows toolchain GTAPpy drives: C++ build tools, GEMPACK, RunGTAP, GTAPAgg2, and the GTAP database licence |
-| [Building an aggregated database](gtappy_aggregation.qmd) | using GTAPAgg2 to produce the `.agg` scheme and the aggregated database GTAPpy runs against |
-| [Running GTAP by hand](gtappy_rungtap.qmd) | the RunGTAP and command-line workflow that GTAPpy automates — worth doing once, and the reference when a run misbehaves |
-| [Development notes](gtappy_release_notes.qmd) | historical design decisions and open questions from the 2022–2023 build-out |
+| [Installation](gtappy_installation.qmd) | the Windows toolchain GTAPPy drives: C++ build tools, GEMPACK, RunGTAP, GTAPAgg2, and the GTAP database licence |
+| [GTAP Aggregation](gtap_aggregation.qmd) | using GTAPAgg2 to produce the `.agg` scheme and the aggregated database GTAPPy runs against |
+| [Run GTAP](gtappy_rungtap.qmd) | the RunGTAP and command-line workflow that GTAPPy automates — worth doing once, and the reference when a run misbehaves |
+| [Release Notes](gtappy_release_notes.qmd) | historical design decisions and open questions from the 2022–2023 build-out |
 | [ProjectFlow](project_flow.qmd) | the task-tree engine in depth |
 | [Conventions](conventions.qmd) | the naming, path and run-file rules every repo follows |

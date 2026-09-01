@@ -2,7 +2,7 @@
 
 Project Flow is intended to allow a user to flow easily past the different stages of software complexity. A common situation for an academic or a research software engineer (RES) to find themselves in is that they wrote a quick script to answer a specific quesiton, but it turned out to be useful in other context. This can lead to a the script grows and grows until complexity hurts its usefulness. A software developer would then think "oops, I should really make this modular." ProjectFlow provides several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. To do this, ProjectFlow manages folders and defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
 
-Project Flow is intended to flow easily from the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. Similar to the [Project complexity](project_complexity.qmd) page, we will introduce progressively more complex usages, starting with the simples examples and working towards distributed parallelization on complex task-trees. If you would like to skip the stages and go straight to a full-functioning example, go to the [run templates](https://github.com/jandrewjohnson/earth_economy_devstack/tree/main/examples/run_templates).
+Project Flow is intended to flow easily from the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. Similar to the [Project complexity](levels_of_complexity.qmd) page, we will introduce progressively more complex usages, starting with the simples examples and working towards distributed parallelization on complex task-trees. If you would like to skip the stages and go straight to a full-functioning example, go to the [run templates](https://github.com/jandrewjohnson/earth_economy_devstack/tree/main/examples/run_templates).
 
 ## Starter code (the before-picture)
 
@@ -10,7 +10,7 @@ This is a plain script with no ProjectFlow at all --- the launching point, not a
 model to copy. Every section after it replaces a piece of this with something the
 framework provides. For the fuller version of this argument, with six stages of
 escalating pain and what each one bought, see
-[Project complexity](project_complexity.qmd).
+[Project complexity](levels_of_complexity.qmd).
 
 ``` python
 import os
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 The rule that decides what goes where: **`run_project(p)` sets what no variant
 ever changes; the caller sets what a variant might.** For the full rules see
 [Conventions](conventions.qmd), and for why run files are shaped this way see
-[Project complexity](project_complexity.qmd).
+[Project complexity](levels_of_complexity.qmd).
 
 In a multi-file setup, in the run.py you will need to import different scripts, such as main.py i.e.:
 

@@ -1,10 +1,10 @@
 # Running GTAP by hand
 
-GTAPpy generates CMF files and calls GEMPACK so you do not have to do this
+GTAPPy generates CMF files and calls GEMPACK so you do not have to do this
 manually. It is still worth doing once. The manual route is where the model
 version directory comes from in the first place, it is the fastest way to check
 that a new database or a new shock is sane before wiring it into a task tree,
-and when a GTAPpy run fails it fails at one of the steps below.
+and when a GTAPPy run fails it fails at one of the steps below.
 
 ## Getting a v7 version directory
 
@@ -23,7 +23,7 @@ then swap the data underneath:
 
 3. This creates `c:\runGTAP375\v7all`. Now replace the data files in it with the
    fully disaggregated database produced in
-   [Building an aggregated database](gtappy_aggregation.qmd) — the contents of
+   [Building an aggregated database](gtap_aggregation.qmd) — the contents of
    the `gtapv7` directory, not the outer zip.
 
 ### Rebuilding the shock files
@@ -59,7 +59,7 @@ commodity set as text, which you then pare down to the ones you want:
 ![Set definitions in CMFSTART, edited in TABmate](images/gtappy_rungtap_cmfstart_sets.png)
 
 The pattern in that file is worth reading carefully, because it is exactly what
-GTAPpy emits programmatically:
+GTAPPy emits programmatically:
 
 ``` text
 xset agcom #key_ag_comm# (pdr, wht, gro, v_f, osd, c_b, pfb, ocr, ctl, oap, rmk, wol);
@@ -137,7 +137,7 @@ exception — that one does change the outcome.
 ## The command-line chain
 
 For production, RunGTAP is replaced by a sequence of batch files. This is the
-sequence GTAPpy automates, and the names are worth knowing because they appear
+sequence GTAPPy automates, and the names are worth knowing because they appear
 in logs:
 
 1. **`testsim.bat`** — the test simulation, as above, run first.
