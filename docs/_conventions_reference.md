@@ -267,6 +267,32 @@ Three `scenario_type`s are supported: `baseline`, `bau`, and `policy`.
 - A spreadsheet linkable to a geographic representation (shapefile or geopackage)
   in vertical format.
 
+## Pyramid resolutions are expressed in arcseconds
+
+Supported pyramid resolutions are named by **arcseconds**, not degrees:
+`_10sec`, `_300sec`, `_900sec` file suffixes, `arcseconds` keys in hazelbean's
+pyramid dictionaries, and the `output_arcseconds` argument of
+`hb.make_path_pog`. The reason is purely practical: the arcsecond values are
+small integers (10, 30, 300, 900...), while the equivalent degree values are
+repeating decimals (0.002777..., 0.008333...) that cannot be written exactly in
+a filename or compared safely as floats. The supported set is 1, 10, 30, 150,
+300, 900, 1800, 3600, 7200, 14400, and 36000 arcseconds.
+
+**Sub-arcsecond caveat:** below 1 arcsecond the integer notation runs out, and
+a decimal point cannot appear in a filename suffix. Fractional arcseconds are
+written with a hyphen as the fraction bar: `ha_per_cell_1-3sec.tif` is
+one-third arcsecond (~10 m at the equator).
+
+**Sum-preserving aggregation goes through proportions.** Quantities (hectares
+of cropland, tonnes of carbon) must never be resampled directly across pyramid
+levels — point-sampling or averaging a quantity raster silently changes its
+global sum. Instead, compute and store in **proportions** (a dimensionless
+fraction of each cell), resample in proportion space, and only as a last step
+multiply by the canonical `ha_per_cell_<res>sec.tif` at the target resolution.
+Because the ha_per_cell pyramids are themselves exact at every supported
+resolution, this guarantees sum-preserving aggregation. See
+`making_a_pog.qmd` for the POG spec these files follow.
+
 ## get_path and ref_path
 
 Paths that are ready to use end in `_path` (last 5 characters). Before

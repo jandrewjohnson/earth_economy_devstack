@@ -1,8 +1,13 @@
-# So you want to make a POG...
+# Pyramidal Cloud-Optimized Geotiffs (POGs)
 
 Pogs are Pyramidal COGs. COGs are Cloud-Optimized Geotiffs which are super awesome and allow for, among other things, downloading only a small subset of a huge file. A COG is still a regular GeoTIFF that any GIS can open, but its internal layout (tiling, internal overviews, header placement) is arranged so that a remote reader can grab just the tiles and zoom level it needs via HTTP range requests.
 
 Pogs extend the concept to guarantee *global pyramidal alignment*: every POG covers the whole globe on one of a fixed set of supported resolutions, with a geotransform that is bit-for-bit identical across all files at that resolution. Because the grids nest exactly, any two POGs can be combined across resolutions with pure array indexing --- no reprojection, no resampling, no half-pixel shifts --- which is what makes fast exact zonal statistics and cross-resolution modeling in the devstack possible.
+
+## Why POGs?
+
+1.  Solves zonal statistics inaccuracy once and for all (and is about 10-100x faster than QGIS/ArcGIS)
+2.  Solves the hectare at different latitudes problem once and for all and greatly enhances accuracy (Never, never, NERVER use projected data again!)
 
 The function for making a pog is in Hazelbean at `make_path_pog`. Here you can use this by pointing it at any GeoTIFF:
 
@@ -17,6 +22,7 @@ hb.make_path_pog(
     'my_raster.tif',
     output_raster_path='my_raster_pog.tif',
     output_data_type=6,        # optional; defaults to the input's data type
+    output_arcseconds=None,    # optional; see below
     compression='DEFLATE',     # default
     blocksize=512,             # default
 )
@@ -24,13 +30,31 @@ hb.make_path_pog(
 
 If the input is not already on a global pyramidal grid, `make_path_pog` resamples it onto the matching global grid for its resolution (nearest-neighbor for integer/categorical data, bilinear for floats), then computes exact statistics, builds the prescribed internal overviews, and writes the result through GDAL's COG driver. If the input already validates as a POG, it does nothing.
 
+## Choosing the output resolution with `output_arcseconds`
+
+The match raster that the input is resampled against is chosen automatically: `make_path_pog` detects the input's resolution, snaps it to the nearest supported pyramid resolution (within a tight tolerance), and resolves the canonical `ha_per_cell_<res>sec.tif` for that resolution through the `get_path` ladder — your project dirs, `base_data`, any shared data roots configured on the machine, and finally a cloud download.
+
+That automatic detection only works when the input is already *close* to a supported resolution. When it isn't (say, 0.3-degree cells), or when you deliberately want a different resolution than the input's, pass `output_arcseconds`:
+
+``` python
+# An input far from any supported resolution: choose the target explicitly
+hb.make_path_pog('weird_resolution.tif', 'now_a_pog.tif', output_arcseconds=1800)
+
+# Deliberate cross-resolution conversion: a 10sec POG becomes a 900sec POG
+hb.make_path_pog('lulc_10sec.tif', 'lulc_900sec.tif', output_arcseconds=900)
+```
+
+`output_arcseconds` simply declares the resolution of the output POG, whatever the input is. Without it, an input that isn't close to any supported resolution raises an error telling you to pass it. When the requested grid is genuinely coarser than the input (a true aggregation, not just snapping), the resampling method switches from point-sampling to aggregation --- `mode` for integer types and `average` for floats, the same logic used for overview levels.
+
+Beware what aggregation means for your data's semantics, though: averaging a *quantity* raster (hectares, tonnes) changes its global sum. The EE Spec convention is to compute and resample in **proportions** and only multiply by the canonical `ha_per_cell` of the target resolution as a last step, which makes aggregation sum-preserving. See the pyramid resolutions section of the [EE Spec conventions](conventions.qmd).
+
 You can verify the result (and see exactly which criterion fails, if one does) with:
 
 ``` python
 hb.is_path_pog('my_raster_pog.tif', verbose=True)
 ```
 
-Note that the most convenient way to ensure something is a pog is to point the function to an existing pog of the same resolution. A comprehensive set of files at all the supported pyramid resolutions are in our base data under `pyramids/`. The example for 300 meter (10 arcsecond) data would be the ref_path `os.path.join('pyramids', 'ha_per_cell_10sec.tif')` --- in a ProjectFlow project, `p.get_path()` on that ref_path resolves it against your data roots (and downloads it into `base_data` if you don't have it yet).
+The canonical match rasters live in our base data under `pyramids/`, one per supported resolution. The example for 300 meter (10 arcsecond) data would be the ref_path `os.path.join('pyramids', 'ha_per_cell_10sec.tif')` --- in a ProjectFlow project, `p.get_path()` on that ref_path resolves it against your data roots (and downloads it into `base_data` if you don't have it yet). You rarely need to touch these directly for pog-making: `make_path_pog` finds the right one itself, as described next.
 
 ## The POG spec, in summary
 
