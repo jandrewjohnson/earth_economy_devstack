@@ -83,7 +83,7 @@ def run_project(p):
     # with a parameters CSV read into the same attributes.
     p.ndv = -9999.0
 
-    # Tracked in input_template/ next to this file; ProjectFlow seeds input/ from it.
+    # Tracked in input_template/ next to this file; get_path reads it there (after input/).
     # Loads p.scenarios_df and hydrates row 0 onto p.
     hb.initialize_scenarios(p, p.scenario_definitions_filename)
 

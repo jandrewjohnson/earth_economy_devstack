@@ -238,8 +238,9 @@ def run_project(p):
     
     # Backend connection (vm_ssh_host, vm_disk_prefix, gempack_dir; sc_ssh_host / sc_scratch
     # for the cluster) is read from parameters.csv by initialize_parameter_definitions.
-    # The tracked input_template/ CSV ships blank values; fill your machine's values in the
-    # untracked input/ copy. Nothing machine-specific stays in the code.
+    # The tracked input_template/ CSV ships blank values; copy it into the untracked input/
+    # and fill your machine's values there (or set GTAP_* in machine.env). Nothing
+    # machine-specific stays in the code.
 
     p.L = hb.get_logger(p.project_name)
     hb.log('Created ProjectFlow object at ' + p.project_dir + '\n    from script ' + p.calling_script + '\n    with base_data set at ' + p.base_data_dir)

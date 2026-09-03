@@ -61,7 +61,7 @@ def run_project(p):
 
     # Scenarios: the rows of work. The caller chose which CSV, because that is
     # exactly what a variant run varies. The CSV ships in seals' tracked
-    # input_template/ and is seeded into the project's input/ on first run.
+    # input_template/ and is read there in place (after the project's input/).
     hb.initialize_scenarios(p, p.scenario_definitions_filename)
 
     # Seals' model initializer: advanced options, derived attributes, calibration

@@ -303,10 +303,12 @@ the most useful hit:
 
 1. `cur_dir` — the current task's directory (so a task can skip itself if its
    output already exists),
-2. `input_dir` — project-specific inputs,
-3. `base_data_dir` — cross-project data (also the default download location),
-4. any **shared data roots** configured on this machine (see below),
-5. the cloud storage location.
+2. `input_dir` — the project's untracked override copies,
+3. `input_template_dir` — the tracked definition files beside the run file
+   (since 2026-09-03; read in place, never copied),
+4. `base_data_dir` — cross-project data (also the default download location),
+5. any **shared data roots** configured on this machine (see below),
+6. the cloud storage location.
 
 ``` python
 p.ha_per_cell_10sec_ref_path = os.path.join('pyramids', 'ha_per_cell_10sec.tif')
@@ -616,8 +618,8 @@ splitting each multi-byte character into garbled pieces.
   reproduces the house convention (`~/Files/<stack>/projects/<name>`) without
   the run file spelling it out. An explicit `project_dir` or `project_name`
   always overrides. Construction only *resolves* the paths — the dirs are created
-  (and `input_template/` seeded) on the first call that needs them, so a bare
-  constructor that is later re-pointed leaves no orphan project dir behind.
+  on the first call that needs them, so a bare constructor that is later
+  re-pointed leaves no orphan project dir behind.
 - **`run_<project>.py` is the single entry point, and `run_project` takes only
   `p`.** The canonical shape is four parts:
   - a module-level `build_task_tree(p)` — named exactly that in every run file —
@@ -715,7 +717,7 @@ splitting each multi-byte character into garbled pieces.
   deletes the stable dir's `intermediate/` and `output/` in place so everything
   recomputes while `input/` (machine config) is kept — refused unless the
   resolved project name contains `'test'`; `'full'` mints a timestamped fresh
-  project dir, also exercising `input_template/` seeding. `run_mode` is about
+  project dir, i.e. the first-run experience on a new machine. `run_mode` is about
   reuse policy, not location, so it composes with an explicit `project_dir` as
   well as with `project_name`.
 - **Canonical examples of the shape** (see [Run Templates](run_templates.qmd)):
@@ -727,12 +729,30 @@ splitting each multi-byte character into garbled pieces.
   `gtap_invest/projects/ngfs/ngfs_pnas/ngfs_pnas/run_ngfs_pnas.py` is the
   largest real pipeline on this anatomy, and shows it holding at a scale where
   the task tree runs to hundreds of lines.
-- **Machine-specific configuration lives in `parameters.csv`, never in code and
-  never in environment variables.** Connection settings (`vm_ssh_host`,
-  `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`), credentials
-  paths, and any other per-machine values are keys in the project's
-  `<project>_parameters.csv`. The tracked `input_template/` copy ships these keys
-  with **blank** values; each machine fills in its own untracked `input/` copy.
+- **Machine-specific configuration lives in `parameters.csv` and `machine.env`,
+  never in code: parameters.csv wins, machine.env fills a blank cell.**
+  Connection settings (`vm_ssh_host`, `vm_disk_prefix`, `gempack_dir`,
+  `sc_ssh_host`, `sc_scratch`), credentials paths, and any other per-machine
+  values a project varies are keys in the project's `<project>_parameters.csv`.
+  The tracked `input_template/` copy ships these keys with **blank** values; to
+  fill them on one machine, copy that one file into the project's untracked
+  `input/` and edit the copy (it shadows the template). A cell left blank falls back
+  to the upper-cased, `GTAP_`-prefixed key in `~/.config/hazelbean/machine.env`
+  (`GTAP_VM_SSH_HOST` for `vm_ssh_host`, and so on), which hazelbean loads at
+  import — so an `input/` reproduced verbatim from its template still connects.
+  Settings that are simply true of the machine and that no project varies
+  (`HB_SHARED_DATA_DIRS`, SLURM sizing) live only in `machine.env`; the
+  installation guide says how that file is created. Absolute paths never live in
+  `hb.config` — config may hold ref_paths only; a ProjectFlow logs at
+  construction where its `base_data_dir` and shared roots came from.
+- **Temporary files go through `hb.temp()` / `hb.temporary_dir()`, under one
+  root.** (Since 2026-09-03.) The root is `hb.get_temp_dir()`: `HB_TEMP_DIR` from
+  `machine.env` if set, else a per-user `hazelbean_temp_<user>` folder in the OS
+  temp dir, so hazelbean's scratch never mixes with other programs' and never
+  lands in a home directory with a quota. Each run owns `p.temporary_dir`, a
+  subfolder named `<project_name>_<run_string>` that `execute()` creates and
+  removes at exit; pass `folder=p.temporary_dir` to `hb.temp()` inside a task so
+  a run's scratch stays together. Never hardcode `~/temp` or `/tmp`.
 - **Tasks are named as nouns** (this intentionally breaks PEP 8), referencing
   what is stored in the task's output directory, so the resulting file structure
   reads well to an outsider.
@@ -743,15 +763,23 @@ splitting each multi-byte character into garbled pieces.
 - Every computationally intensive step must be guarded by an existence check
   (usually `if not hb.path_exists(output_path):`) so completed work is skipped
   on re-run.
-- **`input_template/` is tracked; `input/` is derived.** Definition files a run
+- **`input_template/` is tracked and read in place; `input/` holds only your
+  overrides.** (Since 2026-09-03. Before this, ProjectFlow copied the whole
+  template into `input/` on first run, which left irrelevant copies around and
+  let a stale copy silently shadow an updated template.) Definition files a run
   reads — scenarios CSV, parameters CSV, outputs CSV, figure/section definitions,
-  and any other seed inputs — live in the repo's `input_template/` directory and
-  **are committed to source control**. On first run, ProjectFlow copies each item
-  that doesn't already exist in the project's `input/` directory (which lives under
-  the timestamped/project run dir and is **outside source control**). So: edit the
-  copy in `input_template/`; treat `input/` as a generated working copy. A run only
-  copies files that are missing in `input/`, so a stale `input/` file will shadow an
-  updated template — delete it (or use a fresh project dir) to pick up template edits.
+  and any other seed inputs — live in the repo's `input_template/` directory
+  beside the run file and **are committed to source control**. `get_path`
+  searches `input/` and then `input_template/`, so a run reads the tracked file
+  directly and a template edit takes effect on the next run with nothing to
+  delete. To customize a file for one machine — a parameters CSV with connection
+  settings filled in — copy that one file into the project's `input/` (under the
+  project dir, **outside source control**) and edit the copy; it shadows the
+  template. Nothing is ever copied into `input/` automatically. When an `input/`
+  copy shadows a template that is newer *and different in content*, `get_path`
+  logs a warning naming both files and records the path on
+  `p.stale_input_paths`; mtime is only the trigger and contents are compared, so
+  a git checkout that restamps every file does not warn.
 - **Definitions-CSV hydration resolves paths by NAME: only `*_path` columns run
   through `get_path`.** (Since 2026-07-24; previously any dotted or slashed
   value was treated as a path, which broke on ssh targets like

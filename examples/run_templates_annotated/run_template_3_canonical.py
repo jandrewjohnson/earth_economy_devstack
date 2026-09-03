@@ -180,8 +180,8 @@ if __name__ == '__main__':
     #                        (your edited CSVs) is kept. Refused unless the project
     #                        name contains 'test'.
     #   'full'               a fresh timestamped project dir per run; also exercises
-    #                        input_template/ seeding and base-data downloads, i.e.
-    #                        the first-run experience on a new machine.
+    #                        base-data downloads, i.e. the first-run experience on
+    #                        a new machine.
     #
     # The project_name carries the '_annotated' suffix only so that this set's
     # results never land in the same project dir as ../run_templates/'s template 3,

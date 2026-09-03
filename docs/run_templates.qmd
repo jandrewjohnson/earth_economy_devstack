@@ -89,8 +89,8 @@ Alongside the four rungs, `run_templates/run_template_seals_example.py` is the
 same anatomy applied to a **real model**: `build_task_tree` delegates unchanged to
 `seals_initialize_project.build_standard_task_tree(p)`, and `run_project` sets the
 base data dir and the processing resolution and loads the scenarios CSV, which
-ships in seals' tracked `input_template/` and is seeded into `input/` on first
-run (runtime CSV generation was retired 2026-08; it returns typed as
+ships in seals' tracked `input_template/` and is read in place (runtime CSV
+generation was retired 2026-08; it returns typed as
 `generate_scenarios_csv_from_model_spec`). Copy this one to start a standalone
 SEALS project. It is the one template that moves along the *other two* axes while
 staying at configuration level 3: its code layout is a **library package**
@@ -192,10 +192,12 @@ Templates 3 and 4 pass `run_mode` to the constructor:
 ### input_template/ and the machine-specific values
 
 Both template sets keep their CSVs in a tracked `input_template/` directory next
-to the run file. On first run ProjectFlow copies anything missing into the
-project's untracked `input/` and **never overwrites the working copy**. That is
-why `template_4_parameters.csv` ships with `data_credentials_path` blank: you
-fill it in your machine's `input/` copy, and it never reaches the code or git.
+to the run file. `get_path` reads them in place, after checking the project's
+untracked `input/`, and **nothing is copied into `input/` automatically**. That is
+why `template_4_parameters.csv` ships with `data_credentials_path` blank: to fill
+it, copy that one CSV into your machine's `input/` and edit the copy, which
+shadows the template and never reaches the code or git. If a template later
+changes underneath your copy, the run warns and names both files.
 
 | CSV | what it is |
 |-----|------------|

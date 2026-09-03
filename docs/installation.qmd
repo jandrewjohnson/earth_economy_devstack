@@ -80,22 +80,38 @@ Installing the code is not quite the whole setup. A few settings differ on every
 
 Hazelbean loads it the moment you `import hazelbean`. The format is plain `KEY=value` lines; a leading `export` and a trailing `# comment` are both tolerated, so the same file can also be sourced from a shell. Values are applied with *setdefault* semantics — a real environment variable always wins — so you can override any of it for one run without editing the file.
 
-**Nothing here is required.** A machine with no `machine.env` at all works; you just lose the conveniences below.
+**Nothing here is required.** A machine with no `machine.env` at all works; you just lose the conveniences below. It is also the *only* per-machine file: the older `config.txt` (under `Application Support` or `AppData`) was retired on 2026-09-03 and is no longer read, so delete it if you still have one.
+
+### Where the file comes from
+
+Nothing creates `machine.env` at install time — not pip, not conda, not `import hazelbean`. It exists only once something writes it:
+
+- `hb-setup-machine-env` (next section) creates the `~/.config/hazelbean/` directory and the file when it records a shared data root. It only ever *appends* a line and never overwrites a key you set by hand.
+- Every other key you add yourself. Create the directory and file if they are not there yet, then add `KEY=value` lines:
+
+``` bash
+mkdir -p ~/.config/hazelbean
+echo 'GTAP_SC_SLURM_ACCOUNT=my_account' >> ~/.config/hazelbean/machine.env
+```
+
+The path is the same on every OS: `~` is your home directory, so on Windows it is `C:\Users\you\.config\hazelbean\machine.env`. To see which file, if any, a run actually read, look at the first lines a `ProjectFlow` logs when it is constructed — it reports its `base_data_dir` and shared data roots, and whether `HB_SHARED_DATA_DIRS` came from `machine.env` (naming the file), from a real environment variable that overrode it, or is unset.
 
 ### The keys that exist
 
 | key | what it does |
 |-----------------------|------------------------------------------------|
+| `HB_TEMP_DIR` | Root for every temporary file hazelbean writes (`hb.temp()`, `hb.temporary_dir()`, and each run's `p.temporary_dir`, a per-run subfolder named for the project and run time, removed at exit). Unset, the OS temp dir gets a per-user `hazelbean_temp_<user>` subfolder, so nothing hazelbean writes mixes with other programs' files. Set it to point cluster runs at scratch space. |
 | `HB_SHARED_DATA_DIRS` | Directories that mirror `base_data`'s layout and can be read directly — usually a mounted lab drive. `get_path` searches them after your local `base_data` and before the cloud bucket, and copies anything it finds into `base_data` so later runs resolve locally. `os.pathsep`-separated for more than one. |
 | `GTAP_SC_SLURM_ACCOUNT`, `GTAP_SC_SLURM_PARTITION`, `GTAP_SC_SLURM_TIME`, `GTAP_SC_SLURM_CPUS`, `GTAP_SC_SLURM_MEM` | How gtappy sizes and charges the `sbatch` jobs it submits when solving GTAP on a SLURM cluster. |
 | `GTAP_SC_WINE_SIF` | Path to the Apptainer image that runs GEMPACK under Wine on the cluster. |
+| `GTAP_VM_SSH_HOST`, `GTAP_VM_DISK_PREFIX`, `GTAP_GEMPACK_DIR`, `GTAP_SC_SSH_HOST`, `GTAP_SC_SCRATCH` | Fallbacks for the GTAP solve-backend connection keys (`vm_ssh_host`, `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`). Read only when the matching cell in a project's `parameters.csv` is blank. |
 
 ### machine.env or parameters.csv?
 
 Both hold per-machine values, and the rule for which is which is simple:
 
-- If a project's `input_template/` ships the key with a blank value, it belongs in **that project's `input/` copy of `parameters.csv`**. The GTAP solve-backend connection settings work this way — `vm_ssh_host`, `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`. They used to be environment variables and deliberately are not any more.
-- Everything else — settings no project varies, that are simply true of the machine — belongs in **`machine.env`**.
+- If a project's `input_template/` ships the key with a blank value, it belongs in **that project's `input/` copy of `parameters.csv`** (copy the file there from `input_template/` by hand; `input/` is never seeded automatically). The GTAP solve-backend connection settings work this way — `vm_ssh_host`, `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`. **`parameters.csv` wins, `machine.env` fills a blank cell**: a cell you leave blank falls back to the `GTAP_`-prefixed, upper-cased key in `machine.env` (`GTAP_VM_SSH_HOST` for `vm_ssh_host`), so an `input/` reproduced verbatim from its template still connects on a machine that has the key set.
+- Everything else — settings no project varies, that are simply true of the machine — belongs in **`machine.env`** only.
 
 Many projects need neither. `global_invest`, for example, has no `parameters.csv` at all, so running one of its services needs nothing beyond an optional `HB_SHARED_DATA_DIRS`.
 

@@ -9,7 +9,7 @@ Use this to smoke-test the whole pipeline end-to-end quickly. For the full model
 (all scenarios, full 2023-2050 span, global AOI, full manuscript) run run_ngfs_pnas.py.
 
 The only difference from the full run is the scenarios CSV filename below;
-input_template/ngfs_pnas_scenarios_test.csv is copied to the project input/ on first run.
+input_template/ngfs_pnas_scenarios_test.csv is read in place (after the project's input/).
 
 This is the 'check' variant of the test: it reuses the stable ngfs_pnas_test
 project dir and standard ProjectFlow skip-existing logic, so only missing files

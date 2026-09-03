@@ -31,9 +31,10 @@ WHEN THIS LEVEL IS THE RIGHT ONE
     A machine-specific value tries to enter your code (a credentials path, an ssh
     host, a scratch dir), or a collaborator needs to run your project on a machine
     where your paths do not exist. Both CSVs live in the tracked input_template/
-    next to this run file; ProjectFlow copies anything missing into the project's
-    untracked input/ on first run and NEVER overwrites the working copy, so
-    per-machine values survive re-runs and never reach git.
+    next to this run file, and get_path reads them there in place. To fill in a
+    per-machine value, copy that one CSV into the project's untracked input/ and
+    edit the copy: it shadows the template, survives re-runs, and never reaches
+    git. Nothing is copied into input/ for you.
 
 WHAT ELSE THIS LEVEL DEMONSTRATES
     - An explicit tree with parent= nesting: child tasks get their dirs inside the

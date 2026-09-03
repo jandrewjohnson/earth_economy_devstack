@@ -702,9 +702,9 @@ def run_project(p):
 
 
 if __name__ == '__main__':
-    # One call does the whole directory setup: it places the project, creates it,
-    # and copies input_template/ -> input/ (skip-existing). A stable project_name
-    # with run_mode='check' means repeated runs resume in place.
+    # One call does the whole directory setup: it places the project and creates
+    # it; input_template/ is read in place (input/ holds only your overrides). A
+    # stable project_name with run_mode='check' means repeated runs resume in place.
     p = hb.ProjectFlow(project_name='yield', run_mode='check')
     p.parameter_definitions_filename = 'yield_parameters.csv'
     p.scenario_definitions_filename = 'yield_scenarios.csv'

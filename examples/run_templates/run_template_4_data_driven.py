@@ -7,8 +7,8 @@
 run_project(p) sets what no variant ever changes; the caller sets what a variant
 might -- with one deliberate exception: the caller sets the FULL definitions-filename
 block (the project's interface manifest), and run_project only loads it.
-Machine-specific keys ship blank in the tracked input_template/ CSV and are filled in
-each machine's untracked input/ copy, so they never reach the code or git.
+Machine-specific keys ship blank in the tracked input_template/ CSV (read in place); to
+fill them, copy that CSV into the machine's untracked input/, so they never reach the code or git.
 
 Annotated version: ../run_templates_annotated/run_template_4_data_driven.py
 """
