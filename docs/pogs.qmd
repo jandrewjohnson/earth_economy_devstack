@@ -89,11 +89,70 @@ Other sources, including an in-prep manuscript, define fully the pog spec, but f
 
 - **Compressed** with DEFLATE. This is a choice we made and in most tests deflate performs better than the more common LZW. We have also tried out ZSTD which is way better than DEFLATE but is not universally supported (yet), so we don't use it in the definition.
 
-- **Internal overviews at exactly the prescribed levels** for its resolution (e.g., 10 arcseconds requires levels `[3, 15, 30, 90, 180, 360]`, so its overviews land exactly on the coarser supported resolutions). The full mapping is `hb.pyramid_compatible_overview_levels`. Overview resampling is `mode` for integer types and `average` for floats.
+- **Internal overviews at exactly the prescribed levels**, and the levels are derived from the resolution table rather than chosen: a base resolution's overviews are the **full chain of coarser supported resolutions, capped at 10 degrees**, so every overview lands exactly on the grid of a coarser POG. A file that is already 512 pixels or smaller in both dimensions (1 degree and coarser) has **no overviews**; GDAL's COG validator only asks for them above 512. The mapping is `hb.pyramid_compatible_overview_levels`:
+
+  | Base | Levels | Coarsest overview |
+  |-----:|:-------|:------------------|
+  | 1 sec | 10, 30, 150, 300, 900, 1800, 3600, 7200, 14400, 36000 | 10° (36 × 18) |
+  | 10 sec | 3, 15, 30, 90, 180, 360, 720, 1440, 3600 | 10° |
+  | 30 sec | 5, 10, 30, 60, 120, 240, 480, 1200 | 10° |
+  | 150 sec | 2, 6, 12, 24, 48, 96, 240 | 10° |
+  | 300 sec | 3, 6, 12, 24, 48, 120 | 10° |
+  | 900 sec | 2, 4, 8, 16, 40 | 10° |
+  | 1800 sec | 2, 4, 8, 20 | 10° |
+  | 3600 sec and coarser | none | — |
+
+  (Rule formalized 2026-09-15. Before that the levels were a hand-written table: the 1-second chain started at an unsupported 3 seconds, chains stopped at 1 degree, and the coarse entries overshot to unsupported 8 to 40 degree levels. POGs written under the old table fail the level check and need regenerating.) Overview resampling is `mode` for integer types and `average` for floats.
 
 - **Exact statistics stored internally.** Band statistics must be present and computed exactly (`STATISTICS_APPROXIMATE=NO`), with no stale `.aux.xml` sidecar shadowing them.
 
 **2. It is a valid COG:** it passes GDAL's COG validation --- tiled layout, properly ordered internal overviews, cloud-readable header structure. `make_path_pog` writes through the GDAL COG driver (BIGTIFF, 512-pixel blocks by default), so this comes for free.
+
+## Standards
+
+Three separate claims, each with its own evidence:
+
+- **A POG is a valid OGC GeoTIFF and a valid OGC Cloud Optimized GeoTIFF.** COG has been an OGC standard since 2023 (OGC 21-026). `hb.is_path_cog` runs GDAL's validator, which implements that standard, and `make_path_pog` writes through GDAL's COG driver.
+- **The pyramid tiling scheme is a valid OGC Tile Matrix Set** (OGC 17-083r4, "Two Dimensional Tile Matrix Set and Tile Set Metadata" 2.0). `hb.get_pyramid_tile_matrix_set()` publishes it: one tile matrix per supported resolution in CRS84 with the origin at the top-left `(-180, 90)`, id `EEPyramidCRS84`. It is **not** a quadtree — the scale progression follows the pyramid resolutions, so it is not the registered `WorldCRS84Quad` set — which the standard explicitly allows for custom sets. Tile sizes vary by resolution (below), which is why the set must be published with all eleven matrices rather than inferred. `hb.validate_tile_matrix_set_json` validates the document against the schemas OGC publishes, shipped verbatim in `hazelbean/ogc_schemas/tms_2.0/`; that validation runs in the unit suite (`test_tiles.py`) and is the compliance test. `hb.write_pyramid_tile_matrix_set_json(path)` writes the document for use by OGC API Tiles servers or QGIS.
+- **A subpog tile set is addressable through that tile matrix set.** Tiles are named on disk by their south-west corner (below); `hb.tile_corner_string_to_tile_matrix_index` converts a corner name to the standard's `(tileMatrix, tileRow, tileCol)` and `hb.tile_matrix_index_to_tile_corner_string` converts back. The unit suite checks the two are a bijection over every tile of a matrix.
+
+## POG, subpog, tile, tile set, VRT
+
+Four things that are easy to conflate, defined so they stay apart:
+
+- **POG** — the global raster meeting the full spec above.
+- **Subpog** — a raster meeting the spec in every respect **except extent**. Its extent is a whole number of cells from the pyramid origin `(-180, 90)` at its resolution (snap a box with `hb.snap_bb_to_pyramid(bb, arcseconds)`), and its overview levels are the global chain **truncated to the levels whose cell size divides its extent** (`hb.get_pyramid_overview_levels_for_bb`) — so every overview still lands on a coarser pyramid grid, and the coarsest is bounded by the extent. A 10-degree tile of 10-second data therefore carries levels 3 … 720 and 3600 but not 1440, because 4 degrees does not divide 10. Make one with `hb.make_path_pog(path, expand_to_global_extent=False)` (the parallel converter forwards the same flag); check with `hb.is_path_subpog`; a POG is a degenerate subpog. A seals AOI clip is a subpog and not a tile.
+- **Tile** — a subpog whose extent is exactly one cell of the published tile grid for its resolution. Every tile is a subpog; most subpogs are not tiles.
+- **Tile set** — the tiles of one dataset at one resolution and tiling, in one folder, plus the VRT that indexes them. A tile set may be **sparse**: tiles that would be entirely nodata need not exist.
+- **VRT** — not a raster. An XML index (`gdalbuildvrt`) that presents the tiles of a tile set to GDAL as one global raster: it carries the exact global geotransform and the standard nodata, lists which tiles exist and where, and reads anything not listed as nodata. It holds no pixels, has no overviews of its own (coarse reads go to the tiles' internal overviews), and cannot be a COG. `hb.is_path_pog_tileset(vrt)` checks the VRT frame is global, every source is a corner-named tile covering the extent its name claims, and every tile is a subpog.
+
+### Tile naming
+
+Corner-based, following SRTM, NASADEM, Copernicus DEM and ESA WorldCover: the tile's **south-west** corner in whole degrees, cardinal letters, latitude two digits, longitude three. The edge length is in the name because it varies by resolution and the same dataset may exist at more than one tiling:
+
+```
+lulc_esa_2020_10sec.tif                       the global POG
+lulc_esa_2020_10sec_10deg/                    its tile set (folder)
+lulc_esa_2020_10sec_10deg_N40W130.tif       one tile: 10-degree edge, SW corner 40N 130W
+lulc_esa_2020_10sec_10deg.vrt                 the index, beside the folder
+```
+
+Helpers: `hb.get_tile_filename`, `hb.parse_tile_filename`, `hb.get_tile_corner_string`, `hb.parse_tile_corner_string`, `hb.get_tile_bb_from_corner_string`, `hb.list_tile_corner_strings`. The VRT uses relative source paths, so the folder and its VRT move together.
+
+Tile edges are chosen so a tile is a few thousand pixels per side, and are the scheme's `hb.pyramid_tile_degrees`:
+
+| Base | Tile edge | Tile pixels | Tiles |
+|-----:|----------:|------------:|------:|
+| 1 sec | 1° | 3600 × 3600 | 64,800 |
+| 10 sec | 10° | 3600 × 3600 | 648 |
+| 30 sec | 10° | 1200 × 1200 | 648 |
+| 150 sec and coarser | not tiled | the global POG is one tile | 1 |
+
+### Global POG or tile set? Support both
+
+They solve different problems. **HTTP range requests fetch only the bytes touching a window from inside one COG** — exactly what COG was designed for — and work on a global POG directly, with no tiles and no VRT. So the **global POG is the default form** and range requests are the default subset mechanism (planned for `get_path`; not yet built). **Tile sets earn their place where a single file is operationally impractical**: the 1-second tier (a global Byte raster is over 800 GB uncompressed), datasets regenerated or checksummed piecewise, and the Drive mirror, which syncs whole files. There the VRT is the manifest telling `get_path` which tile files a requested box touches. Both paths converge on a future bounding-box argument to `get_path`; they differ only in what is fetched — byte ranges of one file, or whole tiles named in a manifest. A dataset's entry in base_data should say which form it uses.
+
+Round trips: `hb.tile_pog_to_tileset(pog_path, tile_degrees=None)` cuts a POG into a tile set (skipping all-nodata tiles) and returns the VRT; `hb.write_subpog_from_pog_window(pog_path, bb, output_path)` cuts one aligned window; any raster becomes a subpog with `make_path_pog(..., expand_to_global_extent=False)`; a tile set becomes a global POG again by running `make_path_pog` on its VRT (verified byte-identical).
 
 ## Handy extras
 

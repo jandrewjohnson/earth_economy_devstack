@@ -547,6 +547,13 @@ We follow PEP 8 with a few departures:
   string values inside an f-string) use single quotes. Preferring double quotes
   on the outside avoids escaping apostrophes.
 - Avoid global variables; keep functions concise and focused on a single task.
+- **Match a file's shape to its status, and to its siblings.** A run-once
+  diagnostic or maintenance script (anything under a `scripts/` folder, or
+  beside one) is flat: imports, then the work, top to bottom, no `argparse`,
+  no `main()`, no helper functions unless something is called twice. Before
+  writing a new file, read the nearest sibling and match it. A CLI, named
+  functions, and input validation are added when the file gains a second
+  caller or a second user, not in anticipation of one.
 
 ## Docstrings
 
