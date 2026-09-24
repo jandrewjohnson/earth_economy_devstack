@@ -2,7 +2,7 @@
 title: "Proposal: a side-rung admission rule"
 ---
 
-**Status:** proposal, 2026-09-18. Not implemented. The current lattice (13 spine rungs, 6 side rungs, as in [pogs.qmd](pogs.qmd)) remains in force. This document states the rule that decides whether a resolution becomes a side rung or is resampled on entry, records what that decision costs, and applies it to the case that triggered it.
+**Status:** proposal 2026-09-18; adopted 2026-09-24. The 180, 360 and 600 s batch was admitted together with 9 and 90 s (the 9-10 s family's chain), in the pyramids paper's revised ladder of 16 main and 9 side rungs; see [pogs.qmd](pogs.qmd). The ladder below this line is the pre-adoption one (13 spine rungs, 6 side rungs) and is kept as the record of the decision. This document states the rule that decides whether a resolution becomes a side rung or is resampled on entry, records what that decision costs, and applies it to the case that triggered it.
 
 ## The trigger
 
