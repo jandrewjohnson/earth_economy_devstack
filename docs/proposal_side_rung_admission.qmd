@@ -1,0 +1,88 @@
+---
+title: "Proposal: a side-rung admission rule"
+---
+
+**Status:** proposal, 2026-09-18. Not implemented. The current lattice (13 spine rungs, 6 side rungs, as in [pogs.qmd](pogs.qmd)) remains in force. This document states the rule that decides whether a resolution becomes a side rung or is resampled on entry, records what that decision costs, and applies it to the case that triggered it.
+
+## The trigger
+
+Converting WorldClim 2.1 at 10 arcminutes (`wc2.1_10m_prec_*.tif`) with `make_paths_pogs_in_parallel` fails:
+
+```         
+make_path_pog cannot infer an output resolution ... its cell size is 0.16666667 degrees
+(600 arcseconds), which is not one of the supported pyramid resolutions
+(0, 0, 0, 0, 1, 3, 10, 15, 30, 150, 300, 900, 1800, 3600, 18000, 36000, 108000, 324000, 648000).
+Suggested output_arcseconds=900: the closest supported resolution at or coarser than the
+native cell, so no detail is invented. Use 300 to upsample instead.
+```
+
+WorldClim 2.1 is distributed at four tiers: 30 s, 2.5′, 5′ and 10′. Three of them are rungs (30, 150, 300 s). The fourth, 600 s = 1/6°, is not. The two exits the message offers are both wrong for this file, and the message itself is wrong in two places (see [What the error message gets wrong](#message)).
+
+## What the code enforces today
+
+Three mechanisms in `hazelbean/pyramids.py` decide everything about a rung:
+
+1.  **Admissibility.** `pyramid_side_arcseconds` is asserted at import: every side rung must be an integer divisor of at least one spine rung, tested as reduced fractions. Nothing else is checked.
+2.  **Overview derivation.** A rung's overview levels are *every* coarser rung, spine or side, that is an integer multiple of it. The table is not written; it is computed.
+3.  **Publication.** Every rung gets a tile-matrix entry (`get_pyramid_tile_matrix_set`) and a tile-edge entry (`pyramid_tile_degrees`).
+
+Mechanism 1 makes admission nearly free: any grid of 1/n° divides the 1° rung. Mechanism 2 is what makes admission expensive, and it is the issue this proposal formalizes:
+
+> **Admitting a rung R adds one overview level to every existing rung that divides R.** Every POG at those rungs then fails `is_path_pog` (overviews are matched by exact dimensions) and must be regenerated.
+
+An admission is therefore a lattice-wide event, never a local one. The manuscript's criterion, *"join height, not divisibility, is the binding constraint"*, is prose: no code expresses a join-height bound, a consumption rung, or the churn a candidate would cause.
+
+## The rule
+
+A candidate resolution R becomes a side rung only if it passes all four tests, in order.
+
+1.  **Admissible.** R is rational and divides at least one spine rung. Mechanical; already asserted at import. The smallest spine rung R divides is its **join rung** J.
+2.  **Owned.** A named product family is *distributed natively* at R on a lat/lon grid. No owner, no rung. This is why 2° and 4° were removed and why 30°, 90°, 180° exist only as structural bridges.
+3.  **Served.** Every rung at which the devstack *consumes* the family is either R itself or at or above J. Below J, reading the family at a spine rung is a non-block resample whether or not R is a rung, so the rung buys native storage only, and resample-on-entry to the consumption rung is equivalent. A family that fails this test is entered by resampling and recorded in the entry table (A.1 of the manuscript; the "Products with no lat/lon grid" table in pogs.qmd).
+4.  **Batched.** Admissions are made in a batch aligned with a base_data regeneration, never singly, because of the churn in mechanism 2. Each batch records, per admitted rung, the finer rungs whose chains changed.
+
+Test 3 is the manuscript's "join height" criterion made checkable. Tests 2 and 4 are the parts the manuscript does not state.
+
+## The cost of a candidate, computed
+
+For each candidate, the chains that change if it is admitted to the current lattice (computed from the live derivation, 2026-09-18):
+
+| Candidate | Owner | Divides spine at | Join J | Own chain | Finer rungs whose chain changes | Largest storage hit |
+|----------:|-----------|-----------|----------:|-----------|-----------|-----------|
+| 600 s (1/6°) | WorldClim 2.1 10′ | 1800, 3600, … | 1800 s | 3, 6, 30, 60, 180, 540, 1080 | 10: 1-9, 3-10, 1-3, 1, 3, 10, 15, 30, **150 (+4), 300 (+2)** | 300 s POGs grow \~25 % (a factor-2 level); 150 s \~6 % |
+| 180 s (0.05°) | CHIRPS, MODIS CMG | 900, 1800, … | 900 s | 5, 10, 20, 100, 200, 600, 1800, 3600 | 9: 1-9, 3-10, 1-3, 9-10, 1, 3, 10, 15, **30 (+6)** | 30 s POGs grow \~3 % |
+| 360 s (0.1°) | ERA5-Land | 1800, 3600, … | 1800 s | 5, 10, 50, 100, 300, 900, 1800 | 9: 1-9, 3-10, 1-3, 9-10, 1, 3, 10, 15, **30 (+12)** | 30 s POGs grow \<1 % |
+| 9000 s (2.5°) | GPCC, legacy reanalyses | 18000, … | 18000 s | 2, 4, 12, 36, 72 | 13: everything from 1-9 s to 1800 s | negligible per file, but touches every rung |
+
+Note that 600 s does **not** divide 900 s (ratio 1.5) and 9/10 s does not divide 600 s, so the WorldClim 10′ tier joins the spine at half a degree, one rung higher than CHIRPS does.
+
+## Applying the rule
+
+**600 s, WorldClim 10′.** Admissible; owned; served, because the 10′ tier is the one used where half-degree and one-degree grids are the target, and its join is 1800 s. It has one property no other candidate has: 600 is an integer multiple of 300, 150 and 30, so with it admitted the four WorldClim tiers nest as exact block sums (30 → 150 → 300 → 600 by factors 5, 2, 2). Without it the family is split, three tiers native and one resampled. **Verdict: admit.**
+
+**180 s, CHIRPS and MODIS CMG.** Admissible; owned; join 900 s, which is the LUH2 and GTAP-AEZ rung, so it is served for Earth-economy work (not for SEALS covariates at 30 s or 300 s, which get a resample either way). The manuscript currently lists it as resample-on-entry because it "joins too high". That position is not consistent with admitting 600 s, whose join is higher. **Verdict: admit in the same batch as 600 s, or reject both.**
+
+**360 s, ERA5-Land.** Admissible; owned by the dominant reanalysis; same join as 600 s. **Verdict: same decision as 600 s.**
+
+**9000 s, 2.5°.** Admissible, but no devstack consumer, and it churns thirteen rungs. **Verdict: reject; resample on entry.**
+
+### Recommendation
+
+Admit **180, 360 and 600 s** as one batch, timed with the base_data regeneration that the 2026-09-16 overview-rule change already requires, so the regeneration happens once. The cost is concentrated in one place, 300 s POGs gaining a factor-2 overview (about a quarter more overview bytes on files that are 4,320 × 2,160 cells, so megabytes), and the benefit is that the three most-used coarse climate families in the stack become native rungs with exact paths to the spine. The alternative, admit none and enter all three by resampling, is coherent too; what is not coherent is the manuscript's current state, which admits WorldClim's finer tiers and rejects its coarsest on a criterion that would also reject nothing else on the list.
+
+Either way, the lattice after this batch is 13 spine + 9 side = 22 matrices, or stays at 19.
+
+## What the error message gets wrong {#message}
+
+Recorded here for the fix, not fixed in this proposal.
+
+- **Side rungs print as `0, 0, 0, 0`.** `_explain_unsupported_resolution` in `hazelbean/pog.py` formats every supported rung with `int()`, so the four fractional rungs print as zero. It should use `hb.arcseconds_to_token`.
+- **The lossy and lossless exits are labelled backwards for this file.** The message calls 900 s the choice where "no detail is invented" and 300 s an "upsample". For a 600 s input, 600 → 900 is a ratio of 1.5: a resample that mixes cells and cannot be undone. 600 → 300 is an integer refinement by 2: nearest-neighbour replication invents nothing, and a block sum back to 600 s recovers the input exactly. The suggestion rule should be: prefer the coarsest rung that *divides* the native cell (lossless refinement); else the finest rung the native cell divides (exact aggregation); else the nearest coarser rung, and say that this last case is a true resample.
+- **The entry table is prose only.** The manuscript's A.1 says resample-on-entry products are "recorded in an entry table kept beside the rung table". No such table exists in code; a small registry (product, native cell, enters-at rung, method) would let `make_path_pog` suggest the recorded rung by filename or metadata instead of by arithmetic.
+
+## What adopting this would touch
+
+- `hazelbean/pyramids.py`: `pyramid_side_arcseconds`, `pyramid_compatible_resolution_bounds`, `pyramid_tile_degrees` (all three candidates untiled), the shapes and geotransform dicts; the derived overview table and the tile matrix set update themselves. `test_tiles.py` matrix count.
+- `hazelbean/pog.py`: the error message fixes above.
+- `docs/pogs.qmd` resolution and overview tables; `docs/_conventions_reference.md` (its supported-set sentence still lists 7200 and 14400); manuscript A.1, A.6 and Appendix E.
+- Regeneration of every existing POG at the ten rungs 600 s divides, which the pending regeneration covers.

@@ -69,40 +69,61 @@ Other sources, including an in-prep manuscript, define fully the pog spec, but f
 
 - **Global extent, exact geotransform.** The raster spans the whole globe, `(-180, res, 0, 90, 0, -res)`, matching the canonical geotransform for its resolution exactly (not approximately).
 
-- **A supported resolution.** Cell size is one of the pyramid-compatible resolutions, named by arcseconds:
+- **A supported resolution.** Cell size is one of the pyramid-compatible resolutions, named by arcseconds. The ladder is a **spine with side rungs**: the spine is the canonical chain from 1 second to the 180-degree top, every adjacent ratio an integer; a side rung is a storage resolution off the spine, admitted when its cell is rational and divides at least one spine rung, so every rung has a path to the top. Fractional rungs are named as reduced fractions, `3-10sec` for 3/10 arcsecond:
 
-  | Arcseconds | Degrees | Approx. at equator | Shape (rows × cols) |
-  |-----------:|--------:|-------------------:|--------------------:|
-  |          1 |  1/3600 |             \~30 m | 648,000 × 1,296,000 |
-  |         10 |   1/360 |            \~300 m |    64,800 × 129,600 |
-  |         30 |   1/120 |             \~1 km |     21,600 × 43,200 |
-  |        150 |    1/24 |             \~5 km |       4,320 × 8,640 |
-  |        300 |    1/12 |            \~10 km |       2,160 × 4,320 |
-  |        900 |    0.25 |            \~25 km |         720 × 1,440 |
-  |       1800 |     0.5 |            \~50 km |           360 × 720 |
-  |       3600 |     1.0 |           \~110 km |           180 × 360 |
-  |       7200 |     2.0 |                    |            90 × 180 |
-  |      14400 |     4.0 |                    |             45 × 90 |
-  |      36000 |    10.0 |                    |             18 × 36 |
+  |  Arcseconds | Degrees | Approx. at equator |    Shape (rows × cols) |
+  |------------:|--------:|-------------------:|-----------------------:|
+  |  1-9 (side) | 1/32400 |              \~3 m | 5,832,000 × 11,664,000 |
+  | 3-10 (side) | 1/12000 |              \~9 m |  2,160,000 × 4,320,000 |
+  |  1-3 (side) | 1/10800 |             \~10 m |  1,944,000 × 3,888,000 |
+  | 9-10 (side) |  1/4000 |             \~28 m |    720,000 × 1,440,000 |
+  |           1 |  1/3600 |             \~30 m |    648,000 × 1,296,000 |
+  |    3 (side) |  1/1200 |             \~90 m |      216,000 × 432,000 |
+  |          10 |   1/360 |            \~300 m |       64,800 × 129,600 |
+  |   15 (side) |   1/240 |            \~460 m |        43,200 × 86,400 |
+  |          30 |   1/120 |             \~1 km |        21,600 × 43,200 |
+  |         150 |    1/24 |             \~5 km |          4,320 × 8,640 |
+  |         300 |    1/12 |            \~10 km |          2,160 × 4,320 |
+  |         900 |    0.25 |            \~25 km |            720 × 1,440 |
+  |        1800 |     0.5 |            \~50 km |              360 × 720 |
+  |        3600 |     1.0 |           \~110 km |              180 × 360 |
+  |       18000 |     5.0 |           \~550 km |                36 × 72 |
+  |       36000 |    10.0 |                    |                18 × 36 |
+  |      108000 |    30.0 |                    |                 6 × 12 |
+  |      324000 |    90.0 |                    |                  2 × 4 |
+  |      648000 |   180.0 |                    |                  1 × 2 |
+
+  Below one degree the rungs match product families (SRTM and Copernicus at 1 s, ESA CCI at 10 s, WorldClim and GPW at 30 s, the 2.5 and 5 arcminute WorldClim and MAPSPAM families at 150 and 300 s, quarter-degree LUH2 and GTAP-AEZ at 900 s, half- and one-degree climate grids). Above one degree they nest toward the **180-degree top rung, a 2 × 1 grid**: the two faces of the equirectangular map (front and back; in astronomical terms, the observable and unobservable hemispheres). 5° has product owners (HadCRUT, NOAA GlobalTemp) and 10° is the zoning and tile edge; 30°, 90° and 180° are structural. Every adjacent ratio is an integer (10, 3, 5, 2, 3, 2, 2, 5, 2, 3, 3, 2), which makes the ladder a chain rather than a lattice, and the top rung is the aspect ratio of the map itself, so the ladder is **body-independent**: nothing below 180° references Earth except the choice of which product families to honor. The side rungs carry the product families that do not sit on the spine: **3 s** (the 90 m family: SRTM 3s, Copernicus GLO-90, TanDEM-X 90, MERIT DEM and Hydro, HydroSHEDS, WorldPop 100 m, GHSL 3ss; joins the spine at 30 s, tiled at MERIT's own 5°), **15 s** (HydroSHEDS 15s, GEBCO; joins at 30 s), **9-10 s** (1/4000°, the 30 m lat/lon family: Hansen Global Forest Change, JRC Global Surface Water, GLAD; joins only at 900 s, a quarter degree) **3-10 s** (1/12000°, the Sentinel-derived 10 m family on lat/lon: ESA WorldCover and the Lang et al. canopy height, which uses WorldCover's tiling; joins at 3 s and 30 s), and **1-3 s** and **1-9 s** (1/10800° and 1/32400°, the USGS 3DEP 1/3 and 1/9 arc-second DEMs at 10 m and 3 m; join at 1 s). A rung's overview chain is every coarser rung, spine or side, that is an integer multiple of it, so a 3 s POG carries a 15 s and a 30 s overview but no 10 s one, and a 1 s POG carries 3 s and 15 s as well as 10 s. Products on no rung — Copernicus Global Land Cover at 1/1008°, CHIRPS and MODIS CMG at 0.05°, ERA5-Land at 0.1° — are resampled on entry. Every aligned grid has a rational cell size, so the p-q notation is total.
 
 - **The standard no-data value for its data type.** NDV is not a free choice: signed integers and floats use `-9999`; unsigned integers use the maximum value of the type (e.g., 255 for Byte, 65535 for UInt16). `make_path_pog` sets this for you (it will override whatever NDV the input had).
 
 - **Compressed** with DEFLATE. This is a choice we made and in most tests deflate performs better than the more common LZW. We have also tried out ZSTD which is way better than DEFLATE but is not universally supported (yet), so we don't use it in the definition.
 
-- **Internal overviews at exactly the prescribed levels**, and the levels are derived from the resolution table rather than chosen: a base resolution's overviews are the **full chain of coarser supported resolutions, capped at 10 degrees**, so every overview lands exactly on the grid of a coarser POG. A file that is already 512 pixels or smaller in both dimensions (1 degree and coarser) has **no overviews**; GDAL's COG validator only asks for them above 512. The mapping is `hb.pyramid_compatible_overview_levels`:
+- **Internal overviews at exactly the prescribed levels**, derived from the resolution table rather than chosen: a rung's overviews are **every coarser rung, spine or side, that is an integer multiple of it, all the way to the 180-degree top**, so every overview lands exactly on the grid of a coarser rung and a coarser rung can be read out of a finer file by position. Only the top rung has none. Overviews are validated by **dimensions, exactly** — the factors imply each overview's size (GDAL rounds up) and a superset, subset or near-miss factor all fail; the chain derivation raises on any non-integer ratio. The mapping is `hb.pyramid_compatible_overview_levels`:
 
-  | Base | Levels | Coarsest overview |
-  |-----:|:-------|:------------------|
-  | 1 sec | 10, 30, 150, 300, 900, 1800, 3600, 7200, 14400, 36000 | 10° (36 × 18) |
-  | 10 sec | 3, 15, 30, 90, 180, 360, 720, 1440, 3600 | 10° |
-  | 30 sec | 5, 10, 30, 60, 120, 240, 480, 1200 | 10° |
-  | 150 sec | 2, 6, 12, 24, 48, 96, 240 | 10° |
-  | 300 sec | 3, 6, 12, 24, 48, 120 | 10° |
-  | 900 sec | 2, 4, 8, 16, 40 | 10° |
-  | 1800 sec | 2, 4, 8, 20 | 10° |
-  | 3600 sec and coarser | none | — |
+  | Base | Levels |
+  |------------------------------:|:----------------------------------------|
+  | 1-9 sec (side) | 3, 9, 27, 90, 135, 270, 1350, 2700, 8100, 16200, 32400, 162000, 324000, 972000, 2916000, 5832000 |
+  | 3-10 sec (side) | 3, 10, 50, 100, 500, 1000, 3000, 6000, 12000, 60000, 120000, 360000, 1080000, 2160000 |
+  | 1-3 sec (side) | 3, 9, 30, 45, 90, 450, 900, 2700, 5400, 10800, 54000, 108000, 324000, 972000, 1944000 |
+  | 9-10 sec (side) | 1000, 2000, 4000, 20000, 40000, 120000, 360000, 720000 |
+  | 1 sec | 3, 10, 15, 30, 150, 300, 900, 1800, 3600, 18000, 36000, 108000, 324000, 648000 |
+  | 3 sec (side) | 5, 10, 50, 100, 300, 600, 1200, 6000, 12000, 36000, 108000, 216000 |
+  | 10 sec | 3, 15, 30, 90, 180, 360, 1800, 3600, 10800, 32400, 64800 |
+  | 15 sec (side) | 2, 10, 20, 60, 120, 240, 1200, 2400, 7200, 21600, 43200 |
+  | 30 sec | 5, 10, 30, 60, 120, 600, 1200, 3600, 10800, 21600 |
+  | 150 sec | 2, 6, 12, 24, 120, 240, 720, 2160, 4320 |
+  | 300 sec | 3, 6, 12, 60, 120, 360, 1080, 2160 |
+  | 900 sec | 2, 4, 20, 40, 120, 360, 720 |
+  | 1800 sec | 2, 10, 20, 60, 180, 360 |
+  | 3600 sec | 5, 10, 30, 90, 180 |
+  | 18000 sec | 2, 6, 18, 36 |
+  | 36000 sec | 3, 9, 18 |
+  | 108000 sec | 3, 6 |
+  | 324000 sec | 2 |
+  | 648000 sec | none |
 
-  (Rule formalized 2026-09-15. Before that the levels were a hand-written table: the 1-second chain started at an unsupported 3 seconds, chains stopped at 1 degree, and the coarse entries overshot to unsupported 8 to 40 degree levels. POGs written under the old table fail the level check and need regenerating.) Overview resampling is `mode` for integer types and `average` for floats.
+  (Rule formalized 2026-09-15/16. Before that the levels were a hand-written table: the 1-second chain started at an unsupported 3 seconds, chains stopped at 1 degree, and 2° and 4° rungs existed that could not nest into 10°. POGs written under the old table fail the level check and need regenerating.) Overview resampling is `mode` for integer types and `average` for floats.
 
 - **Exact statistics stored internally.** Band statistics must be present and computed exactly (`STATISTICS_APPROXIMATE=NO`), with no stale `.aux.xml` sidecar shadowing them.
 
@@ -113,7 +134,7 @@ Other sources, including an in-prep manuscript, define fully the pog spec, but f
 Three separate claims, each with its own evidence:
 
 - **A POG is a valid OGC GeoTIFF and a valid OGC Cloud Optimized GeoTIFF.** COG has been an OGC standard since 2023 (OGC 21-026). `hb.is_path_cog` runs GDAL's validator, which implements that standard, and `make_path_pog` writes through GDAL's COG driver.
-- **The pyramid tiling scheme is a valid OGC Tile Matrix Set** (OGC 17-083r4, "Two Dimensional Tile Matrix Set and Tile Set Metadata" 2.0). `hb.get_pyramid_tile_matrix_set()` publishes it: one tile matrix per supported resolution in CRS84 with the origin at the top-left `(-180, 90)`, id `EEPyramidCRS84`. It is **not** a quadtree — the scale progression follows the pyramid resolutions, so it is not the registered `WorldCRS84Quad` set — which the standard explicitly allows for custom sets. Tile sizes vary by resolution (below), which is why the set must be published with all eleven matrices rather than inferred. `hb.validate_tile_matrix_set_json` validates the document against the schemas OGC publishes, shipped verbatim in `hazelbean/ogc_schemas/tms_2.0/`; that validation runs in the unit suite (`test_tiles.py`) and is the compliance test. `hb.write_pyramid_tile_matrix_set_json(path)` writes the document for use by OGC API Tiles servers or QGIS.
+- **The pyramid tiling scheme is a valid OGC Tile Matrix Set** (OGC 17-083r4, "Two Dimensional Tile Matrix Set and Tile Set Metadata" 2.0). `hb.get_pyramid_tile_matrix_set()` publishes it: one tile matrix per supported resolution in CRS84 with the origin at the top-left `(-180, 90)`, id `EEPyramidCRS84`. It is **not** a quadtree — the scale progression follows the pyramid resolutions, so it is not the registered `WorldCRS84Quad` set — which the standard explicitly allows for custom sets. Tile sizes vary by resolution (below), which is why the set must be published with all nineteen matrices (thirteen spine, six side) rather than inferred. `hb.validate_tile_matrix_set_json` validates the document against the schemas OGC publishes, shipped verbatim in `hazelbean/ogc_schemas/tms_2.0/`; that validation runs in the unit suite (`test_tiles.py`) and is the compliance test. `hb.write_pyramid_tile_matrix_set_json(path)` writes the document for use by OGC API Tiles servers or QGIS.
 - **A subpog tile set is addressable through that tile matrix set.** Tiles are named on disk by their south-west corner (below); `hb.tile_corner_string_to_tile_matrix_index` converts a corner name to the standard's `(tileMatrix, tileRow, tileCol)` and `hb.tile_matrix_index_to_tile_corner_string` converts back. The unit suite checks the two are a bijection over every tile of a matrix.
 
 ## POG, subpog, tile, tile set, VRT
@@ -121,7 +142,7 @@ Three separate claims, each with its own evidence:
 Four things that are easy to conflate, defined so they stay apart:
 
 - **POG** — the global raster meeting the full spec above.
-- **Subpog** — a raster meeting the spec in every respect **except extent**. Its extent is a whole number of cells from the pyramid origin `(-180, 90)` at its resolution (snap a box with `hb.snap_bb_to_pyramid(bb, arcseconds)`), and its overview levels are the global chain **truncated to the levels whose cell size divides its extent** (`hb.get_pyramid_overview_levels_for_bb`) — so every overview still lands on a coarser pyramid grid, and the coarsest is bounded by the extent. A 10-degree tile of 10-second data therefore carries levels 3 … 720 and 3600 but not 1440, because 4 degrees does not divide 10. Make one with `hb.make_path_pog(path, expand_to_global_extent=False)` (the parallel converter forwards the same flag); check with `hb.is_path_subpog`; a POG is a degenerate subpog. A seals AOI clip is a subpog and not a tile.
+- **Subpog** — a raster meeting the spec in every respect **except extent**. Its extent is a whole number of cells from the pyramid origin `(-180, 90)` at its resolution (snap a box with `hb.snap_bb_to_pyramid(bb, arcseconds)`), and its overview levels are the global chain **truncated to the levels whose cell size divides its extent** (`hb.get_pyramid_overview_levels_for_bb`) — so every overview still lands on a coarser pyramid grid, and the coarsest is bounded by the extent. A 1-degree tile of 1-second data therefore stops at level 3600; a 10-degree tile of 10-second data carries the chain through level 3600 (10°) and nothing coarser. Make one with `hb.make_path_pog(path, expand_to_global_extent=False)` (the parallel converter forwards the same flag); check with `hb.is_path_subpog`; a POG is a degenerate subpog. A seals AOI clip is a subpog and not a tile. The input's footprint is snapped **outward**, so an input that straddles cell edges grows by up to a cell per side rather than losing data; such an extent may support no overview level at all, which is legal (the top rung has none either). Reframing onto the pyramid synthesizes its target geometry from the tables (`hb.write_pyramid_frame_raster`, a sparse raster) rather than fetching a match raster, so every rung, spine or side, converts without a data file existing at that rung.
 - **Tile** — a subpog whose extent is exactly one cell of the published tile grid for its resolution. Every tile is a subpog; most subpogs are not tiles.
 - **Tile set** — the tiles of one dataset at one resolution and tiling, in one folder, plus the VRT that indexes them. A tile set may be **sparse**: tiles that would be entirely nodata need not exist.
 - **VRT** — not a raster. An XML index (`gdalbuildvrt`) that presents the tiles of a tile set to GDAL as one global raster: it carries the exact global geotransform and the standard nodata, lists which tiles exist and where, and reads anything not listed as nodata. It holds no pixels, has no overviews of its own (coarse reads go to the tiles' internal overviews), and cannot be a COG. `hb.is_path_pog_tileset(vrt)` checks the VRT frame is global, every source is a corner-named tile covering the extent its name claims, and every tile is a subpog.
@@ -130,7 +151,7 @@ Four things that are easy to conflate, defined so they stay apart:
 
 Corner-based, following SRTM, NASADEM, Copernicus DEM and ESA WorldCover: the tile's **south-west** corner in whole degrees, cardinal letters, latitude two digits, longitude three. The edge length is in the name because it varies by resolution and the same dataset may exist at more than one tiling:
 
-```
+```         
 lulc_esa_2020_10sec.tif                       the global POG
 lulc_esa_2020_10sec_10deg/                    its tile set (folder)
 lulc_esa_2020_10sec_10deg_N40W130.tif       one tile: 10-degree edge, SW corner 40N 130W
@@ -141,12 +162,32 @@ Helpers: `hb.get_tile_filename`, `hb.parse_tile_filename`, `hb.get_tile_corner_s
 
 Tile edges are chosen so a tile is a few thousand pixels per side, and are the scheme's `hb.pyramid_tile_degrees`:
 
-| Base | Tile edge | Tile pixels | Tiles |
-|-----:|----------:|------------:|------:|
-| 1 sec | 1° | 3600 × 3600 | 64,800 |
-| 10 sec | 10° | 3600 × 3600 | 648 |
-| 30 sec | 10° | 1200 × 1200 | 648 |
-| 150 sec and coarser | not tiled | the global POG is one tile | 1 |
+|                Base |           Tile edge |                Tile pixels |  Tiles |
+|--------------------:|--------------------:|---------------------------:|-------:|
+|             1-9 sec |                  1° |              32400 × 32400 | 64,800 |
+|            3-10 sec |                  1° |              12000 × 12000 | 64,800 |
+|             1-3 sec |                  1° |              10800 × 10800 | 64,800 |
+|            9-10 sec |                  1° |                4000 × 4000 | 64,800 |
+|               1 sec |                  1° |                3600 × 3600 | 64,800 |
+|               3 sec | 5° (MERIT's tiling) |                6000 × 6000 |  2,592 |
+|              10 sec |                 10° |                3600 × 3600 |    648 |
+|              15 sec |                 10° |                2400 × 2400 |    648 |
+|              30 sec |                 10° |                1200 × 1200 |    648 |
+| 150 sec and coarser |           not tiled | the global POG is one tile |      1 |
+
+### Products with no lat/lon grid
+
+The finest widely used products are not on any rung because they are not on any lat/lon grid at all: they are delivered in UTM (Sentinel-2 and everything derived from it in its native tiling, Landsat, NAIP, Planet), in MODIS sinusoidal, or in an equal-area projection (SoilGrids in Homolosine, GHSL's native Mollweide). They **enter the pyramid by resampling** to a rung whose cell is at or finer than their nominal resolution, and the table below records the rung they enter at so the choice is made once rather than per project. The entry is a resample, never an alignment: a 10 m UTM cell is not a 1/3-arcsecond cell, and the paper's non-nested-support treatment applies.
+
+| Product (native grid) | nominal | enters at | note |
+|------------------|------------------|------------------|------------------|
+| Sentinel-2 L1C/L2A (UTM, MGRS tiles) | 10 / 20 / 60 m | 1-3 s, 3-10 s (via WorldCover's grid), 1 s | 10 m bands to 1-3 s or 3-10 s; 20 m to 1 s; 60 m to 3 s |
+| Dynamic World, ESRI 10 m Land Cover (UTM) | 10 m | 3-10 s | same grid as WorldCover, which they are usually compared against |
+| Landsat Collection 2 (UTM) | 30 m | 1 s, or 9-10 s | 9-10 s matches the Hansen / GLAD lat/lon 30 m family |
+| NAIP (UTM), Planet (UTM) | 0.6–3 m | 1-9 s | 3DEP's 1/9-arcsecond grid |
+| MODIS 250 / 500 m / 1 km (sinusoidal) | 250 m–1 km | 10 s / 15 s / 30 s | MODIS CMG products at 0.05° are already lat/lon but on no rung; they enter at 150 s |
+| SoilGrids 250 m (Homolosine) | 250 m | 10 s |  |
+| GHSL (Mollweide native) | 10 m–1 km | use the 3 ss / 30 ss lat/lon releases (3 s / 30 s rungs) | the WGS84 releases are already on rungs |
 
 ### Global POG or tile set? Support both
 
