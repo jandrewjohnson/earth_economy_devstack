@@ -16,22 +16,25 @@ separates three things that are tangled together at every earlier level:
 WHERE THE run_project(p) RULE EARNS ITS KEEP
     Watch which CSV name is set where, at the bottom of this file:
 
-        p.scenario_definitions_filename   set by the CALLER -- variants change it
-        p.parameter_definitions_filename  set INSIDE run_project -- no variant does
+        p.parameter_definitions_filename  both set by the CALLER: the full
+        p.scenario_definitions_filename   definitions-filename block
 
-    Two knobs of the same type, discriminated by a rule rather than by whether
-    somebody remembered to add a keyword argument. Under the rejected signature
-    form both would be parameters, so the split has to be decided by hand every
-    time a project grows a new CSV -- and in ngfs_pnas, which has six such
-    filenames, it was in fact decided inconsistently.
+    Since the 2026-08 amendment the caller sets the FULL block -- the project's
+    interface manifest, one visible place naming every definitions file the run
+    reads -- and a variant copies the block and overrides only the member that
+    differs (usually the scenarios CSV). run_project only loads what the caller
+    named. Under the rejected signature form each filename would be a keyword
+    argument, growing once per class of CSV forever; ngfs_pnas, with six such
+    filenames, showed where that leads.
 
 WHEN THIS LEVEL IS THE RIGHT ONE
     A machine-specific value tries to enter your code (a credentials path, an ssh
     host, a scratch dir), or a collaborator needs to run your project on a machine
     where your paths do not exist. Both CSVs live in the tracked input_template/
-    next to this run file; ProjectFlow copies anything missing into the project's
-    untracked input/ on first run and NEVER overwrites the working copy, so
-    per-machine values survive re-runs and never reach git.
+    next to this run file, and get_path reads them there in place. To fill in a
+    per-machine value, copy that one CSV into the project's untracked input/ and
+    edit the copy: it shadows the template, survives re-runs, and never reaches
+    git. Nothing is copied into input/ for you.
 
 WHAT ELSE THIS LEVEL DEMONSTRATES
     - An explicit tree with parent= nesting: child tasks get their dirs inside the
@@ -152,18 +155,14 @@ def run_project(p):
     build_task_tree(p)
     p.skip_tasks(p.tasks_to_skip)
 
-    # PARAMETERS: constant across scenarios, and constant across variants -- so the
-    # filename is set here rather than by the caller. Vertical key,value, hydrated
-    # onto p so tasks just use p.ndv, p.data_credentials_path, etc. Blank values
-    # read as None. Machine-specific keys ship BLANK in the tracked template; each
-    # machine fills in its own untracked input/ copy, so nothing machine-specific
-    # is ever in the code or in git.
-    p.parameter_definitions_filename = 'template_4_parameters.csv'
-    p.parameter_definitions_path = os.path.join(p.input_dir, p.parameter_definitions_filename)
-    parameters_df = pd.read_csv(p.parameter_definitions_path)
-    for _, row in parameters_df.iterrows():
-        setattr(p, row['key'], None if pd.isna(row['value']) else row['value'])
-    # CSV values arrive as strings; cast the ones used as numbers.
+    # PARAMETERS: constant across scenarios AND across variants. The caller named
+    # the file (full-block rule); run_project only loads it. Vertical key,value,
+    # hydrated onto p so tasks just use p.ndv, p.data_credentials_path, etc.
+    # Blank values read as None. Machine-specific keys ship BLANK in the tracked
+    # template; each machine fills in its own untracked input/ copy, so nothing
+    # machine-specific is ever in the code or in git.
+    hb.initialize_parameters(p, p.parameter_definitions_filename)
+    # Cast the values used as numbers, so the tasks are honest about their types.
     p.ndv = float(p.ndv)
     p.n_rows = int(p.n_rows)
     p.n_cols = int(p.n_cols)
@@ -171,8 +170,7 @@ def run_project(p):
     # SCENARIOS: the rows of work. Add a row to extend the run; nothing else
     # changes. The caller chose which CSV, because that is exactly what a variant
     # run varies.
-    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
-    p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
 
     # Base data: checked for everything the model needs, with anything missing
     # downloaded. The directory must be named base_data to match the cloud bucket.
@@ -193,6 +191,7 @@ if __name__ == '__main__':
     # The '_annotated' suffix keeps this set's project dir distinct from
     # ../run_templates/'s template 4; see run_template_3_canonical.py.
     p = hb.ProjectFlow(project_name='template_4_annotated', run_mode='check')
+    p.parameter_definitions_filename = 'template_4_parameters.csv'
     p.scenario_definitions_filename = 'template_4_scenarios.csv'
 
     # Pare the tree for a variant run without forking the file:

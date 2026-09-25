@@ -27,7 +27,7 @@ def build_task_tree(p):
       Pass 2 (cc_es):   CC + ES shocks (yield + labor + carbon + pollination + fisheries)
 
     Always builds the FULL tree; variant runs pare it afterward via
-    p.skip_tasks(tasks_to_skip) in run_project, so the tree structure is
+    p.skip_tasks(p.tasks_to_skip) in run_project, so the tree structure is
     identical across variants and only run flags differ.
     """
 
@@ -153,36 +153,15 @@ def build_task_tree(p):
     p.manuscript_task = p.add_task(gtap_invest_viz_tasks.generate_manuscript, parent=p.report_parent_task, skip_existing=0)
 
 
-def run_project(scenario_definitions_filename='ngfs_pnas_scenarios.csv',
-                project_name='ngfs_pnas', run_mode='check',
-                tasks_to_skip=None):
-    """Build and execute the NGFS-PNAS pipeline against a given scenarios CSV.
+def run_project(p):
+    """Execute the NGFS-PNAS pipeline against the ProjectFlow the caller configured.
 
-    The full manuscript run uses the default 'ngfs_pnas_scenarios.csv'. The pared
-    test run (run_ngfs_pnas_test.py) passes 'ngfs_pnas_scenarios_test.csv'. The only
-    thing that differs between the two is which scenarios CSV drives the task tree;
-    the task tree itself is identical.
+    Reads p.scenario_definitions_filename, and optionally p.tasks_to_skip. Returns p.
 
-    run_mode selects how much prior work is reused:
-      'check'              : stable project dir; standard ProjectFlow skip-existing
-                             logic, so only missing files are recomputed.
-      'fresh_intermediate' : stable project dir, but its intermediate/ and output/
-                             are deleted first so all computation reruns while
-                             input/ (machine backend config in parameters.csv,
-                             seeded templates) is kept. Destructive, so refused
-                             unless project_name contains 'test'.
-      'full'               : timestamped fresh project dir per run; also exercises
-                             input_template/ seeding and base-data downloads (the
-                             first-run experience on a new machine).
-
-    tasks_to_skip pares the tree for variant runs via p.skip_tasks() after the
-    full tree is built (structure identical across variants, only run flags differ). Returns p.
+    The full manuscript run and every test wrapper share this pipeline unchanged;
+    what differs between them is the scenarios CSV, the project name, and the
+    run_mode the caller sets, never the code here.
     """
-    # Create a ProjectFlow Object to organize directories and enable parallel processing.
-    # The ProjectFlow constructor validates run_mode and infers the project_dir
-    # from the repo layout (see _resolve_project_dir for the semantics and inference).
-    p = hb.ProjectFlow(project_name=project_name, run_mode=run_mode)
-
     # TRICKY LINE, this dir would typically be set by the task, but if you don't run that task, you can have this be assigned manually.
     # p.gtap_runs_dir set below after p.user_dir is defined
 
@@ -219,7 +198,6 @@ def run_project(scenario_definitions_filename='ngfs_pnas_scenarios.csv',
     gtappy_initialize_project.initialize_parameter_definitions(p)
        
     # Variables defined here are updated for each scenario row that is iterated over
-    p.scenario_definitions_filename = scenario_definitions_filename
     p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
     gtappy_initialize_project.initialize_scenario_definitions(p)
     
@@ -260,10 +238,11 @@ def run_project(scenario_definitions_filename='ngfs_pnas_scenarios.csv',
     
     # Backend connection (vm_ssh_host, vm_disk_prefix, gempack_dir; sc_ssh_host / sc_scratch
     # for the cluster) is read from parameters.csv by initialize_parameter_definitions.
-    # The tracked input_template/ CSV ships blank values; fill your machine's values in the
-    # untracked input/ copy. Nothing machine-specific stays in the code.
+    # The tracked input_template/ CSV ships blank values; copy it into the untracked input/
+    # and fill your machine's values there (or set GTAP_* in machine.env). Nothing
+    # machine-specific stays in the code.
 
-    p.L = hb.get_logger('ngfs_pnas')
+    p.L = hb.get_logger(p.project_name)
     hb.log('Created ProjectFlow object at ' + p.project_dir + '\n    from script ' + p.calling_script + '\n    with base_data set at ' + p.base_data_dir)
 
     p.execute()
@@ -272,4 +251,9 @@ def run_project(scenario_definitions_filename='ngfs_pnas_scenarios.csv',
 
 
 if __name__ == '__main__':
-    run_project()
+    # run_mode: 'check' resumes in place | 'fresh_intermediate' rebuilds all
+    # computation but keeps input/ (test projects only) | 'full' timestamps a new dir.
+    p = hb.ProjectFlow(project_name='ngfs_pnas', run_mode='check')
+    p.scenario_definitions_filename = 'ngfs_pnas_scenarios.csv'
+
+    run_project(p)

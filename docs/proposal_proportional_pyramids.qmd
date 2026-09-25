@@ -1,0 +1,37 @@
+---
+title: "Proposal: proportional pyramids for categorical LULC"
+---
+
+**Status:** proposal. Not implemented, and deliberately deferred --- see [Why we are holding off](#why-we-are-holding-off). The current convention (mode resampling for categorical coarsening) remains in force.
+
+## The problem
+
+Going from a fine categorical LULC raster to a coarser pyramid resolution currently uses `mode` resampling --- each coarse cell gets the most common class among the fine cells it covers. This is what both `make_path_pog` uses for integer types when coarsening (via `pyramid_resampling_algorithms_by_data_type`) and what the internal COG overview levels use.
+
+Mode loses information, and not gracefully. A 900sec cell that is 49% cropland and 51% forest becomes pure forest; sweeping that across a landscape systematically erases minority classes, and the amount erased depends on where class boundaries happen to fall relative to the coarse grid. Any downstream computation on the coarsened categorical raster (area totals by class, transition analysis, coupling to a CGE land supply module) inherits a bias that cannot be corrected after the fact.
+
+## The proposal
+
+At each coarser pyramid scale, represent the LULC not as a single categorical raster but as **full proportion rasters**: one continuous raster (or band) per class, each cell holding the fraction of that cell covered by the class. The finest scale keeps the categorical raster as the source of truth; every coarser scale is derived from it by exact area-weighted aggregation of the class indicator, which is sum-preserving by construction.
+
+This aligns with the EE Spec convention that quantities are computed in proportions and multiplied by the canonical `ha_per_cell` of the target resolution as a last step (see the pyramid resolutions section of the [EE Spec conventions](conventions.qmd)): class proportions times `ha_per_cell` gives exact class areas at any pyramid level, with global sums that match the finest scale.
+
+A categorical view remains available at any scale for display or for algorithms that need a single class per cell --- argmax over the proportion bands reproduces exactly what mode resampling gives today, so the proposal strictly adds information rather than changing existing semantics.
+
+## Why we are holding off {#why-we-are-holding-off}
+
+The proposal does not fit the existing OVERVIEWS technology of COGs/POGs. A COG's internal overview pyramid stores, for each band, one value per cell per level of *the same band* --- a categorical base raster can only carry categorical (mode) overviews. Per-class proportion layers cannot live inside the categorical POG's overview structure; they would have to be:
+
+- a separate multiband proportion POG per pyramid level (n_classes bands, breaking the one-file-zooms-itself property that makes COG overviews attractive), or
+- one single-band proportion POG per class (a file explosion: classes × resolutions), or
+- a custom sidecar format that ordinary COG readers would not understand.
+
+Until there is a representation that keeps cloud-readability and the overview zoom behavior --- or until we accept the multiband-per-level cost --- mode remains the convention for categorical coarsening, with the known bias documented here.
+
+## What adopting this would touch
+
+Recorded for when this is picked up:
+
+- `hb.pyramid_resampling_algorithms_by_data_type` and the coarsening path of `hb.make_path_pog` (which currently selects `mode` for integer types).
+- The overview-building step of the POG spec for categorical rasters (`pyramid_compatible_overview_levels` semantics would need a proportions counterpart).
+- SEALS coarse-fine coupling and any task that consumes coarsened LULC (e.g. regional class-area totals fed to CGE land modules), which would switch from counting mode-resampled cells to summing proportions × `ha_per_cell`.

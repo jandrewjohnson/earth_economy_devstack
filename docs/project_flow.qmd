@@ -2,11 +2,15 @@
 
 Project Flow is intended to allow a user to flow easily past the different stages of software complexity. A common situation for an academic or a research software engineer (RES) to find themselves in is that they wrote a quick script to answer a specific quesiton, but it turned out to be useful in other context. This can lead to a the script grows and grows until complexity hurts its usefulness. A software developer would then think "oops, I should really make this modular." ProjectFlow provides several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. To do this, ProjectFlow manages folders and defines a tree of tasks that can easily be run in parallel where needed and keeping track of task-dependencies. ProjectFlow borrows heavily in concept (though not in code) from the task_graph library produced by Rich Sharp but adds a predefined file structure suited to research and exploration tasks.
 
-Project Flow is intended to flow easily from the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. Similar to the [Stages of Complexity](TODOO) page, we will introduce progressively more complex usages, starting with the simples examples and working towards distributed parallelization on complex task-trees. If you would like to skip the stages and go straight to a full-functioning example, go to [Standard ProjectFlow run file](TODOO).
+Project Flow is intended to flow easily from the situation where you have coded a script that grows and grows until you think "oops, I should really make this modular." Thus, it has several modalities useful to researchers ranging from simple drop-in solution to complex scripting framework. Similar to the [Project complexity](levels_of_complexity.qmd) page, we will introduce progressively more complex usages, starting with the simples examples and working towards distributed parallelization on complex task-trees. If you would like to skip the stages and go straight to a full-functioning example, go to the [run templates](https://github.com/jandrewjohnson/earth_economy_devstack/tree/main/examples/run_templates).
 
-## Starter code
+## Starter code (the before-picture)
 
-We will use the third level of complexity from the previous example as the launching point for how to use ProjectFlow. The code below adds a few additional steps we will work with.
+This is a plain script with no ProjectFlow at all --- the launching point, not a
+model to copy. Every section after it replaces a piece of this with something the
+framework provides. For the fuller version of this argument, with six stages of
+escalating pain and what each one bought, see
+[Project complexity](levels_of_complexity.qmd).
 
 ``` python
 import os
@@ -20,7 +24,7 @@ def raster_to_array(raster_input_path):
     return array
 
 # Load the raster
-raster_input_path = 'data/yield.tif' # TODOO[make all these actually point to data in hazelbean]
+raster_input_path = 'data/yield.tif' # illustrative path; this script is the before-picture and is not runnable as-is
 array = raster_to_array(raster_input_path)
 
 # Set no data values equal to zero
@@ -56,19 +60,58 @@ print('Sums of layers: ' + str(mean))
 
 ProjectFlow is a Python class that manages a project's file structure and task tree. It is designed to be a drop-in solution for researchers who have a script that has grown too large and complex to manage. The ProjectFlow object is initialized with a directory, and it will create a file structure within that directory that is designed to be easy to navigate and understand. The ProjectFlow object also manages a task tree, which is a tree of tasks that need to be run in order to complete the project. The task tree is defined by the user, and the ProjectFlow object will manage the execution of the tasks, ensuring that they are run in the correct order and that any dependencies between tasks are satisfied.
 
-To create a task tree NOT FINISHED. Just look at the example.py in docs/examples
+A task tree is built by handing functions to `p.add_task()`. The smallest
+possible version is three lines:
 
 ``` python
+p = hb.ProjectFlow()
+p.add_task(your_function)
+p.execute()
 ```
 
+Worked examples of every size live in
+[`earth_economy_devstack/examples/run_templates/`](https://github.com/jandrewjohnson/earth_economy_devstack/tree/main/examples/run_templates),
+from that three-line form up to a scenarios-driven run.
+
 ## Step 1: Substitute in a few pre-built Hazelbean functions
+
+A run file creates the ProjectFlow, builds a task tree, and executes it. The
+canonical anatomy is three parts --- `build_task_tree(p)`, `run_project(p)`, and
+a `__main__` guard that configures the project:
 
 ``` python
 import hazelbean as hb
 
+
+def build_task_tree(p):
+    # Nothing but add_task calls. This is the one place that answers
+    # "what is this project's pipeline?"
+    p.project_aoi_task = p.add_task(project_aoi)
+
+
+def run_project(p):
+    build_task_tree(p)
+    p.skip_tasks(p.tasks_to_skip)
+    p.base_data_dir = os.path.join(p.user_dir, 'Files', 'base_data')
+    p.execute()
+    return p
+
+
 if __name__ == '__main__':
-    p = hb.ProjectFlow(r'C:\Files\Research\cge\gtap_invest\projects\feedback_policies_and_tipping_points')
+    # Do not hardcode a project path. ProjectFlow is git-aware: because the run
+    # file lives inside a cloned repo, the project dir is placed just outside it,
+    # at <repo_parent>/projects/<project_name>. run_mode selects how much prior
+    # work is reused: 'check' resumes in place, 'full' timestamps a fresh dir.
+    p = hb.ProjectFlow(project_name='feedback_policies_and_tipping_points',
+                       run_mode='check')
+
+    run_project(p)
 ```
+
+The rule that decides what goes where: **`run_project(p)` sets what no variant
+ever changes; the caller sets what a variant might.** For the full rules see
+[Conventions](conventions.qmd), and for why run files are shaped this way see
+[Project complexity](levels_of_complexity.qmd).
 
 In a multi-file setup, in the run.py you will need to import different scripts, such as main.py i.e.:
 
@@ -148,7 +191,7 @@ Here. Explain why it writes the scenarios_csv FROM CODE rather than downloading 
     # If you want to run SEALS with the run.py file in a different directory (ie in the project dir)
     # then you need to add the path to the seals directory to the system path.
     custom_seals_path = None
-    if custom_seals_path is not None: # G:/My Drive/Files/Research/seals/seals_dev/seals
+    if custom_seals_path is not None: # e.g. ~/Files/seals/seals/seals
         sys.path.insert(0, custom_seals_path)
 
     # SEALS will run based on the scenarios defined in a scenario_definitions.csv
@@ -224,19 +267,77 @@ def gtap_aez_seals_correspondences(p):
 
 Hazelbean automatically defines directory organization as a function of the task tree. When the ProjectFlow object is created, it takes a directory as its only required input. This directory defines the root of the project. The other directory that needs to be referenced is the base_data_dir. When you initialize the p object, it notes this:
 
-`Created ProjectFlow object at C:\Users\jajohns\Files\gtap_invest\projects\cwon     from script C:\Users\jajohns\Files\gtap_invest\gtap_invest_dev\gtap_invest\run_cwon.py     with base_data set at C:\Users\jajohns\Files/base_data`
+```
+Created ProjectFlow object at ~/Files/gtap_invest/projects/cwon
+    from script ~/Files/gtap_invest/gtap_invest_dev/gtap_invest/run_cwon.py
+    with base_data set at ~/Files/base_data
+```
 
 In the run file, the following line generates the task tree:
 
 `gtap_invest_initialize_project.build_extract_and_run_aez_seals_task_tree(p)`
 
-Which points to a builder function in the initialize file, looking something like this:
+Which points to a builder function in the initialize file, looking something
+like this:
 
-![](images/paste-28.png)
+``` python
+def build_extract_and_run_aez_seals_task_tree(p):
 
-This would generate the following task tree:
+    ##### Preprocessing #####
+    p.run_in_parallel = 1
 
-![](images/paste-27.png)
+    # Define the project AOI
+    p.project_aoi_task = p.add_task(project_aoi)
+    p.seals_prep_task = p.add_task(gtap_invest_tasks.seals_prep, run=1)
+
+    # Download the base data. It saves to p.base_data_dir and so creates no dir of its own.
+    p.base_data_task = p.add_task(seals_process_coarse_timeseries.download_base_data,
+                                  creates_dir=False, parent=p.seals_prep_task)
+
+    ##### FINE PROCESSED INPUTS #####
+    p.fine_processed_inputs_task = p.add_task(seals_generate_base_data.fine_processed_inputs,
+                                              parent=p.seals_prep_task)
+    p.generated_kernels_task = p.add_task(seals_generate_base_data.generated_kernels,
+                                          parent=p.fine_processed_inputs_task, creates_dir=False)
+    # ... and so on
+```
+
+Executing that prints the task tree it is about to compute, with each task's run
+flag and skip behaviour, and one directory per task:
+
+```
+execute
+├── project_aoi
+├── seals_prep
+│   ├── download_base_data
+│   ├── fine_processed_inputs
+│   │   ├── generated_kernels
+│   │   ├── lulc_clip
+│   │   ├── lulc_simplifications
+│   │   ├── lulc_binaries
+│   │   └── lulc_convolutions
+│   └── coarse_change
+│       ├── coarse_extraction
+│       ├── coarse_simplified_proportion
+│       └── coarse_simplified_ha_difference_from_previous_year
+├── gtappy_base_data
+│   ├── gadm_ingested
+│   ├── gtap_aez_seals_correspondences
+│   └── base_data_as_csv
+├── gtap_invest_base_data
+│   ├── joined_region_vectors
+│   └── available_land
+├── gtap_runs
+├── econ_results
+│   ├── indexed_csvs
+│   ├── stacked_csvs
+│   ├── single_year_tidy_variable_csvs
+│   ├── combined_stacked_results_across_years
+│   └── single_variable_time_series
+└── econ_vizualization
+    ├── econ_time_series
+    └── econ_lcovercom
+```
 
 Two notations are especially useful within this task tree.
 
@@ -331,7 +432,7 @@ Our goal now is to clone the IUCN project into a new project we can modify. Firs
 
 ![](images/paste-51.png)
 
-Now create a new Python run file. Go back to the code directory (Files/seals/seals_dev) and copy `run_iucn.py` in the same directory and rename it `run_test_iucn_30by30.py`. Note the word test her which means it is going to be a non-global, fast running script to prove the new code works. Eventually a new run file `run_iucn_30by30.py` will be created when we know it works. In the new file, rename `project_name = 'test_iucn_30by30'`. Also in the code, edit the line below to match the name of your new scenario_definitions file.
+Now create a new Python run file. Go back to the code directory (Files/seals/seals) and copy `run_iucn.py` in the same directory and rename it `run_test_iucn_30by30.py`. Note the word test her which means it is going to be a non-global, fast running script to prove the new code works. Eventually a new run file `run_iucn_30by30.py` will be created when we know it works. In the new file, rename `project_name = 'test_iucn_30by30'`. Also in the code, edit the line below to match the name of your new scenario_definitions file.
 
 ``` python
 p.scenario_definitions_path = os.path.join(p.input_dir, 'scenario_defininitions_iucn_30by30.csv')

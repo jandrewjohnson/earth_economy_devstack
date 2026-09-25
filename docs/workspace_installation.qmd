@@ -1,3 +1,8 @@
+---
+aliases:
+  - /earth_economy_devstack/installation_walkthrough.html
+---
+
 ## Workspace Installation
 
 Note, this is slightly out of date. Please use the standard install if you get confused.
@@ -76,9 +81,9 @@ This installation is like above but organizes your repositories so that you can 
   - In this new directory, Git clone the hazelbean_dev repo, which will create a directory `hazelbean_dev` inside `hazelbean`
 - Repeat the previous step for all the repositories you want (assuming you have permissions, though most are public):
   - <https://github.com/jandrewjohnson/hazelbean_dev>
-  - <https://github.com/jandrewjohnson/seals_dev>
+  - <https://github.com/jandrewjohnson/seals>
   - <https://github.com/jandrewjohnson/gtap_invest_dev>
-  - <https://github.com/jandrewjohnson/global_invest_dev>
+  - <https://github.com/NatCapTEEMs/global_invest_dev>
   - <https://github.com/jandrewjohnson/gtappy_dev>
 - These repos do NOT need to be installed via pip because they are referenced in the debug launch.json
   - However, this approach assumes you can compile the C/Cython files, so you must do the following

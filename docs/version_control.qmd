@@ -1,6 +1,13 @@
-# Contributing code to the Earth Economy Devstack
+---
+aliases:
+  - /earth_economy_devstack/how_to_contribute.html
+  - /earth_economy_devstack/mergine_a_pr_into_main.html
+  - /earth_economy_devstack/replicable_science_gold_standard.html
+---
 
-The Earth Economy Devstack and all of its published article code is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development. We also create and host a curated base_data. This data can be seamlessly downloaded using ProjectFlow within the devstack via the `get_path()` method. See the last section of this page for details on contributing data.
+# Version Control
+
+The Earth Economy Devstack and all of its published article code is available as open source software at GitHub, which not only allows users to download and run the code but also to develop it collaboratively. GitHub is based on the free and open source distributed version control system **git** (<https://git-scm.com/).> **git** allows users to track changes in code development, to work on different code branches and to revert changes to previous code versions, if necessary. Workflows using the version control system **git** can vary and there generally is no 'right' or 'wrong' in collaborative software development. We also create and host a curated base_data. This data can be seamlessly downloaded using ProjectFlow within the devstack via the `get_path()` method. This page covers contributing **code**; for contributing data, see [Contributing Base Data](contributing_base_data.qmd).
 
 There are two different ways to interact with a github repository:
 
@@ -112,14 +119,14 @@ Using SEALS as an example, this section walks through how a new user could contr
 
 ![](images/git_workflow.png)
 
-Before developing the code it is recommended to create a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for
+Before developing the code it is recommended to create a [fork](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo) of the original SEALS repository. This will create a new code repository at your own GitHub profile, which includes the same code base and visibility settings as the original 'upstream' repository. The fork can now be used for
 
 1.  code development or fixes
 2.  submitting a pull request to the original SEALS repository.
 
 #### 1. Clone fork to your local machine
 
-Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). The figure below illustrates the relationship of the original repo, your own user repo (made by forking) and then the local set of files cloned onto your machine.
+Although GitHub allows for some basic code changes, it is recommended to [clone](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo) the forked repository at your local machine and do code developments using an integrated development environment (IDE), such as [VS Code](https://code.visualstudio.com/). The figure below illustrates the relationship of the original repo, your own user repo (made by forking) and then the local set of files cloned onto your machine.
 
 ![](images/paste-68.png)
 
@@ -132,12 +139,12 @@ git clone -b <name-of-branch>` <url-to-github-repo> <name-of-local-clone-folder>
 For example, if you want to clone the develop branch of your SEALS fork type
 
 ```         
-git clone -b develop https://github.com/<username/seals_dev seals_develop
+git clone -b develop https://github.com/<username>/seals seals_develop
 ```
 
-Before making any changes, make sure that your fork and/or your local repository are up-to-date with the original SEALS repository. To pull changes from your fork use `git pull origin <name-of-branch>`. In order to pull the latest changes from the original SEALS repository you can set up a link to the original upstream repository with the command `git remote add upstream https://github.com/jandrewjohnson/seals_dev`. To pull the latest changes from the develop branch in the original upstream repository use `git pull upstream develop`.
+Before making any changes, make sure that your fork and/or your local repository are up-to-date with the original SEALS repository. To pull changes from your fork use `git pull origin <name-of-branch>`. In order to pull the latest changes from the original SEALS repository you can set up a link to the original upstream repository with the command `git remote add upstream https://github.com/jandrewjohnson/seals`. To pull the latest changes from the develop branch in the original upstream repository use `git pull upstream develop`.
 
-During code development, any changes or fixes that should go back to the fork and/or the original SEALS repository need to be ['staged'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) and then ['commited'](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-and-pushing-changes) with a commit message that succinctly describes the changes. By staging changes, **git** is informed that these changes should become part of the next 'commit', which essentially takes a snapshot of all staged changes thus far.
+During code development, any changes or fixes that should go back to the fork and/or the original SEALS repository need to be ['staged'](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) and then ['commited'](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) with a commit message that succinctly describes the changes. By staging changes, **git** is informed that these changes should become part of the next 'commit', which essentially takes a snapshot of all staged changes thus far.
 
 To stage all changes in the current repository use the command `git add .`. If you only want to stage changes in a certain file use `git add <(relative)-path-to-file-in-repo>`.
 
@@ -207,9 +214,9 @@ By following these steps, you will incorporate the latest changes from the origi
 
 Regardless of if your contributing via branches or teams, we will use Pull Requests to incorporate your changes into the main branch.
 
-In order to propose changes to the original SEALS repository, it is recommended to use [pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork). Pull requests inform other users about your code changes and allow them to review these changes by comparing and highlighting the parts of the code that have have been altered. They also highlight potential [merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts), which occur when git is trying to merge branches with competing commits within the same parts of the code. Pull requests can be done directly at GitHub by navigating to either the forked repository or the original SEALS repository and by clicking on 'Pull requests' and then 'New pull request'. This will open a new pull request page where changes can be described in more detail and code reviewers can be specified. Pull requests should be reviewed by at least one of the main code developers.
+In order to propose changes to the original SEALS repository, it is recommended to use [pull requests](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request-from-a-fork). Pull requests inform other users about your code changes and allow them to review these changes by comparing and highlighting the parts of the code that have have been altered. They also highlight potential [merge conflicts](https://docs.github.com/en/pull-requests/reference/merge-conflicts), which occur when git is trying to merge branches with competing commits within the same parts of the code. Pull requests can be done directly at GitHub by navigating to either the forked repository or the original SEALS repository and by clicking on 'Pull requests' and then 'New pull request'. This will open a new pull request page where changes can be described in more detail and code reviewers can be specified. Pull requests should be reviewed by at least one of the main code developers.
 
-Here is an example where you think some functions in `seals_process_coarse_timeseries.py` within the `seals_dev` project should be removed and relocated to a project-specific repository, rather than remaining in the core `seals_dev` repository. In your **forked** `seals_dev` repository:
+Here is an example where you think some functions in `seals_process_coarse_timeseries.py` within the `seals` project should be removed and relocated to a project-specific repository, rather than remaining in the core `seals` repository. In your **forked** `seals` repository:
 
 ![](images/pull_request_example_step1.png)
 
@@ -235,71 +242,44 @@ On the pull request page, which appears on the `upstream` repository, you can ad
 
 Finally, the pull request will appear in the `upstream` repository. The main developers will review your changes and, if approved, will merge them into the `upstream` repository.
 
-# Contributing to Devstack's Base Data
+## Merging a PR into main
 
-Our base data is becoming a valuable asset that accelerates our shared work. Towards that, I wanted to document how **you** could contribute (if you want) your project's data so that it works seamlessly with the rest of the devstack
+If you are the reviewer, check out the pull request locally and run the tests before merging:
 
-To make one's project fully replicable, it obviously needs to have an open git repo. The challenge, though, is that git is not good for managing data, so if someone clones your code, it will fail because it doesn't (and shouldn't if the data is \> 5MB), include the data in the repo. The way our Devstack manages base_data is that it is automatically downloaded via p.get_path() when it is needed. Thus, if you want your project to "just work", we need to figure out how to create a good system for proposing new contributions to the base data and then cleaning/curating them so they work well. 
+- Install Github Pull Requests VS Code extension
 
-### Option 1: Contributing Input data
+- In the left-hand sidebar, click on the Github Pull Requests icon
 
-If you have code that you want to contribute to the devstack but it uses data not in the existing base_data, you can contribute it via this process so your code works for everyone else (in the lab, be with options for literally everyone else).
+![](images/paste-57.png)
 
-1\. Move your data into our TEEMs drive in the base_data submissions folder in a single folder. I've populated this already with the 4 projects that I think we could incorporate right now, pictured below, for air_quality, natures_frontiers, manage_invest , urban_cooling.
+- Right-click and select "Checkout Pull Request"
 
-![](images/paste-60.png)
+  ![](images/paste-58.png)
 
-2\. Change your git repo so that that ALL (ABSOLUTELY ALL) data are referenced via a relative path into this submissions base_data folder. So, for instance, if sumil had a file "emissions_factors.csv", his code would reference it as
+- Now your local files will be those of the PR.
 
-`base_data_dir = "G:/Shared drives/NatCapTEEMs/Files/base_data/submissions"`
+- Run all relevant tests in the test suite.
 
-`data_filename = "emissions_factors.csv"`
+![](images/Screenshot%202024-08-02%20092520.png)
 
-`data_path = os.path.join(base_data_dir, data_filename)`
+![](images/Screenshot%202024-08-02%20093258.png)
 
-3\. Ensure that your repo has a readme.md in the base of the repo (this is automatically visualized in github when someone visits your repo. Additionally, copy/paste readme doc to a google doc in the your projects' base_data root, as pictured:
+# Replicable science depends on simplicity and speed
 
-![](images/paste-61.png)
+**2025-07-29**
 
-4\. I then test your repo and code by cloning the repo, modifying ONLY the base_data_dir, and then check that everything runs. I will then further clean the data (to be compliant with the conventions defined here <https://justinandrewjohnson.com/earth_economy_devstack/conventions.html>
+If replicating a project requires almost as much time as the doing original research, it is barely replication. Speed compression fully defines how valuable the science is. But what does that look like currently? Below I have a single screenshot of something pretty darn close to the "gold standard" of replicability. All the researcher told me was the "look it up on my github." The full process to replicate is then pictured below.
 
-I'm happy to do the cleaning, but if you want, you might want to consider following the conventions earlier in your project rather than later. 
+![](images/paste-69.png)
 
-5\. I'll write "unittests" that ensure your code and data work, which will be automatically run when there's a new release of the devstack repo.
+This produced identical CSVs to what the researcher claimed their research did. Total time from hearing about the github repository to fully replicating their result: about 30 seconds. THAT is replicable science.
 
-6\. If everything passes, the data get "promoted" to base_data by eliminating the word "submissions" in their file path (e.g., G:\\Shared drives\\NatCapTEEMs\\Files\\base_data\\submissions\\emissions_factors.csv becomes G:\\Shared drives\\NatCapTEEMs\\Files\\base_data\\emissions_factors.csv)
+To showcase the simplicity exhibited here, there were only 3 real steps, highlighed below.
 
-7\. You make a new repo commit to your repository that  changes the  `base_data_dir`   reference.
+![](images/paste-70.png)
 
-8\. Profit! Now your code can be run seamlessly by anyone with access to our TEEMs drive. This also means it is a small task to make accessible to anyone (done by me putting it on our google cloud bucket for fast and public download).
+1.  I used git to get the full history of the code and cloned it onto my computer. In this case, the repository also included the data, which worked because the data were pretty small. Sometimes the data step is really hard if the data are too big to fit in git (less than 5mb or so).
+2.  I used Anaconda (specifically miniforge3) to install python and get the hundreds of open-source libraries a modern data scientist uses. This command simply activates that environment I already set up. On possible improvement to this repository would be to include the method for creating the environment itself (by including an environment.yml file which tells Anaconda what to install). Environment management is a very common time-sink/challenge, but it's getting easier. Check out our [devstack installation](https://justinandrewjohnson.com/earth_economy_devstack/installation.html) steps for more info.
+3.  I called the `python` command and pointed it to the `run_renewable_energy_production.py` file. Identifying the correct python file to run varies from project to project, but a good repo will have a readme.md file displayed at its root that give a "quickstart" explanation defining this file.
 
-### Option 2: Contributing outputs of your model
-
-In more advanced circumstances, or in large lab projects, you may want **outputs** rather than inputs as described above brought into the base_data. The best example of this would be the GEP project where eventually, even the extremely large filesize outputs will be hosted in a consistent and accessible manner. Follow these steps to do this.
-
-1.  Ensure you are using ProjectFlow, which will create a set of directories to use for intermediate and final outputs based on your TaskTree.
-2.  As a final task in your TaskTree, include a `p.distribute_outputs_task` that simply copies and pastes your key outputs, as defined in the ProjectFlow outputs typology in the proper subdirectory of your ProjectFlow output_dir.
-3.  The results of this task must also be copied, along with a zip archive of the contents of the distribute_outputs_task verbatim, to the outputs directory with a structure defined in the project outputs typology.
-4.  Upload this zip archive to our TEEMs shared drive at:
-
-Using commercial agriculture as an example, we see the build_standard_task_tree() method.
-
-![](images/paste-62.png){width="988"}
-
-Go into this function to see the logic of the code (Ctrl-Leftclick in Windows VS Code). It defines a bunch of tasks (labeled as nouns because they will be interpreted as directories). Notice that the first task `commercial_agriculture` is the parent task to the other four tasks. This is critical for organization, data-caching, and namespace management, set with `parent=p.commercial_agriculture_task`.
-
-![](images/paste-65.png)
-
-When we run the run.py function, we'll see output that summarizes the TaskTree, as below.
-
-![](images/paste-63.png)
-
-This corresponds to the task directories in the Project directory:
-
-![](images/paste-64.png)
-
-The results distribution folder is organized according to the structure defined in the output typology, which is defined in the parent task for the service.
-
-![](images/paste-67.png)
-
-The results_distribution_task should organize the results so that they organize well into `base_data/gep/commercial_agriculture/<contents_of_zip>`
+In this wild west of AI, we need to ask "what does it even mean to be a good researcher", or even "what does it mean to be true". Effective replicability, in my opinion, is the best candidate to answer both of these.

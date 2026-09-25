@@ -1,0 +1,70 @@
+---
+aliases:
+  - /earth_economy_devstack/hazelbean_overview.html
+---
+
+# Hazelbean
+
+Hazelbean is the shared base library of the Earth-Economy Devstack. Every model
+in the stack — SEALS, GTAP-InVEST, GTAPPy, global_invest — imports it, and it
+supplies two distinct things:
+
+- **Geospatial and analytical utilities** built on GDAL, NumPy, SciPy, Cython,
+  pygeoprocessing, taskgraph, natcap.invest and geopandas, for common tasks in
+  sustainability science, ecosystem service assessment, integrated modelling,
+  natural capital accounting and CGE modelling.
+- **ProjectFlow**, the task-tree engine that gives every model its project
+  directory layout, skip-if-already-computed re-runs, automatic base-data
+  download, and parallel iteration.
+
+## Installation
+
+``` bash
+pip install hazelbean
+```
+
+For the developer install from a clone --- and the C/C++ compiler needed to build
+the Cython extensions --- see [Installation](installation.qmd).
+
+Test that it imports. This also triggers compilation of the Cython files if they
+are not already built:
+
+``` python
+import hazelbean as hb
+```
+
+## Where to go next
+
+| page | what it covers |
+|------|----------------|
+| [Learning path](hazelbean_learning_path.qmd) | a guided route through the library, from first import to a full workflow |
+| [Tutorial examples](hazelbean_tutorials.qmd) | a worked progression: project setup, data loading, processing, analysis, exporting results |
+| [Troubleshooting](hazelbean_troubleshooting.qmd) | common environment, compilation and runtime problems |
+| [ProjectFlow](project_flow.qmd) | the task-tree engine in depth |
+| [Project complexity](levels_of_complexity.qmd) | the three axes that describe how a run file is organized, and why |
+| [Conventions](conventions.qmd) | the naming, path and run-file rules every repo follows |
+
+## What it provides
+
+**Geospatial processing** --- raster read/write and processing, vector operations
+over shapefiles and GeoPackages, Cloud Optimized GeoTIFF (COG) creation and
+validation, and Performance Optimized GeoTIFFs (POG) for speed.
+
+**Larger-than-memory computation** --- `hb.raster_calculator()` streams a
+computation chunk by chunk across cores, so a global raster never has to load at
+once.
+
+**Path resolution and data acquisition** --- `p.get_path()` resolves a relative
+*ref_path* against the project input directory, then base data, then a cloud
+bucket, downloading whatever is missing. One `base_data` directory serves every
+project on a machine.
+
+**ProjectFlow** --- projects, task trees, existence-checked tasks, `run_mode`
+reuse policy, and parallel iterators. See [ProjectFlow](project_flow.qmd).
+
+## Source and release history
+
+Hazelbean is developed at
+[github.com/jandrewjohnson/hazelbean_dev](https://github.com/jandrewjohnson/hazelbean_dev).
+Its release history is in the repository's `CHANGELOG.md`, and is summarized on
+the [Release Notes](release_notes.qmd) page.

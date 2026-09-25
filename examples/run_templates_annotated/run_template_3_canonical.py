@@ -52,7 +52,7 @@ THE ANATOMY (all four parts are required at this level)
     a scenarios CSV      the rows of work -- what varies
 
     This template's three-column scenarios CSV is illustrative only; the real
-    schema is specified in docs/scenario_definitions.qmd.
+    schema is specified in docs/proposed_changes.qmd.
 
 THE VARIANT RUN IS FOUR LINES, NEVER A FORK
     See run_template_3_canonical_test.py next to this file.
@@ -64,7 +64,6 @@ PROMOTE TO TEMPLATE 4 WHEN
 import os
 
 import numpy as np
-import pandas as pd
 import hazelbean as hb
 
 
@@ -148,8 +147,8 @@ def run_project(p):
     # directory next to this run file; ProjectFlow copied anything missing into the
     # project's untracked input/ when the caller constructed it, and never
     # overwrites the working copy -- so your edits survive re-runs.
-    p.scenario_definitions_path = os.path.join(p.input_dir, p.scenario_definitions_filename)
-    p.scenarios_df = pd.read_csv(p.scenario_definitions_path)
+    # hb.initialize_scenarios loads p.scenarios_df and hydrates row 0 onto p.
+    hb.initialize_scenarios(p, p.scenario_definitions_filename)
 
     # Base data: the model checks here for everything it needs and downloads
     # anything missing. The directory must be named base_data to match the naming
@@ -181,8 +180,8 @@ if __name__ == '__main__':
     #                        (your edited CSVs) is kept. Refused unless the project
     #                        name contains 'test'.
     #   'full'               a fresh timestamped project dir per run; also exercises
-    #                        input_template/ seeding and base-data downloads, i.e.
-    #                        the first-run experience on a new machine.
+    #                        base-data downloads, i.e. the first-run experience on
+    #                        a new machine.
     #
     # The project_name carries the '_annotated' suffix only so that this set's
     # results never land in the same project dir as ../run_templates/'s template 3,

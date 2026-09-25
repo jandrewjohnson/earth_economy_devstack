@@ -1,0 +1,11 @@
+# Code Standards
+
+Everything in the Earth-Economy Devstack follows a common set of standards that we call the **Earth-Economy Specification**, or **EE Spec**. Saying that a repository, file, or dataset "follows the EE Spec" simply means that it follows all of our conventions — naming, organization, coding style, data formats, and workflow. The payoff is that anything EE Spec-compliant composes with everything else in the stack: paths resolve, correspondences join, clocks harmonize, and a project cloned onto a fresh machine just runs.
+
+This section collects those standards:
+
+- [Conventions](conventions.qmd) — the canonical, deduplicated EE Spec reference: identifiers and labels, correspondences, scenario naming, `get_path` and ref paths, pyramid resolutions, directory and variable naming, ProjectFlow idioms, testing, and the git workflow.
+- [Version Control](version_control.qmd) — how we use git and GitHub in practice: branching (Git Flow) for internal collaborators, forking and pull requests for external ones, merging a PR into main, and what gold-standard replicability looks like.
+- [Proposed Changes](proposed_changes.qmd) — design specifications that are agreed in principle but not yet implemented, currently the scenario definitions v2 schema and the model-spec/iterator execution layer built on it.
+
+Related standards live next to what they govern: how to contribute *data* (rather than code) is under [Base Data](base_data.qmd), and the POG raster format is specified in [POGs](pogs.qmd).

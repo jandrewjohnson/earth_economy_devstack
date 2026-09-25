@@ -24,14 +24,16 @@ If someone has given you a project repository that you want to run and it relies
 
 A project repository is one that owns a `run_<project>.py` plus its `input_template/` CSVs, and imports a devstack library rather than modifying it. It should carry its own installation steps in its readme; some also include a `setup_environment.bat` or shell script that builds the environment for you. Note that you need a C/C++ compiler installed, so be sure to read that section below.
 
-If you are starting a project of your own rather than running someone else's, copy [`run_template_downstream_user.py`](https://github.com/jandrewjohnson/earth_economy_devstack/blob/main/examples/run_templates/run_template_downstream_user.py) as the seed — it is the worked example of importing a library read-only and adding your own tasks around its task tree.
+If you are starting a project of your own rather than running someone else's, see [Run Templates](run_templates.qmd) and copy `run_template_downstream_user.py` as the seed — it is the worked example of importing a library read-only and adding your own tasks around its task tree.
 
 ## 3. Developer Installation
 
 The Developer Installation installs all (or a subset) of our full devstack. This requires you to have a C/C++ compiler installed (see below). It also specifies canonical file names and structures for where to put the various repositories.
 
 1.  Create a new environment and follow the basic installation steps above.
-2.  Remove hazelbean from the new environment with `conda remove hazelbean --force`. This gets rid of the condaforge version of Hazelbean but keeps its dependencies (NOTE: simple pip uninstalling leaves behind Zombie Folders).
+2.  Remove the packaged hazelbean from the new environment, keeping its dependencies. Which command you need depends on how it got there, so check first with `conda list hazelbean` and read the **Channel** column:
+    - a conda channel (`conda-forge`) — `conda remove hazelbean --force` (NOTE: simple pip uninstalling leaves behind Zombie Folders)
+    - `pypi` — `pip uninstall hazelbean`. Conda has no record of a pip-installed package, so `conda remove` fails with `PackagesNotFoundError` and leaves it in place.
 3.  Create the hazelbean Project Folder at `C:/Users/<YOUR_USERNAME>/Files/hazelbean/` (PC) or `/Users/<YOUR_USERNAME>/Files/hazelbean/` (Mac/Linux)
 4.  Clone the desired branch from the hazelbean GitHub repository into your hazelbean Project Folder.
     - `git clone -b main https://github.com/jandrewjohnson/hazelbean_dev.git`
@@ -42,11 +44,108 @@ The Developer Installation installs all (or a subset) of our full devstack. This
 
 Now that you have the developer version of hazelbean, you can add additional repositories from our devstack as desired. To do this, using SEALS as an example, follow these steps:
 
-1.  Clone the desired repository, e.g., <https://github.com/jandrewjohnson/seals_dev> into the proper Project Folder.
-    - In the SEALS Project Folder at `/Users/<YOUR_USERNAME>/Files/seals/` you will have the Project Repository at `/Users/<YOUR_USERNAME>/Files/seals/seals_dev/`
+1.  Clone the desired repository, e.g., <https://github.com/jandrewjohnson/seals> into the proper Project Folder.
+    - In the SEALS Project Folder at `/Users/<YOUR_USERNAME>/Files/seals/` you will have the Project Repository at `/Users/<YOUR_USERNAME>/Files/seals/seals/`
     - Navigate to the Project Repsoitory and make an editable install with pip. Make sure you have the right environment activated in your command prompt.
       - `pip install -e . --no-deps`
-2.  Step 1 can be repeated for any of the repositories below (presuming you have read access) - <https://github.com/jandrewjohnson/seals_dev> - <https://github.com/jandrewjohnson/gtap_invest_dev> - <https://github.com/jandrewjohnson/global_invest_dev> - <https://github.com/jandrewjohnson/gtappy_dev> - <https://github.com/jandrewjohnson/gep_dev>
+2.  Step 1 can be repeated for any of the repositories below (presuming you have read access) - <https://github.com/jandrewjohnson/seals> - <https://github.com/jandrewjohnson/gtap_invest_dev> - <https://github.com/NatCapTEEMs/global_invest_dev> - <https://github.com/jandrewjohnson/gtappy_dev> - <https://github.com/jandrewjohnson/gep_dev>
+
+#### `--no-deps` is not optional here
+
+Some devstack repositories declare a hazelbean floor — SEALS, for instance, requires `hazelbean>=2.0.0`. Omit `--no-deps` and pip will try to satisfy that from PyPI: it **uninstalls your editable hazelbean and replaces it with a released wheel**. Nothing appears to go wrong at the time. You find out weeks later, when a change you know you made to hazelbean has no effect.
+
+Two things guard against this, and it is worth knowing both:
+
+- Always pass `--no-deps`. Install dependencies deliberately, never as a side effect of installing a devstack repo.
+- Keep your hazelbean clone on a branch whose derived version is at or above the floor. Versions come from git tags via `setuptools_scm`, so a branch that cannot *reach* the release tag derives a lower version — a clone on `develop` after a release tagged only on `main` reports something like `1.8.1.dev59`, which does not satisfy `>=2.0.0`, and pip replaces it even though your code is newer than the release. Back-merging `main` into `develop` after each release keeps release tags reachable and closes this off.
+
+#### Check you are running the code you think you are {#check-you-are-running-the-code-you-think-you-are}
+
+After adding each repository, confirm the imports still resolve to your clones rather than to a packaged copy:
+
+``` python
+import hazelbean as hb
+print(hb.__file__)
+```
+
+This must print a path inside your clone (`.../Files/hazelbean/hazelbean_dev/hazelbean/__init__.py`). If it prints something under `site-packages`, a packaged copy is shadowing your clone: uninstall it as in step 2 above and redo the editable install. Check here rather than only after installing hazelbean itself — the shadowing is caused by installing the *other* repositories, so it cannot show up until this point.
+
+## 4. Per-machine configuration
+
+Installing the code is not quite the whole setup. A few settings differ on every machine — where your lab drive is mounted, which SLURM account to charge — and none of them can be committed, because they are true only of your computer. They live in a single never-committed file:
+
+```         
+~/.config/hazelbean/machine.env
+```
+
+Hazelbean loads it the moment you `import hazelbean`. The format is plain `KEY=value` lines; a leading `export` and a trailing `# comment` are both tolerated, so the same file can also be sourced from a shell. Values are applied with *setdefault* semantics — a real environment variable always wins — so you can override any of it for one run without editing the file.
+
+**Nothing here is required.** A machine with no `machine.env` at all works; you just lose the conveniences below. It is also the *only* per-machine file: the older `config.txt` (under `Application Support` or `AppData`) was retired on 2026-09-03 and is no longer read, so delete it if you still have one.
+
+### Where the file comes from
+
+Nothing creates `machine.env` at install time — not pip, not conda, not `import hazelbean`. It exists only once something writes it:
+
+- `hb-setup-machine-env` (next section) creates the `~/.config/hazelbean/` directory and the file when it records a shared data root. It only ever *appends* a line and never overwrites a key you set by hand.
+- Every other key you add yourself. Create the directory and file if they are not there yet, then add `KEY=value` lines:
+
+``` bash
+mkdir -p ~/.config/hazelbean
+echo 'GTAP_SC_SLURM_ACCOUNT=my_account' >> ~/.config/hazelbean/machine.env
+```
+
+The path is the same on every OS: `~` is your home directory, so on Windows it is `C:\Users\you\.config\hazelbean\machine.env`. To see which file, if any, a run actually read, look at the first lines a `ProjectFlow` logs when it is constructed — it reports its `base_data_dir` and shared data roots, and whether `HB_SHARED_DATA_DIRS` came from `machine.env` (naming the file), from a real environment variable that overrode it, or is unset.
+
+### The keys that exist
+
+| key | what it does |
+|-----------------------|------------------------------------------------|
+| `HB_TEMP_DIR` | Root for every temporary file hazelbean writes (`hb.temp()`, `hb.temporary_dir()`, and each run's `p.temporary_dir`, a per-run subfolder named for the project and run time, removed at exit). Unset, the OS temp dir gets a per-user `hazelbean_temp_<user>` subfolder, so nothing hazelbean writes mixes with other programs' files. Set it to point cluster runs at scratch space. |
+| `HB_SHARED_DATA_DIRS` | Directories that mirror `base_data`'s layout and can be read directly — usually a mounted lab drive. `get_path` searches them after your local `base_data` and before the cloud bucket, and copies anything it finds into `base_data` so later runs resolve locally. `os.pathsep`-separated for more than one. |
+| `GTAP_SC_SLURM_ACCOUNT`, `GTAP_SC_SLURM_PARTITION`, `GTAP_SC_SLURM_TIME`, `GTAP_SC_SLURM_CPUS`, `GTAP_SC_SLURM_MEM` | How gtappy sizes and charges the `sbatch` jobs it submits when solving GTAP on a SLURM cluster. |
+| `GTAP_SC_WINE_SIF` | Path to the Apptainer image that runs GEMPACK under Wine on the cluster. |
+| `GTAP_VM_SSH_HOST`, `GTAP_VM_DISK_PREFIX`, `GTAP_GEMPACK_DIR`, `GTAP_SC_SSH_HOST`, `GTAP_SC_SCRATCH` | Fallbacks for the GTAP solve-backend connection keys (`vm_ssh_host`, `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`). Read only when the matching cell in a project's `parameters.csv` is blank. |
+
+### machine.env or parameters.csv?
+
+Both hold per-machine values, and the rule for which is which is simple:
+
+- If a project's `input_template/` ships the key with a blank value, it belongs in **that project's `input/` copy of `parameters.csv`** (copy the file there from `input_template/` by hand; `input/` is never seeded automatically). The GTAP solve-backend connection settings work this way — `vm_ssh_host`, `vm_disk_prefix`, `gempack_dir`, `sc_ssh_host`, `sc_scratch`. **`parameters.csv` wins, `machine.env` fills a blank cell**: a cell you leave blank falls back to the `GTAP_`-prefixed, upper-cased key in `machine.env` (`GTAP_VM_SSH_HOST` for `vm_ssh_host`), so an `input/` reproduced verbatim from its template still connects on a machine that has the key set.
+- Everything else — settings no project varies, that are simply true of the machine — belongs in **`machine.env`** only.
+
+Many projects need neither. `global_invest`, for example, has no `parameters.csv` at all, so running one of its services needs nothing beyond an optional `HB_SHARED_DATA_DIRS`.
+
+### Setting up a shared data root
+
+If you have been given access to a lab drive and mounted it (Google Drive for Desktop, Dropbox), let hazelbean find it:
+
+``` bash
+hb-setup-machine-env            # scan, show what was found, confirm, write
+hb-setup-machine-env --print    # show the line without writing anything
+```
+
+It checks the handful of places such a mount can live on your OS, accepts a directory only if it really contains `base_data`'s top-level folders, and appends the `HB_SHARED_DATA_DIRS` line for you. Run it once, whenever your situation changes — it is not an install step, and it never overwrites a value you set by hand.
+
+Finding nothing is a normal outcome, not a failure. Without a shared root, `get_path` falls through to the public cloud bucket, which needs no credentials and works everywhere. That is also the only option on Linux, since Google Drive for Desktop has no Linux client — so cluster machines are expected to have no shared root configured, and pipelines must never depend on one being present.
+
+### Check it worked
+
+On a Developer Installation, first confirm you are running your clones rather than a packaged copy — see [Check you are running the code you think you are](#check-you-are-running-the-code-you-think-you-are) above. That check is worth repeating any time a change you know you made appears to have no effect.
+
+Then confirm data resolution is wired up, without starting a real run:
+
+``` python
+import os
+import hazelbean as hb
+
+p = hb.ProjectFlow(project_dir=os.path.expanduser('~/onboarding_check'))
+print(p.shared_data_dirs)   # [] if no shared root is configured -- that is fine
+print(p.get_path('cartographic', 'ee', 'ee_r264_correspondence.gpkg'))
+```
+
+A path printed under your local `base_data` means it worked, whether the file came from the drive or was downloaded from the bucket. If instead it raises, the error lists every root it searched, marks each shared root available or not, and tells you what to do next — so a missing mount is never confused with a missing file.
+
+(The explicit `project_dir` keeps this snippet runnable from anywhere. Real run files pass `project_name` instead and let ProjectFlow infer the location from the repo they live in, which needs the script to be inside a git repo — see [Run Templates](run_templates.qmd).)
 
 ## Compiling C/C++ Code
 

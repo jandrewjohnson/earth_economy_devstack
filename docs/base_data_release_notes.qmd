@@ -1,0 +1,7 @@
+# Base Data Release Notes
+
+Changes to the contents and organization of base_data — new datasets, promotions from `submissions/`, and format migrations — are recorded here.
+
+## 2026-09-01
+
+- Initial base_data documentation published: the [overview](base_data.qmd), the [contributing workflow](contributing_base_data.qmd), and the [POG specification](pogs.qmd).

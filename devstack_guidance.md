@@ -31,7 +31,7 @@ hazelbean first. Most cross-cutting helpers already exist there as top-level
 | Repo | Owns |
 |------|------|
 | `hazelbean/hazelbean_dev` | Geospatial + general utilities: paths, GDAL/raster/vector ops, arrays, ProjectFlow task engine. The base every other repo builds on. |
-| `seals/seals_dev` | Land-use / land-cover change allocation (SEALS model). |
+| `seals/seals` | Land-use / land-cover change allocation (SEALS model). |
 | `global_invest/global_invest_dev` | Global ecosystem-service / InVEST-style economic modeling on hazelbean. |
 | `gtap_invest/gtap_invest_dev` | GTAP-InVEST economic modeling integration. |
 | `gtap_invest/gtap_invest_viz` | Visualization for GTAP-InVEST outputs. |
