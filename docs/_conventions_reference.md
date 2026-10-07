@@ -981,6 +981,9 @@ We use **Git Flow** (a `main` branch plus a `develop` branch):
 - Open pull requests **into `develop`**, not `main`. `develop` is protected —
   only work that passes unit tests is merged. Releases are promoted from
   `develop` to `main` via pull request.
+- Merge pull requests with a **merge commit** (`gh pr merge <n> --merge`). Do
+  not squash or rebase: each commit and its message stays in history, so
+  `git blame` and `git bisect` still work on large feature branches.
 - External contributors fork, branch, and PR from their fork into the upstream
   `develop`.
 
