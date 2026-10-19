@@ -2,7 +2,7 @@
 title: "Proposal: the canonical base data store"
 ---
 
-**Status:** proposal 2026-10-16. Nothing implements this yet. This document records the design decisions for moving base_data from its current scattered copies to one canonical, versioned store on Cloudflare R2, and is the contract the hazelbean implementation will follow. Open questions are collected at the end.
+**Status:** proposal 2026-10-16; adopted 2026-10-16. Nothing implements this yet. This document records the design decisions for moving base_data from its current scattered copies to one canonical, versioned store on Cloudflare R2, and is the contract the hazelbean implementation will follow. Open questions are collected at the end.
 
 ## The problem
 
@@ -25,7 +25,8 @@ A fourth fact makes the cleanup unavoidable: POGs written before the overview ru
 
 | Topic | Decision |
 |------------------------------------|------------------------------------|
-| Canonical store | Cloudflare R2. Public bucket `ee-base-data` served at `https://data.teemlabs.org`; private bucket `ee-base-data-plus` for paid access. |
+| Canonical store | Cloudflare R2. Public bucket `teems-public-data` served at `https://data.teemlabs.org`; private bucket `teems-private-data` for paid access. |
+| Initial contents | Promoted from the maintainer's local `~/Files/base_data`, which is the reference copy. The Google Cloud contents are out of date and are neither reconciled nor migrated. |
 | Source of truth | A **catalogue** in R2: one entry per dataset, recording its files, hashes, POG semantics, dependencies and provenance. |
 | Writes | Only through **promotion**, which runs a quality gate. Two routes, one gate: a curator's local machine, or a Drive submission. |
 | Release cadence | Every promotion cuts a release. A promotion may carry several datasets, so a coherent multi-dataset change is one release. |
@@ -40,7 +41,7 @@ A fourth fact makes the cleanup unavoidable: POGs written before the overview ru
 
 - **Ref path:** a path relative to the base_data root, as defined in [Conventions](conventions.qmd#get_path-and-ref_path). Code refers to data only by ref path.
 - **Dataset:** the unit that is catalogued, versioned, promoted and synced. One or more files that only make sense together (see [Datasets](#datasets)).
-- **Catalogue entry:** the JSON record describing the current version of one dataset.
+- **Catalogue entry:** the immutable JSON record describing one version of one dataset. The latest release says which version is current.
 - **Content version:** a dataset's identity at the byte level, its `sha256`.
 - **Release:** an immutable snapshot of the whole catalogue: every dataset's ref path mapped to its content version.
 - **Lock file:** the record, written by every run, of exactly which content version of each dataset that run used.
@@ -54,7 +55,7 @@ From most canonical to most local:
 
 | Layer | Location | Role | Who writes |
 |------------------|------------------|------------------|------------------|
-| R2 public / private | `data.teemlabs.org`, `ee-base-data-plus` | Canonical | `promote()` only |
+| R2 public / private | `data.teemlabs.org`, `teems-private-data` | Canonical | `promote()` only |
 | Drive mirror | Shared drive *EE Base Data* | Generated copy of the latest release, for people who don't program | the publish step only |
 | Local base_data | `~/Files/base_data/` | Cache of the catalogue | `get_path`, the sync tool |
 | Submissions | Shared drive *TEEMs submissions*, and `~/Files/base_data_submissions/` | Inbox, not yet official | lab members |
@@ -68,15 +69,17 @@ From most canonical to most local:
 The two buckets share one layout. Top-level directories that start with an underscore are reserved for the store. Ref paths therefore never start with an underscore, and the gate enforces that.
 
 ```         
-ee-base-data/
-  _v/<ref_path>/<sha16>.<ext>        immutable bytes, every version of every file
-  _catalogue/<dataset_ref_path>.json current entry per dataset
-  _release/<release_id>.json        immutable release snapshots
-  _release/latest.json              pointer to the newest non-yanked release
-  _release/yanked.json              releases that "latest" must skip
+teems-public-data/
+  _v/<ref_path>/<sha16>.<ext>                 immutable bytes, every version of every file
+  _catalogue/<dataset_ref_path>/<sha16>.json  immutable entry, one per dataset version
+  _release/<release_id>.json                  immutable release snapshots
+  _release/latest.json                        pointer to the newest non-yanked release
+  _release/yanked.json                        releases that "latest" must skip
 ```
 
-`sha16` is the first 16 hex characters of the file's sha256. For example, the bytes of version 2 of the 10-arcsecond area raster would sit at:
+Everything except `latest.json` and `yanked.json` is written once and never changed. Those two files are only ever rewritten by compare-and-swap (see [Concurrent promotions](#concurrent-promotions)).
+
+`sha16` is the first 16 hex characters of a sha256: the file's for `_v/`, the dataset's `dataset_sha256` for `_catalogue/`. For example, the bytes of version 2 of the 10-arcsecond area raster would sit at:
 
 ```         
 https://data.teemlabs.org/_v/pyramids/ha_per_cell_10sec.tif/3f9c2a1b7d004e11.tif
@@ -85,7 +88,7 @@ https://data.teemlabs.org/_v/pyramids/ha_per_cell_10sec.tif/3f9c2a1b7d004e11.tif
 Why every version, including the current one, lives under `_v/`:
 
 - **Immutable keys make range reads safe.** A window read issues many HTTP range requests against one URL. If a promotion replaced that object partway through, the reader could combine an old header with new blocks. Keys that never change can't be replaced underneath a reader.
-- **Promotion order then needs no locking for readers.** New bytes go to new keys first. The catalogue and release are written last. A reader sees either the old release or the new one, never a mixture.
+- **Promotion order then needs no locking for readers.** New bytes, catalogue entries and the release file all go to new keys first. Switching readers over is a single write to `latest.json`. A reader sees either the old release or the new one, never a mixture.
 - **Lock files and pinned releases resolve to keys that will always exist.**
 - **Cloudflare can cache immutable objects indefinitely.**
 
@@ -116,14 +119,13 @@ Each file belongs to exactly one dataset. A file shared by many datasets, such a
 
 ### The catalogue entry
 
-One JSON file per dataset, at `_catalogue/<dataset_ref_path>.json`:
+One immutable JSON file per dataset version, at `_catalogue/<dataset_ref_path>/<sha16>.json`. The release maps each dataset to its `dataset_sha256`, which names the entry to read:
 
 ``` json
 {
   "dataset": "pyramids/ha_per_cell_10sec.tif",
   "kind": "pog",
   "tier": "public",
-  "status": "current",
   "version": 2,
   "dataset_sha256": "<sha256 over the sorted member list>",
   "release": "2026.10.20.1",
@@ -166,7 +168,6 @@ One JSON file per dataset, at `_catalogue/<dataset_ref_path>.json`:
     "promoted_at": "2026-10-20T14:02:11Z",
     "note": "Regenerated under the September 2026 overview rule."
   },
-  "replaced_by": null,
   "history": [
     {"version": 1, "dataset_sha256": "<…>", "release": "2026.10.18.1", "note": "Initial promotion."}
   ]
@@ -176,11 +177,10 @@ One JSON file per dataset, at `_catalogue/<dataset_ref_path>.json`:
 | Field | Meaning |
 |------------------------------------|------------------------------------|
 | `dataset`, `kind`, `tier` | Identity. A ref path exists in exactly one tier. |
-| `status`, `replaced_by` | `current` or `retired`. A retired dataset keeps its bytes and history. |
-| `version`, `dataset_sha256`, `release` | Content version and the release that published it. `dataset_sha256` is the sha256 of the sorted `ref_path<TAB>sha256` lines of its members. |
+| `version`, `dataset_sha256`, `release` | Content version and the release that published it. `dataset_sha256` is the sha256 of the sorted `ref_path<TAB>sha256` lines of its members. Whether the dataset is current or retired is recorded in the release, not here, so that entries never change. |
 | `lattice` | Rung, storage form (D.5.2 asks the catalogue to record it), tile edge, coarse companion, extent. |
 | `semantics` | Variable class and weighting (D.2.4), denominator and observed-area companion as `ref_path@dataset_sha256`, units, and the exact statistics from the header (Requirement 4), so global totals need no download. |
-| `files` | Every member file with its R2 key, size, `sha256` (integrity) and `md5`. The md5 lets files be compared with Google Drive's `md5Checksum` and Google Cloud's `md5Hash` without downloading. |
+| `files` | Every member file with its R2 key, size, `sha256` (integrity) and `md5`. The md5 lets files be compared with Google Drive's `md5Checksum` without downloading. |
 | `depends_on` | Other datasets this one requires, as `ref_path@dataset_sha256`. Derived from `semantics` plus any declared extras. |
 | `conformance` | The POG spec version and validator version it passed, and which checks ran. When the validator tightens, a sweep re-checks entries against the new spec. |
 | `license` | Licence identifier, and whether redistribution is permitted. The gate refuses a private-tier promotion without a redistribution right. |
@@ -217,11 +217,11 @@ Ref paths never carry revision tokens such as `_v2`, `_final` or `_new`; the gat
 
 - **Every promotion cuts a release.** Release IDs are `YYYY.MM.DD.N`, numbered from 1 each day.
 - **A promotion may carry several datasets.** Regenerating every LULC year and its per-class stacks is one promotion and one release, so no release is ever half updated.
-- **A release is immutable.** `_release/<id>.json` maps every current dataset to its `dataset_sha256`, and records its parent release, author, timestamp and note.
+- **A release is immutable.** `_release/<id>.json` maps every current dataset to its `dataset_sha256`, lists retired datasets with what replaced them, and records its parent release, author, timestamp and note.
 - **`latest.json` points to the newest release not listed in `yanked.json`.**
 - **Yanking replaces deleting.** If a release turns out bad, for example because the slower data tests fail after promotion, it is added to `yanked.json`. "Latest" then skips it, and its bytes stay in `_v/`. The fix is a new promotion.
 - **Release notes are generated** from each promotion's required note and appended to [Base Data release notes](base_data_release_notes.qmd).
-- **Retiring replaces deleting.** A retired dataset is marked `status: retired` with `replaced_by`, and drops out of the next release. Its bytes remain under `_v/`.
+- **Retiring replaces deleting.** Retiring a dataset is a promotion whose release moves it from the current map to the retired map, with what replaced it. Its entries and bytes remain under `_catalogue/` and `_v/`.
 
 ### What a user experiences
 
@@ -269,10 +269,23 @@ hb.promote_base_data(
 2.  **Gate**: every check in the table below. Any failure stops the whole promotion, and nothing is written.
 3.  **Hash** every member file, computing sha256 and md5.
 4.  **Upload** members to their `_v/` keys. A key that already exists is skipped, because identical bytes are already there. Upload is multipart for large files, and for tile sets only tiles with new hashes are uploaded.
-5.  **Write** the remote VRT for any tile set.
-6.  **Claim the release ID and write the release:** the catalogue entries, `_release/<id>.json`, then `latest.json`. Two curators must not claim the same ID; see [Open questions](#open-questions) for the mechanism.
+5.  **Write** the remote VRT for any tile set, and each new catalogue entry.
+6.  **Commit the release** by the protocol in [Concurrent promotions](#concurrent-promotions).
 7.  **Publish** the changed datasets to the Drive mirror.
 8.  **Append** the release notes.
+
+### Concurrent promotions {#concurrent-promotions}
+
+Two curators may promote at the same moment. R2 evaluates conditional `PutObject` headers atomically against the bucket's committed state, so `If-None-Match: *` ("only if this key does not exist") and `If-Match: <etag>` ("only if this object is unchanged") make one compare-and-swap commit possible with no lock object:
+
+1.  Read `_release/latest.json` and keep its ETag. It names the parent release.
+2.  Build the new release snapshot from the parent plus this promotion's changes, with the next release ID for today.
+3.  Write `_release/<id>.json` with `If-None-Match: *`. A `412 Precondition Failed` means another promotion took that ID: go back to step 1.
+4.  Write `_release/latest.json` with `If-Match: <etag from step 1>`. A `412` means another promotion committed since step 1. The release file from step 3 was built on a stale parent and would silently drop the other promotion's changes, so it is deleted (nothing references it yet), and the process goes back to step 1.
+
+Step 4 is the only commit point. A promotion that fails anywhere before it leaves only unreferenced objects under `_v/` and `_catalogue/`, which are harmless and can be swept. The same `If-Match` rule applies to every rewrite of `yanked.json`.
+
+Content-addressed keys need no conditions: two curators uploading the same `_v/` or `_catalogue/` key are, by construction, uploading identical bytes.
 
 ### The gate
 
@@ -307,7 +320,7 @@ Permissions in a shared drive pass down to every folder in it, so the mirror and
 - It contains the latest release, laid out by ref path exactly as `base_data/` is. Storage is not a constraint (50 TB available), so it mirrors everything, including 1-arcsecond tile sets.
 - It is **generated, never edited.** The publish step after each promotion updates the changed datasets and removes retired ones.
 - It includes a human-readable index (`index.csv` and an HTML page) listing every dataset with its units, licence, release and description, for people who don't program.
-- It can be configured as a shared data root (`HB_SHARED_DATA_DIRS`). Because every file has a catalogued hash, `get_path` verifies a mirror copy before trusting it. `hb-setup-machine-env` is updated to find the new mirror instead of the old `NatCapTEEMs/Files/base_data` folder, which becomes one of the sources being reconciled.
+- It can be configured as a shared data root (`HB_SHARED_DATA_DIRS`). Because every file has a catalogued hash, `get_path` verifies a mirror copy before trusting it. `hb-setup-machine-env` is updated to find the new mirror instead of the old `NatCapTEEMs/Files/base_data` folder, which the mirror replaces.
 
 ### Submissions
 
@@ -385,7 +398,7 @@ p.get_path('lulc/esa/lulc_esa_2020_10sec.tif', rung=900, subset=(-130, 40, -120,
 
 - **Public tier:** `/vsicurl/https://data.teemlabs.org/_v/<ref_path>/<sha16>.<ext>`, always the immutable key named by the catalogue.
 - **Tile sets:** `/vsicurl/` on the remote VRT.
-- **Private tier:** `/vsis3/ee-base-data-plus/_v/...` with the R2 endpoint and per-person credentials (see [Tiers](#tiers)).
+- **Private tier:** `/vsis3/teems-private-data/_v/...` with the R2 endpoint and per-person credentials (see [Tiers](#tiers)).
 - **GDAL configuration**, set by hazelbean around remote reads:
 
 | Option | Value | Why |
@@ -434,7 +447,7 @@ Each file records its origin in its metadata: `HB_SOURCE_REF_PATH`, `HB_SOURCE_S
 
 |   | Public | Private |
 |--------------------|--------------------------|--------------------------|
-| Bucket | `ee-base-data` | `ee-base-data-plus` |
+| Bucket | `teems-public-data` | `teems-private-data` |
 | Address | `https://data.teemlabs.org` | R2 S3 endpoint; later a Worker at a separate subdomain |
 | Read access | Anyone | Per-person R2 token now; Worker-issued presigned URLs when access is sold |
 | GDAL path | `/vsicurl/` | `/vsis3/`, or `/vsicurl/` with a presigned URL |
@@ -456,21 +469,16 @@ A command that compares local `base_data/`, the catalogue (latest or a pinned re
 | `missing` | In the release, not local | `pull` (optional) |
 | `modified` | Local hash matches no known version | `promote` or revert |
 | `orphan` | In `base_data/`, not catalogued | move to submissions, or `promote` |
-| `legacy_match` | Local hash equals an md5 in the Google Cloud inventory | informational |
 | `mirror_stale` | Drive mirror lags the release | `republish-mirror` |
 | `submission_pending` | Waiting in the submissions drive | review, then `promote` |
 
 **Nothing ever moves upward automatically.** `pull` and `republish-mirror` can run unattended; `promote` is always an explicit call per dataset.
 
-The first version is **read-only** and useful before R2 holds anything: it hashes local `base_data/` through the cached index and matches files against the Google Cloud inventory and the Drive md5s (from `rclone lsjson --hash`). That supports the current reconciliation work directly.
+The first version is **read-only** and useful before R2 holds anything: it hashes local `base_data/` through the cached index and compares it with the Drive md5s (from `rclone lsjson --hash`), showing where the old Drive folder differs from the reference local copy.
 
 ## Google Cloud transition
 
-- **Now:** the bucket stays up and unchanged. An inventory with md5s, which downloads nothing, supports reconciliation:
-
-  ``` bash
-  rclone lsjson -R --hash gcs:gtap_invest_seals_2023_04_21 > gcs_inventory_2026-10.json
-  ```
+- **Now:** the bucket stays up and unchanged. Its contents are out of date relative to the maintainer's local copy, so they are not inventoried, reconciled or migrated.
 
 - **During transition:** `get_path` tier 12 falls back to Google Cloud for refs not yet catalogued, with a warning, and the lock file records the source as `legacy_gcs`.
 
@@ -485,9 +493,9 @@ The first version is **read-only** and useful before R2 holds anything: it hashe
 
 | Step | Work | Where |
 |------------------|-----------------------------------|------------------|
-| A | Add `teemlabs.org` to Cloudflare; create `ee-base-data`; connect `data.teemlabs.org`; create a curator token; take the Google Cloud inventory | Cloudflare and hosting.com accounts |
+| A | Add `teemlabs.org` to Cloudflare; create `teems-public-data`; connect `data.teemlabs.org`; create a curator token | Cloudflare and hosting.com accounts |
 | B | This document, reviewed and adopted | `earth_economy_devstack/docs` |
-| C1 | Read-only status tool: cached local hashing, matching against the Google Cloud inventory and Drive md5s | hazelbean |
+| C1 | Read-only status tool: cached local hashing, compared with Drive md5s | hazelbean |
 | C2 | `promote_base_data` and the catalogue writer, local route, `pog` datasets. First promotion: the `ha_per_cell` stack. | hazelbean |
 | D | `get_path` R2 tier: release fetch, download with hash check, freshness policy, lock files, `project_base_data_dir` search, shadow warnings, temporary Google Cloud tier | hazelbean `project_flow.py`, `cloud_utils.py` |
 | E | `rung=` and `subset=` window reads, `base_data_cache`, size guard; then `tileset`, `class_stack` and `zone_set` datasets | hazelbean |
@@ -496,10 +504,11 @@ The first version is **read-only** and useful before R2 holds anything: it hashe
 
 ## Open questions {#open-questions}
 
-1.  **Claiming a release ID.** Two curators promoting at the same moment must not both write release `N`. If R2 honours conditional writes (`If-None-Match: *`) on `PutObject`, claiming the ID is one request. Otherwise a lease object such as `_release/.lock` is needed. To be verified against R2's current documentation.
-2.  **Convenience "current" URLs.** QGIS users may want `https://data.teemlabs.org/<ref_path>` to mean "the current version". The options are a small Cloudflare Worker that redirects to the current `_v/` key (no extra storage), or a second copy of each current file at its ref path (doubles storage for current data). The proposal is to defer this and use the Drive mirror for human browsing until the need is concrete.
-3.  **Default `max_subset_cells`.**
-4.  **Lock-file location and retention.** `<project_dir>/base_data_lock/` with one file per run is proposed; whether old lock files are pruned is open.
-5.  **Who the curators are,** meaning who holds R2 write tokens.
-6.  **Catalogue scale.** One JSON file per dataset, with full snapshots per release, is simple and adequate for thousands of datasets. If releases become large, snapshots can store only changes relative to their parent.
-7.  **CORS** on the public bucket, needed only if browser-based maps will read from it.
+1.  **Convenience "current" URLs.** QGIS users may want `https://data.teemlabs.org/<ref_path>` to mean "the current version". The options are a small Cloudflare Worker that redirects to the current `_v/` key (no extra storage), or a second copy of each current file at its ref path (doubles storage for current data). The proposal is to defer this and use the Drive mirror for human browsing until the need is concrete.
+2.  **Default `max_subset_cells`.**
+3.  **Lock-file location and retention.** `<project_dir>/base_data_lock/` with one file per run is proposed; whether old lock files are pruned is open.
+4.  **Who the curators are,** meaning who holds R2 write tokens.
+5.  **Catalogue scale.** One JSON file per dataset version, with full snapshots per release, is simple and adequate for thousands of datasets. If releases become large, snapshots can store only changes relative to their parent.
+6.  **CORS** on the public bucket, needed only if browser-based maps will read from it.
+7.  **Private bucket name.** `teems-private-data` is proposed to match `teems-public-data`; it is not created yet.
+8.  **Whether to keep the Google Cloud fallback (tier 12).** It keeps refs working for users without a local copy until R2 is populated, but it serves data known to be out of date. The alternative is to drop it now and let uncatalogued refs fail with a clear message.
