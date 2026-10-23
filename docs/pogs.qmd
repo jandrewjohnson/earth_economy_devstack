@@ -182,11 +182,11 @@ Five things that are easy to conflate, defined so they stay apart:
 
 ### Tile and subpog naming
 
-Corner-based, following SRTM, NASADEM, Copernicus DEM and ESA WorldCover: the **south-west** corner in whole degrees, latitude then longitude, each with its cardinal letter, followed by the **height and width** of the extent in whole degrees. The extent is in the name, so a file is interpretable without the tile matrix set, a subpog spanning several tiles is named the same way, and the same dataset may exist at more than one tiling:
+Corner-based, following SRTM, NASADEM, Copernicus DEM and ESA WorldCover: the **south-west** corner in whole degrees, latitude then longitude, each with its cardinal letter, followed by the **height and width** of the extent in whole degrees. The extent is in the name, so a file is interpretable without the tile matrix set, a subpog spanning several tiles is named the same way, and the same dataset may exist at more than one tiling. The global POG itself carries **no rung suffix** (its rung is in its metadata and its coarser rungs are its overviews; see "Pyramid resolutions are expressed in arcseconds" on the conventions page); tiles and subpogs carry the rung token, because their names encode a cell of a tile grid and a dataset may be tiled at several rungs:
 
 ```
-lulc_esa_2020_10sec.tif                       the global POG
-lulc_esa_2020_10sec_10deg/                    its tile set (folder)
+lulc_esa_2020.tif                             the global POG
+lulc_esa_2020_10sec_10deg/                    its tile set at 10 s (folder)
 lulc_esa_2020_10sec_40N_130W_10_10.tif        one tile: south-west corner 40N 130W, 10 by 10 degrees
 lulc_esa_2020_10sec_10deg.vrt                 the index, beside the folder
 lulc_esa_2020_10sec_20N_30E_30_60.tif         a subpog spanning 20N to 50N and 30E to 90E

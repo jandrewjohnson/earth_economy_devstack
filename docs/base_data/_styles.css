@@ -1,0 +1,127 @@
+/* Shared by every page on https://data.teemlabs.org: inlined into the landing page (_landing.html) and into each folder
+   page (_folder_page.qmd). Colours follow the TEEMs logo: sky blue through teal to leaf green. */
+
+:root {
+  --bg: #f6faf9;
+  --surface: #ffffff;
+  --surface-2: #eef5f3;
+  --ink: #0e1f1b;
+  --muted: #566a65;
+  --line: #d9e5e1;
+  --sky: #3aa6d8;
+  --teal: #16a58a;
+  --leaf: #4cbe74;
+  --lime: #8fd04c;
+  --link: #0f7f6b;
+  --code-bg: #0e1f1b;
+  --code-ink: #d7f5e9;
+  --shadow: 0 1px 2px rgba(14, 31, 27, .06), 0 8px 24px rgba(14, 31, 27, .06);
+  --grad: linear-gradient(115deg, var(--sky), var(--teal) 45%, var(--leaf) 75%, var(--lime));
+  --radius: 14px;
+  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a1412; --surface: #101d1a; --surface-2: #15261f; --ink: #e4f1ed; --muted: #97aea8; --line: #213530;
+    --link: #5fd3b2; --code-bg: #061010; --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a1412; --surface: #101d1a; --surface-2: #15261f; --ink: #e4f1ed; --muted: #97aea8; --line: #213530;
+  --link: #5fd3b2; --code-bg: #061010; --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code, pre { font-family: var(--mono); font-size: .88em; }
+code { background: var(--surface-2); padding: .1em .35em; border-radius: 5px; }
+pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 10px; overflow-x: auto; line-height: 1.5; }
+pre code { background: none; padding: 0; color: inherit; }
+.gradient-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Site header, shared by every page */
+.site-header {
+  position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; padding: 10px max(16px, calc((100% - 1120px) / 2));
+  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.site-header .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 700; white-space: nowrap; }
+.site-header .brand img { height: 34px; width: auto; background: #fff; border-radius: 8px; padding: 3px 5px; }
+.site-header .crumbs { font-size: .92rem; color: var(--muted); overflow-wrap: anywhere; }
+.site-header .crumbs a { color: var(--muted); text-decoration: none; }
+.site-header .crumbs a:hover { color: var(--ink); }
+.site-header .crumbs .sep { margin: 0 6px; opacity: .6; }
+
+/* Folder pages */
+.page { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+.page h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); line-height: 1.15; letter-spacing: -.02em; margin: .2em 0 .3em; }
+.page h1 .path { display: block; font-family: var(--mono); font-size: .9rem; font-weight: 500; letter-spacing: 0; color: var(--muted); margin-bottom: 6px; }
+.page h2 { font-size: 1.35rem; letter-spacing: -.01em; margin: 2.2em 0 .7em; padding-bottom: .3em; border-bottom: 1px solid var(--line); }
+.page .tagline { font-size: 1.15rem; color: var(--muted); margin: 0 0 1em; }
+.page .lede { font-size: 1.05rem; max-width: 72ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 6px; padding: 0; list-style: none; }
+.chips li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .9rem; }
+.chips li b { font-variant-numeric: tabular-nums; }
+
+.about {
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--teal);
+  border-radius: 10px; padding: 16px 18px; font-size: .95rem; max-width: 90ch;
+}
+.about p { margin: 0 0 .8em; }
+.about p:last-child { margin-bottom: 0; }
+.source-note { font-size: .85rem; color: var(--muted); margin-top: 8px; }
+
+dl.shared { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 20px; font-size: .95rem; }
+dl.shared dt { color: var(--muted); font-weight: 600; }
+dl.shared dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) { dl.shared { grid-template-columns: 1fr; } dl.shared dd { margin-bottom: 8px; } }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+table.datasets { border-collapse: collapse; width: 100%; font-size: .92rem; }
+table.datasets th, table.datasets td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+table.datasets thead th { background: var(--surface-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); white-space: nowrap; }
+table.datasets tbody tr:last-child td { border-bottom: 0; }
+table.datasets tbody tr:hover { background: color-mix(in srgb, var(--teal) 6%, transparent); }
+table.datasets td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.datasets td.file a { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+table.datasets td.meta { font-size: .85rem; color: var(--muted); min-width: 220px; }
+table.datasets .archive { display: inline-block; font-family: var(--mono); font-size: .8rem; margin-right: 6px; }
+.pill { display: inline-block; font-size: .78rem; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); white-space: nowrap; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.card {
+  position: relative; display: block; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); transition: transform .2s ease, border-color .2s ease;
+}
+.card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; border-radius: var(--radius) var(--radius) 0 0; background: var(--grad); }
+.card:hover { transform: translateY(-3px); border-color: var(--teal); }
+.card h3 { margin: 4px 0 4px; font-size: 1.15rem; }
+.card .path { font-family: var(--mono); font-size: .82rem; color: var(--muted); }
+.card p { margin: 8px 0 0; color: var(--muted); font-size: .93rem; }
+.card .go { margin-top: 12px; font-weight: 600; color: var(--link); }
+
+.site-footer { border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; padding: 24px max(16px, calc((100% - 1120px) / 2)) 40px; }
+.site-footer a { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* The folder tree on the landing page: every published folder, nested, each linked to its page. */
+.tree-title { margin: 40px 0 6px; font-size: 1.15rem; }
+.tree ul { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 1px solid var(--line); }
+.tree > ul { padding-left: 0; border-left: 0; }
+.tree li { margin: 10px 0; }
+.tree li a { text-decoration: none; }
+.tree li a code { font-family: var(--mono); font-size: .95rem; color: var(--link); }
+.tree li a .title { margin-left: 6px; font-weight: 600; }
+.tree li .count { margin-left: 10px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tree li .tagline { display: block; margin: 2px 0 0; font-size: .9rem; color: var(--muted); }
+
+.page .tree { margin: 18px 0 8px; }

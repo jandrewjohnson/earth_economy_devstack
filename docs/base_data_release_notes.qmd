@@ -1,7 +1,17 @@
 # Base Data Release Notes
 
-Changes to the contents and organization of base_data — new datasets, promotions from `submissions/`, and format migrations — are recorded here.
+Changes to the contents and organization of base_data — new datasets, promotions from `submissions/`, and format migrations — are recorded here. Each release of the store at <https://data.teemlabs.org> is listed in its `_release/` folder; notable ones are summarised below.
+
+## 2026-10-20
+
+- Release `2026.10.20.1`: the ESA CCI / C3S annual land-cover maps, `lulc/esa/lulc_esa_1992.tif` to `lulc_esa_2022.tif`, as categorical POGs (31 datasets).
+- Browsable pages at <https://data.teemlabs.org>, rebuilt after every publish.
+- The submissions inbox moves to `base_data_submissions/` beside `base_data/` on the NatCapTEEMs shared drive; the old `base_data/submissions/` folder is retired. [Contributing Base Data](contributing_base_data.qmd) is rewritten for submitting, promoting and publishing.
+
+## 2026-10-19
+
+- Release `2026.10.19.1`, the first in the canonical store on Cloudflare R2: the 17 `pyramids/ha_per_cell_<rung>sec.tif` POGs, 10 arcseconds to 180 degrees, under CC-BY-4.0.
 
 ## 2026-09-01
 
-- Initial base_data documentation published: the [overview](base_data.qmd), the [contributing workflow](contributing_base_data.qmd), and the [POG specification](pogs.qmd).
+- Initial base_data documentation published: the [overview](base_data/index.qmd), the [contributing workflow](contributing_base_data.qmd), and the [POG specification](pogs.qmd).

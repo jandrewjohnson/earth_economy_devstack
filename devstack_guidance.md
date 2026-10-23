@@ -39,7 +39,7 @@ hazelbean first. Most cross-cutting helpers already exist there as top-level
 | `gep/gep_dev` | GEP modeling. |
 | `linneabean/linneabean_dev` | linneabean library. |
 | `earth_economy_devstack` | Umbrella / install + docs for the whole stack (specs, scenario definitions). |
-| `base_data` | Shared **data**, not code — do not add code utilities here. |
+| `base_data` | Shared **data**. Each dataset folder may also hold its thin ingestion script and manifest (`<name>_base_data_ingestion.py`, `<name>_base_data_manifest.csv`); no other code, and no general utilities — those belong in hazelbean. |
 
 ## EE Spec conventions
 

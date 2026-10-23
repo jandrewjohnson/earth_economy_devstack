@@ -270,13 +270,27 @@ Three `scenario_type`s are supported: `baseline`, `bau`, and `policy`.
 ## Pyramid resolutions are expressed in arcseconds
 
 Supported pyramid resolutions are named by **arcseconds**, not degrees:
-`_10sec`, `_300sec`, `_900sec` file suffixes, `arcseconds` keys in hazelbean's
-pyramid dictionaries, and the `output_arcseconds` argument of
-`hb.make_path_pog`. The reason is purely practical: the arcsecond values are
-small integers (10, 30, 300, 900...), while the equivalent degree values are
-repeating decimals (0.002777..., 0.008333...) that cannot be written exactly in
-a filename or compared safely as floats. The supported set is 1, 10, 30, 150,
-300, 900, 1800, 3600, 7200, 14400, and 36000 arcseconds.
+`_10sec`, `_300sec`, `_900sec` file suffixes where a name carries a rung,
+`arcseconds` keys in hazelbean's pyramid dictionaries, and the
+`output_arcseconds` argument of `hb.make_path_pog`. The reason is purely
+practical: the arcsecond values are small integers (10, 30, 300, 900...), while
+the equivalent degree values are repeating decimals (0.002777..., 0.008333...)
+that cannot be written exactly in a filename or compared safely as floats. The
+supported set is 1, 10, 30, 150, 300, 900, 1800, 3600, 7200, 14400, and 36000
+arcseconds.
+
+**A file name carries a rung suffix only where separate files exist at several
+rungs.** (Since 2026-10-22.) A dataset that is one POG is named for what it is,
+`lulc_esa_2020.tif` or `ee_r264_ids.tif`, with no `_10sec`: its rung is in its
+metadata, and its coarser rungs are its internal overviews, so a suffix would
+repeat what the file already knows and invite standalone coarse copies that
+duplicate the overviews. The suffix belongs to the `pyramids/` files, where every
+rung is a file with a structural role (`ha_per_cell_300sec.tif`,
+`match_900sec.tif`); to tiles and subpogs, whose names encode their grid (see
+the POG page); and to genuinely separate products at different resolutions,
+such as a vector simplified at several tolerances. A product published by its
+provider at two native resolutions is two datasets, and the suffix tells them
+apart.
 
 **Sub-arcsecond caveat:** below 1 arcsecond the integer notation runs out, and
 a decimal point cannot appear in a filename suffix. Fractional arcseconds are
@@ -411,6 +425,38 @@ Three rules make this safe to rely on *without* depending on it:
 - **replace** — substitute one value/object for another
   (`replace_missing_values`).
 - **move** — relocate to a different location/container (`move_to_archive`).
+
+## Base data dataset folders and `raw/`
+
+Each dataset folder in `base_data` (e.g. `base_data/lulc/esa/`) holds its data and, beside it, the record of where the
+data came from:
+
+```
+base_data/lulc/esa/
+    lulc_esa_base_data_ingestion.py    raw input -> the files below, then writes the manifest
+    lulc_esa_base_data_manifest.csv    one row per dataset in this folder, with its metadata
+    lulc_esa_1992.tif ... lulc_esa_2023.tif
+    raw/                               the raw input, exactly as downloaded (never uploaded)
+```
+
+- **`<name>_base_data_ingestion.py`** is the dataset's lineage, read top to bottom: from `raw/` (or from code in another
+  repo, or from a finished project's outputs) to the files at their ref paths, ending with the manifest. It is the only
+  code allowed in `base_data`, and it is kept thin: general utilities belong in hazelbean.
+- **`raw/`** holds the raw input exactly as provided at its download link: same file names, same formats, nothing
+  edited, renamed or converted. A person places it there by hand before running the ingestion script, which assumes it
+  is present, reads from it, and writes its outputs elsewhere. `raw/` is **never uploaded**: publishing, the manifests and
+  the catalogue ignore it, and `get_path` never resolves into it.
+- **The ingestion script says where each raw file comes from**: the download page or URL, the version, and anything
+  needed to fetch the same files again, so `raw/` can be recreated on another machine.
+- **A step that can be rerun skips work already done**: a year whose output already exists is not converted again. With
+  every output present, the script only refreshes the manifest.
+- **A step whose history isn't known is stated, not skipped.** If how some files were produced was never recorded, the
+  script has a function for that step whose only job is to say so (and to stop if those files are missing), so the gap
+  is visible in the lineage rather than silent.
+- **A dataset folder stays flat.** When the ingestion script is a ProjectFlow run file, its scenarios CSV is
+  `<name>_base_data_scenarios.csv` beside it, not in an `input_template/` folder, and its tasks write to the ref paths,
+  not to `p.cur_dir`. The CSV is part of the lineage, and `base_data` is not a repository, so neither reason for
+  `input_template/` (tracked, shadowable by `input/`) applies.
 
 ## Directory and file naming
 

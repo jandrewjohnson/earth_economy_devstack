@@ -1,35 +1,244 @@
-# Contributing to Devstack's Base Data
+# Contributing to Base Data
 
-Our base data is becoming a valuable asset that accelerates our shared work. Towards that, this page documents how **you** could contribute (if you want) your project's data so that it works seamlessly with the rest of the devstack. When done correctly, our base_data has two useful aspects:
+Our base data is becoming a valuable asset that accelerates our shared work. This page documents how **you** can contribute your project's data so that it works seamlessly with the rest of the devstack, and how curators turn contributions into published, versioned datasets at **<https://data.teemlabs.org>**.
 
-1.  Files are automatically downloaded by the get_path() function.
-2.  All rasters are Pyramidal Cloud Optimized Geotiffs (POGs), which enables, among many other things
-    1.  The ability to download a subset of a single raster
-    2.  The ability to use precise and very fast zonal statistics
-    3.  Very accurate area-per-cell calculations (without imprecision from using projected data)
+Once your data is in base data:
 
-## What is unique about open data
+1.  Files are downloaded automatically by `get_path()`, so anyone who clones your code can run it.
+2.  All rasters are Pyramidal Cloud-Optimized GeoTIFFs ([POGs](pogs.qmd)), which gives, among many other things:
+    1.  downloading a subset of a single raster;
+    2.  precise and very fast zonal statistics;
+    3.  very accurate area-per-cell calculations, without the imprecision of projected data.
 
-To make one's project fully replicable, it obviously needs to have an open git repo for the **code**. The challenge, though, is that git is not good for managing **data**, so if someone clones your code, it will probably fail because it doesn't (and shouldn't if the data is \> 5MB) include the data in the repo. The way our Devstack manages base_data is that it is automatically downloaded via p.get_path() when it is needed. Thus, if you want your project to "just work", we need to figure out how to create a good system for proposing new contributions to the base data and then cleaning/curating them so they work well. 
+## Why data needs its own route
 
-## How to contribute your input data
+To make a project fully replicable, its **code** must be in an open git repo. Git is not good at managing **data**, though, so someone who clones your code will find it fails, because the repo doesn't (and shouldn't, for anything over about 5 MB) include the data. The devstack solves this by downloading base data automatically through `p.get_path()` whenever it is needed. For your project to "just work", its data must get into base data, in the right place and the right format. This page describes that route.
 
-The above only works if your data is included in our base_data in the proper location and in the proper format. Here we discuss how you can contribute it into the base data so your code works for everyone else (in the lab, and optionally for the general public).
+There are two roles:
 
-1.  Move your data into our TEEMs drive in the base_data submissions folder in a single folder with your project's name. See the example below for the full base_data location and a few example projects.
+- **Contributors** (any lab member) put data in the **submissions inbox**, `base_data_submissions/`, and point their code at it.
+- **Curators** (who hold the R2 write credentials) review submissions, **promote** them into `base_data/` with an ingestion script and a manifest, and **publish** them to the canonical store. Only publishing writes to [data.teemlabs.org](https://data.teemlabs.org).
 
-![](images/paste-60.png)
+Contributors never write into `base_data/`, on Drive or locally. Everything in `base_data/` is either published or about to be, together with the code that made it.
 
-2.  Change your git repo so that that ALL (ABSOLUTELY ALL) data are referenced via a relative path into this submissions base_data folder. So, for instance, if you had a file "emissions_factors.csv" in the air_quality project, the code would reference it as
+## For contributors: submitting data
 
-`data_ref_path = os.path.join("submissions", "air_quality", "emissions_factors.csv"`
+### 1. Put your data in `base_data_submissions/<project>/`
 
-The `data_ref_path` is what we call a Reference Path (or Ref Path), which `get_path(data_ref_path)` can find and download; the canonical definition, including the full order of directories `get_path` searches, is in [Conventions](conventions.qmd#get_path-and-ref_path).
+The inbox is the **`base_data_submissions`** folder on the NatCapTEEMs shared drive, beside (never inside) `base_data`:
 
-3.  Put a Readme.md in your submission folder. It should reference the code used to produce it and basic information on units, interpretation, and how it should be used.
-4.  After you complete 1-3, email me! I will then test your repo and code by cloning the repo, modifying ONLY the base_data_dir, and then check that everything runs.
-5.  I will then further clean the data (to be compliant with the conventions defined here <https://justinandrewjohnson.com/earth_economy_devstack/conventions.html>, and specifically, to be a [POG](pogs.qmd). I'm happy to do the cleaning, but if you want, you might want to consider following the conventions earlier in your project rather than later. 
-6.  I'll write "unittests" that ensure your code and data work, which will be automatically run when there's a new release of the devstack repo.
-7.  If everything passes, the data get "promoted" to base_data by eliminating the word "submissions" in their file path (e.g., `base_data\submissions\emissions_factors.csv` becomes `base_data\emissions_factors.csv`)
+```
+NatCapTEEMs/Files/
+    base_data/                  published data: read only, for everyone
+    base_data_submissions/      the inbox: one folder per project
+        air_quality/
+            README.md
+            emissions_factors.csv
+            pm25_concentration_2020.tif
+            raw/                optional: what you downloaded, exactly as provided
+```
 
-If all these edits are done, you can now change your code to use the Reference Path and it will work for you and for everybody else too.
+Make one folder named for your project (lowercase, underscores), and put everything your code reads in it. Keep a local copy at `~/Files/base_data_submissions/<project>/`, laid out the same way: that is where your code finds the files while you work.
+
+The older `base_data/submissions/` folder on the drive is retired. If you have data there, move it into `base_data_submissions/<project>/`.
+
+### 2. Write a README.md
+
+The README is what the curator turns into your data's catalogue entry, so for **every file** it should say:
+
+| What | Example |
+|------------------------------------|------------------------------------|
+| What the file is and how to interpret it | "Annual mean PM2.5 concentration for 2020." |
+| Units | µg/m³, ha, tonnes, class codes (with the legend) |
+| Variable class (rasters only) | **extensive** (amounts that add up: hectares, tonnes, people), **intensive** (rates and proportions: yields, shares), **categorical** (class labels: land cover) or **covariate** (other continuous values: elevation, temperature) |
+| Source and citation | The dataset, its version, its DOI or download URL |
+| Licence | `CC-BY-4.0`, or the licence's name and URL |
+| Code that produced it | The repo, script and commit |
+
+If you downloaded something and changed it, put the download exactly as provided in `raw/` and say in the README how you got from it to your files. The variable class matters: it decides how the POG's coarser resolutions are computed (summed, averaged or by mode), and the curator can't guess it.
+
+### 3. Point your code at the submission
+
+Change your repo so that **all** data (absolutely all) are referenced through a reference path into your submission folder, starting with `base_data_submissions`. For instance, for the file `emissions_factors.csv` in the `air_quality` project:
+
+``` python
+p.emissions_factors_ref_path = os.path.join('base_data_submissions', 'air_quality', 'emissions_factors.csv')
+```
+
+A reference path (ref path) is what `get_path` finds and, for published data, downloads; the canonical definition, including the order of directories `get_path` searches, is in [Conventions](conventions.qmd#get_path-and-ref_path).
+
+::: callout-note
+**Until `get_path` searches the inbox itself** (planned, but not built yet), add your `~/Files` folder to its search when you resolve a submission:
+
+``` python
+p.emissions_factors_path = p.get_path(p.emissions_factors_ref_path,
+                                      prepend_possible_dirs=[os.path.join(os.path.expanduser('~'), 'Files')])
+```
+
+This finds `~/Files/base_data_submissions/air_quality/emissions_factors.csv`. Remove the argument once `get_path` resolves `base_data_submissions/…` refs on its own.
+:::
+
+### 4. Tell the curator
+
+Once 1–3 are done, email Justin. The curator then tests your repo by cloning it, changing only the base data location, and checking that everything runs.
+
+### What happens next
+
+The curator **promotes** your submission:
+
+1.  Cleans the data to follow the [Conventions](conventions.qmd): files are named for what they are, with no revision words such as `_v2` or `_final`, and every raster becomes a [POG](pogs.qmd) at its resolution (`pm25_concentration_2020.tif`, say: no rung suffix, since a single POG carries its rung in its metadata and its coarser rungs as overviews).
+2.  Moves it into `base_data/` in the collection it belongs to, with an ingestion script and a manifest (see the curators' section below).
+3.  Publishes it, so it appears on [data.teemlabs.org](https://data.teemlabs.org) with your README's metadata, and anyone's `get_path` can download it.
+
+Because cleaning usually changes the name, **promotion changes the ref path**: change your code from the `base_data_submissions/…` ref path to the new one (for example `os.path.join('air_quality', 'pm25_concentration_2020.tif')`) and drop the `prepend_possible_dirs` argument. It then works for you and for everybody else. (A redirect, so that old submission ref paths keep working after promotion, is planned but not built.)
+
+The curator is happy to do the cleaning, but following the conventions early in your project, rather than at the end, saves everyone time.
+
+## For curators: promoting and publishing
+
+### The store
+
+The canonical store is the Cloudflare R2 bucket `teems-public-data`, served at `https://data.teemlabs.org`. Your local `~/Files/base_data` is the reference copy from which it is published. The design, with every decision and the reasons for it, is the [base data store proposal](proposal_base_data_store.qmd).
+
+| In R2 | What it is |
+|------------------------------------|------------------------------------|
+| `<ref path>` (e.g. `lulc/esa/lulc_esa_2022.tif`) | The current version of each dataset, at its plain ref path. |
+| `static/<ref path without extension>/v<release>.<ext>` | Versions that were replaced, under the release that published them (e.g. `static/lulc/esa/lulc_esa_2022/v2026_10_20_1.tif`). |
+| `_release/<release>.json`, `_release/latest.json` | Each release (`YYYY.MM.DD.N`), listing every dataset's version and content hash, and which release is the latest. |
+| `_catalogue/<ref path>/<release>.json` | One entry per dataset version: files, hashes, POG description, licence, source, code and provenance. |
+| `index.html`, `<folder>/index.html` | The browsable pages (see below). |
+
+Publishing needs R2 credentials in `~/.config/hazelbean/machine.env` (`HB_R2_ACCOUNT_ID`, `HB_R2_ACCESS_KEY_ID`, `HB_R2_SECRET_ACCESS_KEY`), never committed. Reading needs nothing.
+
+### Dataset folders
+
+Each dataset folder in `base_data/` carries its own lineage beside its data:
+
+```
+base_data/lulc/esa/
+    lulc_esa_base_data_ingestion.py    raw input -> the files below, then writes the manifest
+    lulc_esa_base_data_manifest.csv    one row per dataset in this folder, with its metadata
+    lulc_esa_1992.tif ... lulc_esa_2022.tif
+    raw/                               the raw input, exactly as downloaded (never uploaded)
+```
+
+The rules are in [Conventions](conventions.qmd), under "Base data dataset folders and `raw/`". In short: the ingestion script is the only code allowed in `base_data/` and is kept thin; `raw/` holds the input exactly as provided at its download link and is never uploaded; the script records where each raw file came from; and a step whose history is unknown is a function that says so rather than being left out.
+
+There are three kinds of ingestion script:
+
+1.  **A raw-data ingest that lives entirely in `base_data/`**, such as `lulc/esa`: it converts `raw/` to POGs, skipping what is already converted, then lists the files.
+2.  **A thin call to code in another repo**, such as `pyramids`, which writes any missing area raster with `hb.write_ha_per_cell_pog`, then lists them.
+3.  **A bespoke script that moves the outputs of a finished project** into `base_data/` and lists them. A promoted submission is usually this kind.
+
+An ingestion script with more than one step can be a ProjectFlow run file in the devstack's single-file form (a `build_task_tree`, a `run_project(p)` and a `__main__` guard); `base_data/lulc/esa/seals7/lulc_esa_seals7_base_data_ingestion.py` is the example. Because it is a base data script it departs from the run-file conventions in two ways: its tasks write straight to the ref paths under `base_data/` rather than into their own task folders, so the project folder holds only logs; and its scenarios CSV, `<name>_base_data_scenarios.csv`, sits flat beside the script like the manifest, not in an `input_template/` folder, because a dataset folder is a flat, self-describing record and the CSV is part of the lineage rather than run configuration to be shadowed by `input/` overrides.
+
+### Writing an ingestion script
+
+Copy an existing one (`base_data/lulc/esa/lulc_esa_base_data_ingestion.py` is the fullest example). Its docstring is the lineage, read top to bottom, and it is also published as the **About** section of the folder's page on data.teemlabs.org, so write it for a reader. Most scripts end with one call:
+
+``` python
+DRY_RUN = True   # first: lists what would happen to every file, and any problem, and writes nothing
+
+METADATA = dict(
+    license="CC-BY-4.0",            # or the licence's name and URL
+    units="µg/m³",
+    data_source="...",              # dataset, version, DOI or URL
+    description="...",              # what it is and how to interpret it
+    code="base_data/air_quality/air_quality_base_data_ingestion.py",
+)
+OVERRIDES = {"*_2020_*.tif": {"description": "..."}}   # per-file changes, by pattern; later patterns win
+
+hb.add_directory_to_base_data(SOURCE_DIR, "air_quality", manifest_path, variable_class="intensive",
+                              overrides=OVERRIDES, include=["*.tif"], include_subdirectories=False,
+                              dry_run=DRY_RUN, **METADATA)
+```
+
+`hb.add_directory_to_base_data` places or keeps the files under their ref paths, converts rasters that aren't POGs yet (in place, deleting each original once its POG is written; `make_pogs=False` leaves that to publishing), and adds a row per new dataset to the folder's manifest, `<name>_base_data_manifest.csv`. It skips code, manifests, GDAL sidecars, `raw/` and temporary files, runs file by file in parallel, never writes to R2, and ends with the publishing dry run. A manifest has one row per dataset:
+
+| Column | Meaning |
+|------------------------------------|------------------------------------|
+| `ref_path` | The dataset's full ref path. |
+| `kind`, `tier` | Dataset kind and bucket tier. Only `pog` and `public` can be published so far. |
+| `variable_class` | For rasters: `extensive`, `intensive`, `categorical` or `covariate`. |
+| `license`, `units`, `data_source`, `description` | Required; copied into the catalogue entry and shown on the folder's page. |
+| `code` | The script that produced the files. |
+
+Leave `DRY_RUN = True`, read the report, then set it to `False` and run the script again. `DRY_RUN` can also be a date, `"2026-10-20"`: a real run on that day, and a dry run again from the next day on, so a script never stays armed (`hb.resolve_dry_run`).
+
+### Promoting a submission
+
+Promotion is done by hand until `hb.promote_base_data_submission` exists:
+
+1.  Run the contributor's code against their submission and check it works.
+2.  Choose the folder in `base_data/` it belongs in, and canonical names for its files.
+3.  Write an ingestion script there (usually the third kind) that copies the files from `base_data_submissions/<project>/` and calls `hb.add_directory_to_base_data` with the README's metadata. Put the submission's `raw/`, if any, in the new folder's `raw/`.
+4.  Run it with `DRY_RUN = True`, then for real.
+5.  Publish (below), then tell the contributor their new ref paths. Clear their submission folder once their code uses them.
+
+### Publishing
+
+Publishing is the only thing that writes to R2. Run `earth_economy_devstack/publish_base_data.py`:
+
+``` python
+DRY_RUN = True
+NOTE = "Adding the air_quality PM2.5 maps"   # required to publish: like a commit message
+hb.publish_base_data_from_manifests(base_data_dir=BASE_DATA_DIR, note=NOTE, dry_run=DRY_RUN, site_dir=SITE_DIR)
+```
+
+It finds every `*_base_data_manifest.csv` under `base_data/`, combines them (a ref path listed twice is an error), and reports each row:
+
+| Status | Meaning |
+|------------------------------------|------------------------------------|
+| `new`, `changed` | Not yet published, or the local bytes differ from the published version: these are published. |
+| `unchanged` | Already published, byte for byte. |
+| `needs_pog` | Listed, but not a POG yet: a real run converts it first, using its row's `variable_class`. |
+| `unfinished` | Published, but an earlier run stopped before moving it into place: a real run finishes it. |
+| `missing_locally` | Listed, but not in your `base_data/`. |
+| `unsupported` | A kind or tier publishing can't handle yet. |
+| `not_in_manifest` | Published, but no manifest lists it. |
+
+Every new and changed dataset first passes the gate (`hb.is_path_pog(full_check=True)`, required metadata, naming rules, dependencies), or nothing is published. When the dry run shows no problems, set `DRY_RUN = False` and run it again. The new and changed rows are published together as **one release**: staged, the versions they replace archived under `static/` (pass `archive_previous=False` to save the storage instead), then committed atomically. If another curator's release commits first, nothing from yours is kept and it asks you to rerun. Rerunning is always safe.
+
+Three limits to know:
+
+- Editing only a row's metadata, with the bytes unchanged, doesn't publish a new catalogue entry: the row stays `unchanged`, so the catalogue keeps the old metadata (the folder's page shows the new text, since it reads the manifest).
+- Only single-file POG datasets can be published so far.
+- The Drive mirror and the release notes aren't written yet; record notable releases in the [Base Data release notes](base_data_release_notes.qmd) by hand.
+
+### The pages at data.teemlabs.org {#site-pages}
+
+Every real run of `publish_base_data.py` ends by rebuilding the browsable pages and uploading them (it needs [Quarto](https://quarto.org)). The landing page describes the collections and the store and lists every published folder as a tree. The pages name three levels: a collection (a top-level folder such as `lulc`) holds datasets (`lulc/esa`), and a dataset holds derived products (`lulc/esa/seals7`). Every folder holding published files gets a page with its About section and a table of its files (version, release, size, resolution, licence, source and archived versions). Only published rows appear.
+
+Each part of a page comes from one file:
+
+| To change | Edit |
+|------------------------------------|------------------------------------|
+| Collection and folder titles, taglines and blurbs | `earth_economy_devstack/docs/base_data/_collections.yml`. Top-level keys are the collections on the landing page, in order; a deeper key such as `lulc/esa` sets that folder's card and page header. A folder not listed gets its tagline and blurb from the first paragraph of its ingestion script's docstring, so a new folder needs no entry to appear. |
+| The subfolder cards and tree on a folder page (headed Datasets on a collection's page, Derived products on a dataset's) and the tree on the landing page | Nothing: they list every published folder, with its title, tagline and dataset count, from the same sources. |
+| A folder's About section | The docstring of its `*_base_data_ingestion.py`. |
+| The file table | The ingestion script's `METADATA` and `OVERRIDES`; rerun it to rewrite the manifest. |
+| The landing page | `docs/base_data/_landing.html` |
+| The folder pages' layout | `docs/base_data/_folder_page.qmd` |
+| Colours, fonts and spacing | `docs/base_data/_styles.css` |
+| The logo | `docs/base_data/teems_logo.png` |
+
+The leading underscores keep the devstack site from rendering these templates itself. To preview a change without uploading, build the pages and serve them locally:
+
+``` bash
+python -c "import hazelbean as hb; hb.write_base_data_index_pages('<path to>/earth_economy_devstack/docs/base_data', output_dir='base_data_site_preview')"
+python -m http.server 8765 -d base_data_site_preview
+```
+
+Then open <http://localhost:8765>. To upload without publishing data, run the first command with `dry_run=False` (or run `publish_base_data.py` for real, which is slower because it hashes every file first). Pages are cached for 5 minutes, so a change can take that long to appear.
+
+The site relies on one Cloudflare setting, already in place: a URL Rewrite rule on the `teemlabs.org` zone (Rules → Overview → Create rule → URL Rewrite Rule) that serves `index.html` for any path ending in `/`, since R2 doesn't do that itself.
+
+### Not built yet
+
+- `get_path` resolving refs from R2, and from `base_data_submissions/` (with the redirect after promotion).
+- `hb.promote_base_data_submission`.
+- The Drive mirror of the latest release, and automatic release notes.
+- Publishing a metadata-only change.
+- Window reads (`rung=`, `subset=`) and the private tier.
+
+The [proposal's implementation order](proposal_base_data_store.qmd#implementation-order) tracks them.

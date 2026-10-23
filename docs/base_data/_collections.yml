@@ -1,0 +1,46 @@
+# Titles and text for the folders on https://data.teemlabs.org. The top-level folders are the collections, shown on the
+# landing page in this order; a deeper folder can be listed too, for its card on its parent's page and the top of its own:
+# a collection's subfolders are its datasets (lulc/esa), and a dataset's are its derived products (lulc/esa/seals7). Edit freely: the pages pick up the change the next time they are built (after every real publish, or with
+# hb.write_base_data_index_pages). A published folder missing here still gets a page and a card, titled by its folder name,
+# with the first sentence of its ingestion script's docstring as its tagline and the first paragraph as its text; list it
+# here to say it better. The landing page also lists every published folder as a tree, from the same texts.
+#   title:   its name
+#   tagline: one line, shown under the title
+#   about:   a short paragraph, shown on its card and at the top of its own page (plain text)
+
+pyramids:
+  title: Pyramids
+  tagline: Canonical grids that enable faster, more consistent computation
+  about: >-
+    The hectares-per-cell rasters for every rung of the POG lattice, from 10 arcseconds (about 300 m) up to 180
+    degrees, where two cells cover the globe. Each is computed exactly from the WGS84 ellipsoid, so area-weighted
+    sums and means at any rung agree with one another to the hectare. Every other base data raster is aligned to one of these rungs.
+
+lulc:
+  title: Land use and land cover
+  tagline: Categorical maps of global land-use, land-cover
+  about: >-
+    Global land-cover time series, as categorical POGs that keep each map's original classes. 
+
+lulc/esa:
+  title: ESA CCI / C3S annual land cover
+  tagline: One global map a year, 1992 to 2022, at 10 arcseconds
+  about: >-
+    The ESA Climate Change Initiative land-cover maps (v2.0.7, 1992-2015) continued by the Copernicus Climate Change
+    Service (v2.1.1, 2016 onward): about 300 m cells, each holding one class of the LCCS-based legend.
+
+cartographic:
+  title: Cartographic
+  tagline: Region boundaries the devstack aggregates to, as vectors and zone-id rasters
+  about: >-
+    The region definitions every devstack model shares: country and marine-zone boundaries drawn on the POG lattice,
+    with correspondence tables linking them to the GTAP, ISO3, FAO and GADM region sets.
+
+cartographic/ee:
+  title: Earth-Economy regions (ee_r264 and eemarine_r566)
+  tagline: 264 terrestrial regions, and 566 with marine zones, drawn on the 10-arcsecond grid
+  about: >-
+    The ee_r264 terrestrial regions and the eemarine_r566 regions with Exclusive Economic Zones and open ocean, built
+    from OpenStreetMap boundaries for unambiguous membership on the 10-arcsecond grid: every cell belongs to exactly
+    one region. Correspondence geopackages and CSVs, and 10-arcsecond zone-id POGs (ee_r264, eemarine_r566, and ee_r250,
+    the 264 regions collapsed to the 250 ISO 3166-1 countries) whose mode overviews are the coarser rungs. ODbL.

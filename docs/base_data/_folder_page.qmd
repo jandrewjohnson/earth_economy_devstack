@@ -1,0 +1,33 @@
+---
+pagetitle: %%PAGE_TITLE%%
+description: %%DESCRIPTION%%
+format:
+  html:
+    minimal: true
+    embed-resources: true
+    css: %%ROOT%%styles.css
+---
+
+<!-- The template for every folder page on https://data.teemlabs.org (everything but the landing page, _landing.html).
+hb.write_base_data_index_pages fills the placeholders, renders the result with Quarto and uploads it as
+<folder>/index.html. The leading underscore keeps the devstack site from rendering this file itself. -->
+
+```{=html}
+<header class="site-header">
+  <a class="brand" href="/"><img src="%%ROOT%%teems_logo.png" alt="NatCap TEEMs logo"><span>Base Data</span></a>
+  <nav class="crumbs" aria-label="Breadcrumbs">%%BREADCRUMBS%%</nav>
+</header>
+```
+
+::: {.page}
+
+%%BODY%%
+
+:::
+
+```{=html}
+<footer class="site-footer">
+  The canonical, versioned store of the Earth-Economy Devstack, from <a href="https://justinandrewjohnson.com/earth_economy_devstack/">NatCap TEEMs</a>.
+  Each file carries its own licence and source, listed above. Release %%RELEASE%%; page built %%BUILT_AT%%.
+</footer>
+```

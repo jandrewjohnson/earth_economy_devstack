@@ -1,0 +1,364 @@
+<!doctype html>
+<!-- The landing page of https://data.teemlabs.org. hb.write_base_data_index_pages fills the placeholders from the
+latest release, the manifests and _collections.yml, and uploads it as index.html; it isn't rendered by Quarto. The
+leading underscore keeps the devstack site from rendering this file itself. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEEMs Base Data</title>
+<meta name="description" content="The canonical, versioned store of global data for Earth-economy modeling, from NatCap TEEMs. Every raster is a Pyramidal Cloud-Optimized GeoTIFF.">
+<link rel="icon" href="/teems_logo.png">
+<style>
+%%STYLES%%
+
+/* Landing page only */
+.site-header nav.links { margin-left: auto; display: flex; gap: 18px; font-size: .95rem; }
+.site-header nav.links a { color: var(--muted); text-decoration: none; }
+.site-header nav.links a:hover { color: var(--ink); }
+@media (max-width: 640px) { .site-header nav.links { display: none; } }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+section { padding: 72px 0; }
+section + section { border-top: 1px solid var(--line); }
+.eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); margin: 0 0 12px; }
+h2.section-title { font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.15; letter-spacing: -.02em; margin: 0 0 12px; }
+.section-lede { color: var(--muted); font-size: 1.08rem; max-width: 66ch; margin: 0 0 32px; }
+
+.hero { position: relative; overflow: hidden; padding: 56px 0 40px; }
+.hero::before {
+  content: ""; position: absolute; inset: -40% -10% auto auto; width: 70vw; height: 70vw; max-width: 900px; max-height: 900px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--teal) 16%, transparent), transparent); pointer-events: none;
+}
+.hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 32px; align-items: center; position: relative; }
+@media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } .globe-wrap { order: -1; max-width: 340px; margin: 0 auto; } }
+.hero-logo { display: inline-block; background: #fff; border-radius: 16px; padding: 10px 14px; box-shadow: var(--shadow); margin-bottom: 22px; }
+.hero-logo img { display: block; height: 72px; width: auto; }
+.hero h1 { font-size: clamp(2.2rem, 5.4vw, 3.7rem); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 18px; }
+.hero p.lede { font-size: 1.15rem; color: var(--muted); max-width: 54ch; margin: 0 0 26px; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px; font-weight: 600; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { background: var(--grad); color: #fff; box-shadow: 0 6px 20px color-mix(in srgb, var(--teal) 35%, transparent); }
+.btn.secondary { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+.globe-wrap { position: relative; aspect-ratio: 1; width: 100%; }
+.globe-wrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 44px; position: relative; }
+@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.stat .value { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat .label { color: var(--muted); font-size: .88rem; }
+.stat .value small { font-size: .55em; font-weight: 700; margin-left: 3px; color: var(--muted); }
+
+.collection-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.collection-cards .card { padding: 26px; opacity: 0; transform: translateY(14px); }
+.collection-cards .card.seen { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s ease, border-color .2s ease; }
+.collection-cards .card h3 { font-size: 1.4rem; letter-spacing: -.01em; }
+.collection-cards .card .tagline { color: var(--ink); font-weight: 600; margin: 2px 0 0; }
+.collection-cards .card .chips { margin: 16px 0 0; }
+
+.ladder-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: center; }
+@media (max-width: 860px) { .ladder-grid { grid-template-columns: 1fr; } }
+.ladder svg { width: 100%; height: auto; display: block; max-width: 480px; margin: 0 auto; overflow: visible; }
+.ladder .layer { animation: float 6s ease-in-out infinite; transform-box: fill-box; }
+.ladder .layer:nth-of-type(2) { animation-delay: -1.5s; }
+.ladder .layer:nth-of-type(3) { animation-delay: -3s; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.features { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
+.features li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; }
+.features .icon { width: 40px; height: 40px; border-radius: 12px; background: var(--grad); display: grid; place-items: center; color: #fff; font-weight: 800; }
+.features h3 { margin: 0 0 2px; font-size: 1.05rem; }
+.features p { margin: 0; color: var(--muted); }
+
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.tabs button {
+  font: inherit; font-size: .92rem; font-weight: 600; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--muted); cursor: pointer;
+}
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.snippet { position: relative; }
+.snippet pre { margin: 0; min-height: 120px; }
+.snippet .copy {
+  position: absolute; top: 10px; right: 10px; font: inherit; font-size: .8rem; padding: 4px 10px; border-radius: 8px; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .08); color: var(--code-ink);
+}
+.snippet-note { color: var(--muted); font-size: .92rem; margin-top: 10px; }
+
+.layout-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.layout-list .item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+.layout-list .item code { display: inline-block; margin-bottom: 8px; overflow-wrap: anywhere; }
+.layout-list .item p { margin: 0; color: var(--muted); font-size: .95rem; }
+.release { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: baseline; background: var(--surface-2); border-radius: var(--radius); padding: 16px 20px; }
+.release b { font-family: var(--mono); }
+.release .note { color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/"><img src="/teems_logo.png" alt="NatCap TEEMs logo"><span>Base Data</span></a>
+  <nav class="links" aria-label="Sections">
+    <a href="#collections">Collections</a><a href="#pogs">POGs</a><a href="#get">Get the data</a><a href="#versions">Versions</a>
+  </nav>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-logo"><img src="/teems_logo.png" alt="NatCap TEEMs: The Earth-Economy Modelers"></div>
+        <p class="eyebrow">Base Data</p>
+        <h1>Global data for Earth-economy models, in <span class="gradient-text">one canonical store</span>.</h1>
+        <p class="lede">The curated, versioned inputs behind SEALS, GTAP-InVEST and the rest of the Earth-Economy Devstack. Every raster is a
+          Pyramidal Cloud-Optimized GeoTIFF on one shared global lattice, so you can read just the window you need, straight from the web.</p>
+        <div class="buttons">
+          <a class="btn primary" href="#collections">Browse the collections &rarr;</a>
+          <a class="btn secondary" href="#get">Get the data</a>
+        </div>
+      </div>
+      <div class="globe-wrap" aria-hidden="true">
+        <svg id="globe" viewBox="-170 -170 340 340">
+          <defs>
+            <linearGradient id="g-stroke" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stop-color="#3aa6d8"/><stop offset=".5" stop-color="#16a58a"/><stop offset="1" stop-color="#8fd04c"/>
+            </linearGradient>
+            <radialGradient id="g-fill" cx=".35" cy=".3" r=".9">
+              <stop offset="0" stop-color="#3aa6d8" stop-opacity=".16"/><stop offset=".6" stop-color="#16a58a" stop-opacity=".07"/><stop offset="1" stop-color="#4cbe74" stop-opacity=".02"/>
+            </radialGradient>
+            <linearGradient id="g-cell" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#3aa6d8"/><stop offset="1" stop-color="#4cbe74"/>
+            </linearGradient>
+          </defs>
+          <circle r="150" fill="url(#g-fill)"/>
+          <g id="globe-back" fill="none" stroke="url(#g-stroke)" stroke-width=".8" opacity=".18"></g>
+          <g id="globe-cells"></g>
+          <g id="globe-front" fill="none" stroke="url(#g-stroke)" stroke-width="1.1" opacity=".7"></g>
+          <circle r="150" fill="none" stroke="url(#g-stroke)" stroke-width="2.2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="value" data-count="%%N_DATASETS%%">%%N_DATASETS%%</div><div class="label">files published</div></div>
+      <div class="stat"><div class="value" data-count="%%N_COLLECTIONS%%">%%N_COLLECTIONS%%</div><div class="label">collections</div></div>
+      <div class="stat"><div class="value"><span data-count="%%TOTAL_SIZE%%" data-decimals="1">%%TOTAL_SIZE%%</span><small>%%TOTAL_SIZE_UNIT%%</small></div><div class="label">of POGs, served from the edge</div></div>
+      <div class="stat"><div class="value" style="font-size:1.25rem;padding-top:.45rem"><a href="#versions" style="color:inherit;text-decoration:none">%%RELEASE%%</a></div><div class="label">latest release, %%RELEASE_DATE%%</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="collections">
+  <div class="wrap">
+    <p class="eyebrow">Collections</p>
+    <h2 class="section-title">What's in the store</h2>
+    <p class="section-lede">Data are grouped into collections, one per top-level folder. A collection holds datasets, such as the ESA
+      land-cover maps, and a dataset holds the products derived from it, such as their SEALS reclassification. Each dataset page lists
+      every file with its version, size, resolution, licence and source, and how it was made, from the raw download to the published POG.</p>
+    <div class="collection-cards">
+%%COLLECTION_CARDS%%
+    </div>
+    <h3 class="tree-title">Everything in the store</h3>
+    <p class="section-lede">Every collection, its datasets and their derived products, each linked to its page:</p>
+%%FOLDER_TREE%%
+  </div>
+</section>
+
+<section id="pogs">
+  <div class="wrap ladder-grid">
+    <div class="ladder" aria-hidden="true">
+      <svg viewBox="0 0 460 390">
+        <defs>
+          <linearGradient id="l-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3aa6d8"/><stop offset="1" stop-color="#16a58a"/></linearGradient>
+          <linearGradient id="l-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16a58a"/><stop offset="1" stop-color="#4cbe74"/></linearGradient>
+          <linearGradient id="l-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4cbe74"/><stop offset="1" stop-color="#8fd04c"/></linearGradient>
+        </defs>
+        <g id="ladder-layers"></g>
+      </svg>
+    </div>
+    <div>
+      <p class="eyebrow">Pyramidal Cloud-Optimized GeoTIFFs</p>
+      <h2 class="section-title">One lattice, every resolution, exact at each.</h2>
+      <p class="section-lede">Every raster sits on a rung of one fixed ladder of nested global grids, from 10 arcseconds to 180 degrees, with
+        bit-identical geotransforms. Its overviews are the coarser rungs, aggregated by the rule its kind of data needs.</p>
+      <ul class="features">
+        <li><span class="icon">&Sigma;</span><div><h3>Totals that add up</h3><p>Hectares, tonnes and people are summed up the ladder, so every coarser cell holds the exact total beneath it.</p></div></li>
+        <li><span class="icon">&#9638;</span><div><h3>Any window, any rung</h3><p>Read a country at 5 arcminutes or a watershed at 10 arcseconds over HTTP, fetching only the bytes it covers.</p></div></li>
+        <li><span class="icon">&#10003;</span><div><h3>Checked before it's published</h3><p>Each file passes the POG validator, carries exact statistics, and is hashed into a versioned release.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="get">
+  <div class="wrap">
+    <p class="eyebrow">Get the data</p>
+    <h2 class="section-title">A URL is all you need.</h2>
+    <p class="section-lede">Every file's current version is served at <code>https://data.teemlabs.org/&lt;ref path&gt;</code>, the same ref
+      path the devstack's code uses. Download it whole, or read just a window of it in place.</p>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="python">Python</button>
+      <button role="tab" aria-selected="false" data-tab="gdal">GDAL</button>
+      <button role="tab" aria-selected="false" data-tab="curl">curl</button>
+    </div>
+    <div class="snippet">
+      <button class="copy" type="button">Copy</button>
+<pre data-panel="python"><code>import rasterio
+from rasterio.windows import from_bounds
+
+url = "https://data.teemlabs.org/%%EXAMPLE_REF%%"
+with rasterio.open(url) as src:
+    window = from_bounds(-97.5, 43.5, -89.5, 49.5, src.transform)  # lon/lat box: Minnesota
+    data = src.read(1, window=window)                               # fetches only these tiles</code></pre>
+<pre data-panel="gdal" hidden><code># Inspect it in place, then cut a lon/lat window without downloading the rest
+gdalinfo /vsicurl/https://data.teemlabs.org/%%EXAMPLE_REF%%
+gdal_translate -projwin -97.5 49.5 -89.5 43.5 \
+  /vsicurl/https://data.teemlabs.org/%%EXAMPLE_REF%% minnesota.tif</code></pre>
+<pre data-panel="curl" hidden><code># The whole file
+curl -O https://data.teemlabs.org/%%EXAMPLE_REF%%
+
+# What the latest release contains
+curl https://data.teemlabs.org/_release/latest.json</code></pre>
+    </div>
+    <p class="snippet-note">In devstack code, refer to the ref path (<code>p.get_path("%%EXAMPLE_REF%%")</code>): a project then runs on any machine.</p>
+  </div>
+</section>
+
+<section id="versions">
+  <div class="wrap">
+    <p class="eyebrow">Versions</p>
+    <h2 class="section-title">The newest at a plain path; the past kept beside it.</h2>
+    <p class="section-lede">A dataset is updated by publishing a release: every file in it is gated, hashed and committed together, or not at all.</p>
+    <div class="layout-list">
+      <div class="item"><code>%%EXAMPLE_REF%%</code><p>The current version, always at its plain ref path.</p></div>
+      <div class="item"><code>%%EXAMPLE_ARCHIVE%%</code><p>A version that was replaced, under the release that published it.</p></div>
+      <div class="item"><code>_release/latest.json</code><p>The latest release, which lists every file's version and content hash.</p></div>
+    </div>
+    <div class="release"><span>Latest release <b>%%RELEASE%%</b></span><span>%%RELEASE_DATE%%</span><span class="note">%%RELEASE_NOTE%%</span></div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <p><b>Citing.</b> Cite each file's original source (on its dataset's page) and the release you used, for example: <i>NatCap TEEMs Base Data, release %%RELEASE%%, https://data.teemlabs.org</i>.</p>
+  <p><b>Licences.</b> Each file carries its own licence, listed on its dataset's page; most are CC-BY-4.0, and some keep their source's terms.</p>
+  <p><b>Contributing.</b> Lab members can submit data for the store: see <a href="https://justinandrewjohnson.com/earth_economy_devstack/contributing_base_data.html">Contributing Base Data</a>.</p>
+  <p>Built from the <a href="https://justinandrewjohnson.com/earth_economy_devstack/">Earth-Economy Devstack</a> by NatCap TEEMs, the Earth-Economy Modelers. Page built %%BUILT_AT%%.</p>
+</footer>
+
+<script>
+(() => {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (name, attrs, parent) => { const e = document.createElementNS(NS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+
+  // The globe: an orthographic graticule turning slowly, with grid cells lighting up and splitting into the next rung's four.
+  const R = 150, TILT = 0.38, D = Math.PI / 180;
+  const back = document.getElementById("globe-back"), front = document.getElementById("globe-front"), cellLayer = document.getElementById("globe-cells");
+  const project = (lat, lon, lon0) => {
+    const p = lat * D, l = (lon - lon0) * D;
+    const x = R * Math.cos(p) * Math.sin(l);
+    const y = -R * (Math.cos(TILT) * Math.sin(p) - Math.sin(TILT) * Math.cos(p) * Math.cos(l));
+    const z = Math.sin(TILT) * Math.sin(p) + Math.cos(TILT) * Math.cos(p) * Math.cos(l);
+    return [x, y, z];
+  };
+  const lines = [];
+  for (let lon = -180; lon < 180; lon += 20) lines.push(Array.from({length: 37}, (_, i) => [-90 + i * 5, lon]));
+  for (let lat = -60; lat <= 60; lat += 20) lines.push(Array.from({length: 73}, (_, i) => [lat, -180 + i * 5]));
+  const pathFor = (points, lon0, wantFront) => {
+    let d = "", pen = false;
+    for (const [lat, lon] of points) {
+      const [x, y, z] = project(lat, lon, lon0);
+      if ((z >= 0) === wantFront) { d += (pen ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); pen = true; } else pen = false;
+    }
+    return d;
+  };
+  const backPaths = lines.map(() => el("path", {}, back)), frontPaths = lines.map(() => el("path", {}, front));
+
+  // Lit cells: a 20-degree cell fades in, splits into its four 10-degree children, and fades out, on a staggered cycle.
+  const CYCLE = 7000;
+  const cells = Array.from({length: 26}, (_, i) => ({lat: -60 + 20 * Math.floor(Math.random() * 6), lon: -180 + 20 * Math.floor(Math.random() * 18), phase: (i / 26) * CYCLE}));
+  const quad = (lat, lon, size, lon0) => {
+    const pts = [];
+    for (let i = 0; i <= 4; i++) pts.push([lat, lon + size * i / 4]);
+    for (let i = 0; i <= 4; i++) pts.push([lat + size * i / 4, lon + size]);
+    for (let i = 0; i <= 4; i++) pts.push([lat + size, lon + size - size * i / 4]);
+    for (let i = 0; i <= 4; i++) pts.push([lat + size - size * i / 4, lon]);
+    const projected = pts.map(([a, b]) => project(a, b, lon0));
+    if (projected.some(p => p[2] < 0.05)) return null;
+    return "M" + projected.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + "Z";
+  };
+  const cellPaths = cells.map(() => Array.from({length: 5}, () => el("path", {fill: "url(#g-cell)", stroke: "url(#g-cell)", "stroke-width": ".6"}, cellLayer)));
+
+  const draw = (t) => {
+    const lon0 = (t / 120) % 360;
+    lines.forEach((pts, i) => { backPaths[i].setAttribute("d", pathFor(pts, lon0, false)); frontPaths[i].setAttribute("d", pathFor(pts, lon0, true)); });
+    cells.forEach((c, i) => {
+      const s = ((t + c.phase) % CYCLE) / CYCLE;  // 0..1 through this cell's cycle
+      const coarse = s < .15 ? s / .15 * .55 : s < .4 ? .55 : s < .5 ? .55 * (1 - (s - .4) / .1) : 0;
+      const fine = s < .4 ? 0 : s < .55 ? (s - .4) / .15 * .75 : s < .8 ? .75 : s < .95 ? .75 * (1 - (s - .8) / .15) : 0;
+      const [whole, ...children] = cellPaths[i];
+      const d = coarse > 0 ? quad(c.lat, c.lon, 20, lon0) : null;
+      whole.setAttribute("d", d || ""); whole.setAttribute("fill-opacity", coarse * .5); whole.setAttribute("stroke-opacity", coarse);
+      [[0, 0], [0, 10], [10, 0], [10, 10]].forEach(([a, b], k) => {
+        const o = fine * [1, .55, .75, .35][(k + i) % 4];
+        const dc = o > 0 ? quad(c.lat + a, c.lon + b, 10, lon0) : null;
+        children[k].setAttribute("d", dc || ""); children[k].setAttribute("fill-opacity", o * .6); children[k].setAttribute("stroke-opacity", o);
+      });
+    });
+  };
+  if (reduce) draw(2600);
+  else { const loop = (t) => { draw(t); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+
+  // The ladder: three rungs of one global grid, each cell splitting into four on the rung below. Drawn bottom-up, so
+  // each coarser rung floats over the finer one beneath it.
+  const ladder = document.getElementById("ladder-layers");
+  const S = 150, H = S / 2;
+  const iso = (x, y, cy) => [190 + (x - y) * 0.87, cy + (x + y) * 0.5];
+  [[16, "l-3", 305, "… down to 10″"], [4, "l-2", 195, "15′ rung"], [1, "l-1", 85, "1° rung"]].forEach(([n, grad, cy, text]) => {
+    const g = el("g", {class: "layer"}, ladder);
+    const corners = [[-H, -H], [H, -H], [H, H], [-H, H]].map(([x, y]) => iso(x, y, cy).join(" "));
+    el("path", {d: "M" + corners.join("L") + "Z", fill: `url(#${grad})`, "fill-opacity": ".25", stroke: `url(#${grad})`, "stroke-width": "1.5"}, g);
+    let d = "";
+    for (let i = 1; i < n; i++) {
+      const t = -H + i * S / n;
+      d += `M${iso(t, -H, cy).join(" ")}L${iso(t, H, cy).join(" ")}M${iso(-H, t, cy).join(" ")}L${iso(H, t, cy).join(" ")}`;
+    }
+    if (d) el("path", {d, stroke: `url(#${grad})`, "stroke-width": ".8", "stroke-opacity": ".8"}, g);
+    const [lx, ly] = iso(H, -H, cy);
+    el("text", {x: lx + 12, y: ly + 4, "font-size": "14", "font-weight": "700", fill: "currentColor", opacity: ".7"}, g).textContent = text;
+  });
+
+  // Count the stats up once they are on screen, and reveal the collection cards.
+  const countUp = (node) => {
+    const target = parseFloat(node.dataset.count), decimals = +(node.dataset.decimals || 0);
+    if (reduce || !isFinite(target)) return;
+    const start = performance.now();
+    const tick = (now) => { const k = Math.min(1, (now - start) / 1100), e = 1 - Math.pow(1 - k, 3); node.textContent = (target * e).toFixed(decimals); if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  };
+  const observer = "IntersectionObserver" in window ? new IntersectionObserver((entries) => entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    if (entry.target.dataset.count) countUp(entry.target); else entry.target.classList.add("seen");
+    observer.unobserve(entry.target);
+  }), {threshold: .2}) : null;
+  document.querySelectorAll("[data-count], .collection-cards .card").forEach((node, i) => {
+    if (node.classList.contains("card")) node.style.transitionDelay = (i % 3) * 90 + "ms";
+    if (observer) observer.observe(node); else node.classList.add("seen");
+  });
+
+  // Snippet tabs and copy.
+  const tabs = document.querySelectorAll(".tabs button"), panels = document.querySelectorAll(".snippet pre");
+  tabs.forEach((tab) => tab.addEventListener("click", () => {
+    tabs.forEach((t) => t.setAttribute("aria-selected", t === tab));
+    panels.forEach((p) => p.hidden = p.dataset.panel !== tab.dataset.tab);
+  }));
+  const copy = document.querySelector(".snippet .copy");
+  copy.addEventListener("click", async () => {
+    const text = [...panels].find((p) => !p.hidden).innerText;
+    try { await navigator.clipboard.writeText(text); copy.textContent = "Copied"; } catch (e) { copy.textContent = "Select and copy"; }
+    setTimeout(() => copy.textContent = "Copy", 1500);
+  });
+})();
+</script>
+</body>
+</html>
