@@ -19,8 +19,10 @@ Data are grouped into **collections**, one per top-level folder. The published o
 
 - **`pyramids`**: the canonical `ha_per_cell_<rung>sec.tif` grids the POG system is built on.
 - **`lulc`**: land-use and land-cover time series, starting with the ESA CCI / C3S annual maps.
+- **`cartographic`**: the region boundaries the devstack aggregates to (ee_r264, eemarine_r566) as zone-id POGs, correspondence geopackages and tables.
+- **`osm`**: OpenStreetMap extracts, one folder per region (a country from the ee_r264 set, or any administrative boundary such as a city). Each region holds three tiers: `theme_vectors/`, the lossless cut of every OSM feature into 47 themed GeoPackages with a class, subclass and ISIC section per feature; `product_vectors/`, ten single-geometry layers merged from the themes (facilities, buildings, land cover, boundaries, settlements, transport, water and utility networks); and `derived_rasters/`, presence, distance and density POGs. Built by `linneabean.osm` from the openplanetdata.com planet GeoParquet; the pipeline is the run file `osm/osm_base_data_ingestion.py`, with one scenario row per region. Rwanda and Saint Paul, Minnesota so far.
 
-More of the local store (`cartographic`, `gtappy`, `luh2`, `iams`, `crops`, `soil`, `seals`, `global_invest`, `gtap_invest`, `invest_sample_data`) is published as each folder gets its ingestion script. Within these, files follow the EE Spec naming and organization rules in [Conventions](../conventions.qmd), so a ref path is predictable from what the data is.
+More of the local store (`gtappy`, `luh2`, `iams`, `crops`, `soil`, `seals`, `global_invest`, `gtap_invest`, `invest_sample_data`) is published as each folder gets its ingestion script. Within these, files follow the EE Spec naming and organization rules in [Conventions](../conventions.qmd), so a ref path is predictable from what the data is.
 
 ## How data get in
 

@@ -2,6 +2,11 @@
 
 Changes to the contents and organization of base_data — new datasets, promotions from `submissions/`, and format migrations — are recorded here. Each release of the store at <https://data.teemlabs.org> is listed in its `_release/` folder; notable ones are summarised below.
 
+## 2026-10-30
+
+- Release `2026.10.30.1`: the **OpenStreetMap extracts** collection, `osm/`, 132 files for two regions, Rwanda (`osm/rwa/`, 1.6 GB) and Saint Paul, Minnesota (`osm/saint_paul_mn/`, 359 MB). Per region: the region polygon, 47 themed GeoPackages (`theme_vectors/`), ten merged single-geometry products (`product_vectors/`) and eight presence, distance and density POGs at 10 arcseconds (`derived_rasters/`). Cut from the openplanetdata.com planet GeoParquet (build 2026-10-27) by `linneabean.osm`; the run file is `osm/osm_base_data_ingestion.py`, one scenario row per region, and a region not in the ee_r264 set is defined by an OSM boundary query. ODbL-1.0.
+- Releases `2026.10.22.2`, `2026.10.23.1` and `2026.10.23.2`: the `cartographic/ee` zone-id POGs (`ee_r264_ids.tif`, `eemarine_r566_ids.tif`) and the correspondence geopackages and tables; vectors (`.gpkg`) and tables (`.csv`, `.xlsx`) became publishable kinds on 2026-10-23.
+
 ## 2026-10-20
 
 - Release `2026.10.20.1`: the ESA CCI / C3S annual land-cover maps, `lulc/esa/lulc_esa_1992.tif` to `lulc_esa_2022.tif`, as categorical POGs (31 datasets).

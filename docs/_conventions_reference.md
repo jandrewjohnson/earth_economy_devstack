@@ -455,8 +455,9 @@ base_data/lulc/esa/
   is visible in the lineage rather than silent.
 - **A dataset folder stays flat.** When the ingestion script is a ProjectFlow run file, its scenarios CSV is
   `<name>_base_data_scenarios.csv` beside it, not in an `input_template/` folder, and its tasks write to the ref paths,
-  not to `p.cur_dir`. The CSV is part of the lineage, and `base_data` is not a repository, so neither reason for
-  `input_template/` (tracked, shadowable by `input/`) applies.
+  not to `p.cur_dir`. The CSV is part of the lineage, tracked beside the script in the `base_data` repository (which
+  ignores the data and tracks the ingestion scripts, their scenarios CSVs and the manifests), so the remaining reason for
+  `input_template/`, shadowing by `input/`, does not apply to a record.
 
 ## Directory and file naming
 

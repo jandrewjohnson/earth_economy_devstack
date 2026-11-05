@@ -67,8 +67,9 @@ base_data/lulc/esa/
     raw/                               input exactly as downloaded; never listed, uploaded or resolved by get_path
 ```
 
-Manifest columns: `ref_path, kind, tier, variable_class, license, units, data_source, description, code`. Only
-`kind=pog`, `tier=public` publish so far. `variable_class` is `extensive | intensive | categorical | covariate`.
+Manifest columns: `ref_path, kind, tier, variable_class, license, units, data_source, description, code`. Public
+single-file rows publish: `kind=pog` (.tif), `vector` (.gpkg) and `table` (.csv, .xlsx), since 2026-10-23; shapefiles
+and `tier=private` don't yet. `variable_class` is `extensive | intensive | categorical | covariate`.
 
 Three kinds of ingestion script: (1) raw ingest living entirely in base_data (`lulc/esa`); (2) a thin call to code in
 another repo (`pyramids`, calling `hb.write_ha_per_cell_pog`); (3) a bespoke move of a finished project's outputs (also
@@ -79,7 +80,8 @@ A script with more than one step may be a **ProjectFlow run file** in the single
 `run_project(p)`, `__main__` guard): `lulc/esa/seals7` is the example. Being a base data script it departs from the
 run-file conventions in two ways, both now stated in `_conventions_reference.md` ("Base data dataset folders"): its tasks
 write straight to the ref paths under base_data, not to `p.cur_dir`, so the project folder (`~/Files/projects/<name>`,
-placed with `extra_dirs=["Files", "projects"]` because base_data is no git repo) holds only logs; and its scenarios CSV
+placed with `extra_dirs=["Files", "projects"]`, also the git-aware default for a run file in `~/Files/base_data`) holds
+only logs; and its scenarios CSV
 is `<name>_base_data_scenarios.csv` flat beside the script (passed to `hb.initialize_scenarios` as a full path), not in
 `input_template/`, because the CSV is lineage and a dataset folder is a flat record. Decided 2026-10-20 after debate.
 
@@ -97,7 +99,7 @@ so a script never stays armed. One log line says which.
   - `publish_base_data_from_manifests(base_data_dir=None, manifest_paths=None, note=None, archive_previous=True, parallel=True, n_workers=None, dry_run=True, client=None, site_dir=None)`: combines manifests, statuses (`new, changed, unchanged, needs_pog, unfinished, missing_locally, unsupported, not_in_manifest`), converts, hashes, publishes; with `site_dir`, every real run rebuilds the website.
   - `publish_base_data(sources, ref_paths, note, license, units, data_source, description, code=None, archive_previous=True, parallel=True, n_workers=None, dry_run=False, client=None)`: the gate and the commit protocol.
   - `write_base_data_index_pages(site_dir, base_data_dir=None, manifest_paths=None, output_dir=None, dry_run=True, client=None)`: builds the website from templates + manifests + latest release + catalogue + `static/` listing; renders folder pages with Quarto in a temp project; uploads with `dry_run=False`.
-  - `check_pog_publication_status(source_path, ref_path)`: the store's own gate (naming rules, `hb.is_path_pog(full_check=True)`, dependencies, hashes).
+  - `check_publication_status(source_path, ref_path)`: the store's own gate (naming rules; for .tif `hb.is_path_pog(full_check=True)`, dependencies, lattice and semantics; for .gpkg/.csv/.xlsx just files and hashes, `lattice` None). `CONTENT_TYPES` lists the publishable extensions; `_is_publishable(row)` decides a manifest row. A folder page's Resolution cell names the kind for a vector or table.
   - `resolve_dry_run(dry_run)`: bool or date to bool, see above.
   - Private helpers: `_run_each` / `_run_each_collecting_failures` (ThreadPoolExecutor, `hb.available_cpu_count() - 1` workers), `_read_manifest`, `_get_archive_key`, `_get_staging_key`, `_get_dataset_sha256`, page helpers (`_get_dataset_table_html`, `_get_docstring_html`, `_read_module_docstring`, `_get_docstring_texts`, `_get_folder_tree_html`, `_linkify`, `_format_size`, `_format_resolution`, `_natural_sort_key`, `_fill_placeholders`). Since 2026-10-21 a folder `_collections.yml` doesn't list gets its card tagline and text from its ingestion script's first docstring paragraph, and the landing page (`%%FOLDER_TREE%%` in `_landing.html`) lists every published folder as a tree; the pages name three levels: a **collection** (top-level folder) holds **datasets**, and a dataset holds **derived products**; a collection page heads its subfolder cards "Datasets", any deeper page heads them "Derived products", under the cards comes the same tree pared to that folder, and the table of a folder's rows is headed "Files" (on the pages, a dataset is a folder such as `lulc/esa`; the catalogue still calls each published file a dataset).
 - `hazelbean/cloud_utils.py`: `get_r2_client` (boto3, lazy import, `max_pool_connections=64`), `get_r2_error_status`, `read_r2_json`, `write_r2_json`, `list_r2_keys`, `read_r2_object_metadata`, `upload_path_to_r2`, `copy_r2_object`, `R2TransferProgress`.
@@ -114,7 +116,7 @@ so a script never stays armed. One log line says which.
 - Docs changed: `proposal_base_data_store.qmd`, `contributing_base_data.qmd` (rewritten), `base_data_release_notes.qmd`, `_conventions_reference.md` (dataset folders and `raw/`), `devstack_guidance.md` (ownership row for base_data), `code_standards.qmd` (link).
 - `docs/_site/` is tracked in git: don't render into it when checking; render a copy in a scratch folder.
 
-### base_data (`~/Files/base_data`, not a git repo)
+### base_data (`~/Files/base_data`, the git repo github.com/jandrewjohnson/base_data: data ignored; `*_base_data_ingestion.py`, `*_base_data_scenarios.csv` and `*_base_data_manifest.csv` tracked since 2026-11-05)
 
 - `pyramids/pyramids_base_data_ingestion.py` + manifest: 17 `ha_per_cell_<rung>sec.tif`, 10 s to 648000 s, extensive, CC-BY-4.0.
 - `lulc/esa/lulc_esa_base_data_ingestion.py` + manifest: 31 `lulc_esa_<year>.tif`, 1992-2022, categorical, ESA CCI Land Cover licence, C3S v2.1.1 for 2016 onward (doi:10.24381/cds.006f2c9a).
@@ -143,6 +145,25 @@ so a script never stays armed. One log line says which.
   suffix was removed from single-POG names: a rung suffix only where separate files exist at several rungs
   (`_conventions_reference.md`, "Pyramid resolutions are expressed in arcseconds"). The user deletes the old coarse
   files and the displaced copy themself. `gadm/` is unlisted and GADM-licensed.
+- 2026-10-27 to 2026-10-30: the `osm` collection (OpenStreetMap extracts). Code in `linneabean/linneabean_dev/linneabean/osm/`
+  (themes: `osm_themes.csv`, `osm_theme_rules.csv`, `osm_themes.py`; products: `osm_products.py`; tasks: `osm_tasks.py`;
+  what is in each theme: `osm_themes_readme.md`). The run file is `base_data/osm/osm_base_data_ingestion.py` with
+  `osm_base_data_scenarios.csv` (one row per region: `region_label, arcseconds`, plus `region_source=osm_boundary`,
+  `region_query`, `search_bbox` for a region that is not an ee_r264 label). A region folder `osm/<region>/` holds
+  `osm_<region>_region.gpkg`, `theme_vectors/` (47), `product_vectors/` (10), `derived_rasters/` (8) and its manifest;
+  `osm/<region>/osm_<region>_base_data_ingestion.py` is a thin entry point whose docstring is the folder page's About
+  section (the pages look for `<manifest stem>_base_data_ingestion.py`). The planet GeoParquet (204 GB, build 2026-10-27) is
+  in `osm/raw/`. The user published Rwanda and Saint Paul, Minnesota as release `2026.10.30.1` (132 files; its note still
+  says "Adding EE region correspondence", carried over). `_collections.yml` has entries for `osm` and every region folder.
+- 2026-11-05: the lineage is tracked in the base_data git repo (github.com/jandrewjohnson/base_data; its `.gitignore` now
+  un-ignores `*_base_data_scenarios.csv` and `*_base_data_manifest.csv`; the data stay ignored). `lulc/esa` and `pyramids` became
+  ProjectFlow run files (tasks `lulc_esa_cci_maps`, `lulc_esa_c3s_maps`, `lulc_esa_base_data_listing`; `ha_per_cell_pogs`,
+  `pyramids_base_data_listing`) with a scenarios CSV beside each and a dated `dry_run` like the other run files;
+  `cartographic/ee` is the one flat script left. The OSM run file moved up to `osm/osm_base_data_ingestion.py` with
+  `osm/osm_base_data_scenarios.csv` (`osm_processing/` is gone; the region manifests' `code` column names the old path until
+  the next real run). `lulc/glc_fcs30d` got its run file (Zenodo record 15063683, GLC_FCS30D v2: `raw_zips`, `raw_tiles`,
+  `annual_tiles`, the per-year tiles going to the project's intermediate folder because the native grid is not a rung; its
+  real run finished 2026-11-05, 3,844 tiles, 115 GB), and its v1 scripts moved to `v1/`.
 - Pending for the user: create `NatCapTEEMs/Files/base_data_submissions/` on Drive and move the old `base_data/submissions/` contents there; upload the pages once more to pick up the latest footer links; commit both repos.
 
 ## Not built yet (see the proposal's implementation order)
