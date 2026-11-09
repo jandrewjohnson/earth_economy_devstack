@@ -194,7 +194,7 @@ It finds every `*_base_data_manifest.csv` under `base_data/`, combines them (a r
 | `needs_pog` | Listed, but not a POG yet: a real run converts it first, using its row's `variable_class`. |
 | `unfinished` | Published, but an earlier run stopped before moving it into place: a real run finishes it. |
 | `missing_locally` | Listed, but not in your `base_data/`. |
-| `unsupported` | A kind or tier publishing can't handle yet. |
+| `unsupported` | A kind or tier publishing can't handle yet: a shapefile, a VRT or tile set, or the private tier. |
 | `not_in_manifest` | Published, but no manifest lists it. |
 
 Every new and changed dataset first passes the gate (`hb.is_path_pog(full_check=True)`, required metadata, naming rules, dependencies), or nothing is published. When the dry run shows no problems, set `DRY_RUN = False` and run it again. The new and changed rows are published together as **one release**: staged, the versions they replace archived under `static/` (pass `archive_previous=False` to save the storage instead), then committed atomically. If another curator's release commits first, nothing from yours is kept and it asks you to rerun. Rerunning is always safe.
@@ -202,7 +202,7 @@ Every new and changed dataset first passes the gate (`hb.is_path_pog(full_check=
 Three limits to know:
 
 - Editing only a row's metadata, with the bytes unchanged, doesn't publish a new catalogue entry: the row stays `unchanged`, so the catalogue keeps the old metadata (the folder's page shows the new text, since it reads the manifest).
-- Only single-file POG datasets can be published so far.
+- Only single-file datasets can be published so far: POG rasters (`.tif`), GeoPackage vectors (`.gpkg`) and tables (`.csv`, `.xlsx`). A shapefile is several files, so it stays `unsupported` for now.
 - The Drive mirror and the release notes aren't written yet; record notable releases in the [Base Data release notes](base_data_release_notes.qmd) by hand.
 
 ### The pages at data.teemlabs.org {#site-pages}

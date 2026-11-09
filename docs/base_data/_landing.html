@@ -246,6 +246,25 @@ curl https://data.teemlabs.org/_release/latest.json</code></pre>
 </footer>
 
 <script>
+// The folder tree: a folder with subfolders gets a chevron and starts closed, so the store reads as its collections until one is opened.
+document.querySelectorAll(".tree li").forEach(li => {
+  const sub = li.querySelector(":scope > ul");
+  if (!sub) return;
+  li.classList.add("branch");
+  const button = document.createElement("button");
+  button.className = "toggle";
+  button.type = "button";
+  button.setAttribute("aria-expanded", "false");
+  button.setAttribute("aria-label", "Show " + sub.children.length + " subfolder" + (sub.children.length === 1 ? "" : "s"));
+  button.addEventListener("click", () => {
+    const open = li.classList.toggle("open");
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  li.insertBefore(button, li.firstChild);
+});
+</script>
+
+<script>
 (() => {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const NS = "http://www.w3.org/2000/svg";

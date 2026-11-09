@@ -117,11 +117,17 @@ table.datasets .archive { display: inline-block; font-family: var(--mono); font-
 .tree-title { margin: 40px 0 6px; font-size: 1.15rem; }
 .tree ul { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 1px solid var(--line); }
 .tree > ul { padding-left: 0; border-left: 0; }
-.tree li { margin: 10px 0; }
+.tree li { margin: 10px 0; position: relative; padding-left: 20px; }
 .tree li a { text-decoration: none; }
 .tree li a code { font-family: var(--mono); font-size: .95rem; color: var(--link); }
 .tree li a .title { margin-left: 6px; font-weight: 600; }
 .tree li .count { margin-left: 10px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .tree li .tagline { display: block; margin: 2px 0 0; font-size: .9rem; color: var(--muted); }
+.tree li.branch > ul { display: none; }
+.tree li.branch.open > ul { display: block; }
+.tree .toggle { position: absolute; left: 0; top: 1px; width: 18px; height: 18px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--muted); }
+.tree .toggle::before { content: ""; display: block; width: 7px; height: 7px; margin: 5px auto 0; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform .15s ease; }
+.tree li.branch.open > .toggle::before { transform: rotate(45deg); }
+.tree .toggle:hover { color: var(--link); }
 
 .page .tree { margin: 18px 0 8px; }

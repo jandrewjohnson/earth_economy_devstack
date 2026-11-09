@@ -10,37 +10,108 @@
 
 pyramids:
   title: Pyramids
-  tagline: Canonical grids that enable faster, more consistent computation
+  tagline: Canonical grids for consistent computation
   about: >-
-    The hectares-per-cell rasters for every rung of the POG lattice, from 10 arcseconds (about 300 m) up to 180
-    degrees, where two cells cover the globe. Each is computed exactly from the WGS84 ellipsoid, so area-weighted
-    sums and means at any rung agree with one another to the hectare. Every other base data raster is aligned to one of these rungs.
+    Hectares-per-cell rasters for every rung of the POG lattice, 10 arcseconds to 180 degrees, exact from the WGS84
+    ellipsoid. Every base data raster aligns to one.
 
 lulc:
   title: Land use and land cover
-  tagline: Categorical maps of global land-use, land-cover
+  tagline: Categorical global land-cover maps
   about: >-
-    Global land-cover time series, as categorical POGs that keep each map's original classes. 
+    Global land-cover time series as categorical POGs, each keeping its source map's original classes for
+    reclassification downstream.
 
 lulc/esa:
   title: ESA CCI / C3S annual land cover
-  tagline: One global map a year, 1992 to 2022, at 10 arcseconds
+  tagline: One global map a year, 1992 to 2022
   about: >-
-    The ESA Climate Change Initiative land-cover maps (v2.0.7, 1992-2015) continued by the Copernicus Climate Change
-    Service (v2.1.1, 2016 onward): about 300 m cells, each holding one class of the LCCS-based legend.
+    ESA Climate Change Initiative maps (1992-2015) continued by Copernicus C3S (2016 on). About 300 m cells, each one
+    class of the LCCS legend.
+
+lulc/glc_fcs30d:
+  title: GLC_FCS30D global land cover at 30 m
+  tagline: Global 30 m land cover on the 1-arcsecond rung, 1990, 2010 and 2022
+  about: >-
+    The GLC_FCS30D fine-classification record (Liu, Zhang and Li 2025; Zenodo 15063683) rebuilt as one global POG a year: each
+    of its 961 five-degree tiles resampled once by nearest neighbour onto the 1-arcsecond lattice, the ocean, the islands and
+    the filled cells the record leaves out taken from the ESA CCI / C3S map of the same year, the legend's palette in the
+    header. The record's 26 years (1985, 1990, 1995 and 2000 to 2022) are all built; 1990, 2010 and 2022 are published here,
+    and every year is available from the TEEMs internal base data on request.
 
 cartographic:
   title: Cartographic
-  tagline: Region boundaries the devstack aggregates to, as vectors and zone-id rasters
+  tagline: Region boundaries as vectors and rasters
   about: >-
-    The region definitions every devstack model shares: country and marine-zone boundaries drawn on the POG lattice,
-    with correspondence tables linking them to the GTAP, ISO3, FAO and GADM region sets.
+    The region definitions every devstack model shares: country and marine-zone boundaries on the POG lattice, with
+    tables linking them to GTAP, ISO3, FAO and GADM.
 
 cartographic/ee:
   title: Earth-Economy regions (ee_r264 and eemarine_r566)
-  tagline: 264 terrestrial regions, and 566 with marine zones, drawn on the 10-arcsecond grid
+  tagline: 264 land regions, 566 with marine zones
   about: >-
-    The ee_r264 terrestrial regions and the eemarine_r566 regions with Exclusive Economic Zones and open ocean, built
-    from OpenStreetMap boundaries for unambiguous membership on the 10-arcsecond grid: every cell belongs to exactly
-    one region. Correspondence geopackages and CSVs, and 10-arcsecond zone-id POGs (ee_r264, eemarine_r566, and ee_r250,
-    the 264 regions collapsed to the 250 ISO 3166-1 countries) whose mode overviews are the coarser rungs. ODbL.
+    Regions built from OpenStreetMap boundaries so every 10-arcsecond cell belongs to exactly one. Geopackages,
+    correspondence CSVs and zone-id POGs. ODbL.
+
+osm:
+  title: OpenStreetMap extracts
+  tagline: Every OSM feature of a region, sorted and merged
+  about: >-
+    Regional cuts of the OpenStreetMap planet file, one folder per country or city: 47 themed GeoPackages, ten merged
+    layers, and presence, distance and density rasters. ODbL.
+
+osm/rwa:
+  title: Rwanda
+  tagline: The whole country, 1.7 million features
+  about: >-
+    Rich in imports: 1.45 million machine-mapped building footprints, a 5,900-point building survey, DHIS2 health
+    catchments and a flood-damage survey on Lake Kivu.
+
+osm/rwa/theme_vectors:
+  title: Themes
+  tagline: 47 themed GeoPackages, one per subject
+  about: >-
+    The lossless cut. Every feature goes to its primary theme's file, plus a secondary theme's when another tag
+    matches. Columns: theme, class, subclass, tags as JSON.
+
+osm/rwa/product_vectors:
+  title: Products
+  tagline: Ten single-layer files merged from the themes
+  about: >-
+    Facilities, buildings with survey points joined on, land cover and its tiled mosaic, boundaries, settlements,
+    transport, water and utility lines, utility nodes.
+
+osm/rwa/derived_rasters:
+  title: Rasters
+  tagline: Presence, distance and density surfaces
+  about: >-
+    Presence of roads, main roads, energy, power lines and buildings; distance to roads; building density. Global
+    10-arcsecond POGs that stack with every other raster.
+
+osm/saint_paul_mn:
+  title: Saint Paul, Minnesota
+  tagline: A city cut by its own boundary
+  about: >-
+    102,000 buildings and 67,000 road segments inside the admin_level 8 boundary, looked up in the planet file.
+    Mapped by residents: addresses, waste and railways are dense.
+
+osm/saint_paul_mn/theme_vectors:
+  title: Themes
+  tagline: 47 themed GeoPackages, one per subject
+  about: >-
+    The lossless cut. Every feature goes to its primary theme's file, plus a secondary theme's when another tag
+    matches. Columns: theme, class, subclass, tags as JSON.
+
+osm/saint_paul_mn/product_vectors:
+  title: Products
+  tagline: Ten single-layer files merged from the themes
+  about: >-
+    Facilities, buildings with facility function joined on, land cover and its tiled mosaic, boundaries, settlements,
+    transport, water and utility lines, utility nodes.
+
+osm/saint_paul_mn/derived_rasters:
+  title: Rasters
+  tagline: Presence, distance and density surfaces
+  about: >-
+    Presence of roads, main roads, energy, power lines and buildings; distance to roads; building density. Global
+    10-arcsecond POGs; the city is about 70 by 40 cells.

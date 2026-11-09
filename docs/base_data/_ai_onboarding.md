@@ -78,10 +78,11 @@ what a promoted submission usually becomes). A step whose history is unknown is 
 
 A script with more than one step may be a **ProjectFlow run file** in the single-file form (`build_task_tree`,
 `run_project(p)`, `__main__` guard): `lulc/esa/seals7` is the example. Being a base data script it departs from the
-run-file conventions in two ways, both now stated in `_conventions_reference.md` ("Base data dataset folders"): its tasks
-write straight to the ref paths under base_data, not to `p.cur_dir`, so the project folder (`~/Files/projects/<name>`,
-placed with `extra_dirs=["Files", "projects"]`, also the git-aware default for a run file in `~/Files/base_data`) holds
-only logs; and its scenarios CSV
+run-file conventions in three ways, all stated in `_conventions_reference.md` ("Base data dataset folders"): its tasks
+write their products straight to the ref paths under base_data, keeping only intermediates in `p.cur_dir`; the dataset
+folder is its project folder (`hb.ProjectFlow(project_dir=SCRIPT_DIR, run_mode="check")`, since 2026-11-05; before that
+`~/Files/projects/<name>` via `extra_dirs`), so the task folders are `intermediate/<task>/` beside `raw/`, skipped by the
+listing, the manifest walk and git like `raw/`; and its scenarios CSV
 is `<name>_base_data_scenarios.csv` flat beside the script (passed to `hb.initialize_scenarios` as a full path), not in
 `input_template/`, because the CSV is lineage and a dataset folder is a flat record. Decided 2026-10-20 after debate.
 
@@ -162,8 +163,50 @@ so a script never stays armed. One log line says which.
   `cartographic/ee` is the one flat script left. The OSM run file moved up to `osm/osm_base_data_ingestion.py` with
   `osm/osm_base_data_scenarios.csv` (`osm_processing/` is gone; the region manifests' `code` column names the old path until
   the next real run). `lulc/glc_fcs30d` got its run file (Zenodo record 15063683, GLC_FCS30D v2: `raw_zips`, `raw_tiles`,
-  `annual_tiles`, the per-year tiles going to the project's intermediate folder because the native grid is not a rung; its
+  `annual_tiles`, the per-year tiles going to `intermediate/annual_tiles/<year>/` because the native grid is not a rung; its
   real run finished 2026-11-05, 3,844 tiles, 115 GB), and its v1 scripts moved to `v1/`.
+- 2026-11-05, later: every base_data run file (lulc/esa, seals7, glc_fcs30d, osm, pyramids) now uses its own folder as
+  `project_dir`; the old `~/Files/projects/<name>` folders were moved (glc_fcs30d's 112 GB of per-year tiles, osm's match
+  grids) and removed, `intermediate/` is gitignored in base_data and skipped by `hb.add_directory_to_base_data` and
+  `find_base_data_manifests` (`INTERMEDIATE_FOLDER`). glc_fcs30d gained `annual_pogs` (VRT per year, `hb.make_path_pog`
+  at 1 arcsecond, categorical) and a listing task; its CSV lists only 2022 for now.
+- 2026-11-06 to 07: glc_fcs30d's first global build (a mode resample of a VRT over the raw tiles, 9 h) showed source
+  defects (every tile 0.75 cell too wide with a static padding row and column; E50N35/E50N30 a half cell off, E50N35's
+  padding 255; a quarter-cell lattice offset per 5 degrees; 164 of the missing tiles hold land; a 59-row zero strip at
+  25N in E50N30) and a latent hazelbean bug (warp_raster_hb invented a nodata of 255 for Byte and rewrote 255 to 254;
+  fixed, with a unit test). The run file now builds a 1-arcsecond tile set per year (`annual_subpogs`: per source tile,
+  padding dropped, nearest neighbour onto its exact 5-degree box, every filled cell 0/250 taken from the ESA map of the
+  year through `esa_glc_fcs30d_correspondence.csv`; `esa_fill_subpogs`: the 1631 boxes of the globe the record has no
+  tile for, from ESA alone, including the bands north of 80N and south of 60S), in a process pool, then `annual_tilesets`
+  (global VRT, `hb.is_path_pog_tileset`) and `annual_pogs` (`hb.make_path_pog` from the VRT, a copy plus overviews). The
+  product holds no filled value and carries the legend's palette (`hb.globals.glc_fcs30d_colors`, `make_path_pog`'s new
+  `color_table`); its intermediates are written in the task folder (`intermediate_dir=p.cur_dir`), which is now a
+  convention ("A task's intermediate files go in its `p.cur_dir`, not in temp space").
+- 2026-11-07, later: the 2022 POG was rebuilt that way (tiles 35 min on 16 cores; the global step 3.5 h single-core:
+  translate 47 min, nodata pass 70 min, stats and overviews 1 h, COG copy 70 min). For the 20-year record hazelbean gained
+  `hb.write_pog_from_pog_tileset(vrt, output, color_table=, intermediate_dir=)`: for a globe-covering POG tile set it reads
+  the tiles once into a GeoTIFF (threaded DEFLATE: `NUM_THREADS=ALL_CPUS` is now in `PRECOG_GTIFF_CREATION_OPTIONS_LIST`
+  and the COG copy), combines the tiles' exact statistics, copies the tiles' overview levels in and aggregates the coarser
+  levels from them, then the COG copy: two threaded passes instead of four. The run file's `annual_pogs` uses it, building
+  `p.num_parallel_years` (4) years at once in a process pool and keeping a year whose POG exists. Found on the way, in
+  every POG built before: GDAL's internal `BuildOverviews(method, levels)` leaves the smallest levels unwritten (all nodata)
+  once a factor is large against the raster (the 2 x 1 top of `lulc_glc_fcs30d_2022.tif`; the 4 x 2 and 2 x 1 tops of
+  the ESA POGs; the 5 x 5 and 1 x 1 tops of the 1-arcsecond subpogs). hazelbean now regenerates each level from the one
+  before it with `gdal.RegenerateOverview` (`_regenerate_overviews_in_cascade`), with `GDAL_OVR_CHUNKYSIZE` a multiple
+  of the factor (RegenerateOverview otherwise mis-aggregates the blocks straddling its read chunks), which writes them
+  all; existing POGs keep the defect until rebuilt, and `write_pog_from_pog_tileset` refuses tiles whose copied levels
+  hold nodata.
+- 2026-11-07, evening: 2010, 2015 and 2020 built through the new route (three POGs in 28 minutes together). The run file
+  then dropped the `annual_tiles` stage (the year's band is read out of the raw stack inside `write_subpog`, which is
+  faster and saves 28 GB a year), takes the five-year stacks for 1985/1990/1995 (ESA 1992 fills 1985 and 1990), skips a
+  year whose POG exists everywhere (`p.years_to_build`) and deletes a finished year's subpogs and VRT, since 26 years of
+  them (650 GB) would not fit beside the products. All 26 years are in the CSV; the 22 remaining started that evening.
+- 2026-11-08 to 09: all 26 GLC_FCS30D years built (23 h in all; 22 POGs in 3.4 h four at a time) and verified. Publication
+  of a subset set up, not launched: the scenarios CSV gained `public_years` (1990 2010 2022); the listing task lists those
+  with tier public and the rest private (`hb.add_directory_to_base_data` overrides accept `tier`; a private row is listed
+  and reported as unsupported by publishing, never uploaded); the manifest's description carries the method, the legend
+  and the provenance and says every year is available from the TEEMs internal base data on request; `_collections.yml`
+  has the lulc/glc_fcs30d entry; `publish_base_data.py` carries the NOTE with DRY_RUN left as a past date.
 - Pending for the user: create `NatCapTEEMs/Files/base_data_submissions/` on Drive and move the old `base_data/submissions/` contents there; upload the pages once more to pick up the latest footer links; commit both repos.
 
 ## Not built yet (see the proposal's implementation order)

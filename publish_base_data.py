@@ -14,8 +14,8 @@ import os
 
 import hazelbean as hb
 
-DRY_RUN = "2026-10-23"
-NOTE = "Adding SEALS7 reclassified ESA CCI maps"  # REQUIRED to publish: like a commit message.
+DRY_RUN = "2026-11-09"  # a date in the past: a dry run. Set today's date to publish.
+NOTE = "Adding GLC_FCS30D global 30 m land cover for 1990, 2010 and 2022 (lulc/glc_fcs30d), the first 1-arcsecond POGs"  # REQUIRED to publish: like a commit message.
 BASE_DATA_DIR = None  # None: ~/Files/base_data
 SITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "base_data")  # the page templates
 

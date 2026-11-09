@@ -437,6 +437,7 @@ base_data/lulc/esa/
     lulc_esa_base_data_manifest.csv    one row per dataset in this folder, with its metadata
     lulc_esa_1992.tif ... lulc_esa_2023.tif
     raw/                               the raw input, exactly as downloaded (never uploaded)
+    intermediate/                      the run file's task folders (ProjectFlow; never uploaded)
 ```
 
 - **`<name>_base_data_ingestion.py`** is the dataset's lineage, read top to bottom: from `raw/` (or from code in another
@@ -446,6 +447,14 @@ base_data/lulc/esa/
   edited, renamed or converted. A person places it there by hand before running the ingestion script, which assumes it
   is present, reads from it, and writes its outputs elsewhere. `raw/` is **never uploaded**: publishing, the manifests and
   the catalogue ignore it, and `get_path` never resolves into it.
+- **The dataset folder is the run file's project folder.** A ProjectFlow ingestion script passes its own folder as
+  `project_dir` (`hb.ProjectFlow(project_dir=SCRIPT_DIR, run_mode="check")`), so a dataset's working state travels with
+  its data: the task folders are `intermediate/<task>/` beside `raw/`. ProjectFlow makes no `input/` when the run file
+  lives in its project folder, so the dataset folder stays flat and its scenarios CSV is the one definition file.
+  `intermediate/` is treated like `raw/`: never tracked, listed or uploaded (the base_data `.gitignore` and
+  `hb.add_directory_to_base_data` both skip it). This is the one place a run file writes inside its own repository,
+  since the base_data repository tracks lineage and ignores data. Nothing of base_data's goes to `~/Files/projects/`,
+  which holds only the devstack's example and template projects.
 - **The ingestion script says where each raw file comes from**: the download page or URL, the version, and anything
   needed to fetch the same files again, so `raw/` can be recreated on another machine.
 - **A step that can be rerun skips work already done**: a year whose output already exists is not converted again. With
@@ -454,8 +463,8 @@ base_data/lulc/esa/
   script has a function for that step whose only job is to say so (and to stop if those files are missing), so the gap
   is visible in the lineage rather than silent.
 - **A dataset folder stays flat.** When the ingestion script is a ProjectFlow run file, its scenarios CSV is
-  `<name>_base_data_scenarios.csv` beside it, not in an `input_template/` folder, and its tasks write to the ref paths,
-  not to `p.cur_dir`. The CSV is part of the lineage, tracked beside the script in the `base_data` repository (which
+  `<name>_base_data_scenarios.csv` beside it, not in an `input_template/` folder, and its tasks write their products to
+  the ref paths, keeping only intermediates in `p.cur_dir`. The CSV is part of the lineage, tracked beside the script in the `base_data` repository (which
   ignores the data and tracks the ingestion scripts, their scenarios CSVs and the manifests), so the remaining reason for
   `input_template/`, shadowing by `input/`, does not apply to a record.
 
@@ -799,14 +808,28 @@ splitting each multi-byte character into garbled pieces.
   installation guide says how that file is created. Absolute paths never live in
   `hb.config` — config may hold ref_paths only; a ProjectFlow logs at
   construction where its `base_data_dir` and shared roots came from.
-- **Temporary files go through `hb.temp()` / `hb.temporary_dir()`, under one
-  root.** (Since 2026-09-03.) The root is `hb.get_temp_dir()`: `HB_TEMP_DIR` from
-  `machine.env` if set, else a per-user `hazelbean_temp_<user>` folder in the OS
-  temp dir, so hazelbean's scratch never mixes with other programs' and never
-  lands in a home directory with a quota. Each run owns `p.temporary_dir`, a
-  subfolder named `<project_name>_<run_string>` that `execute()` creates and
-  removes at exit; pass `folder=p.temporary_dir` to `hb.temp()` inside a task so
-  a run's scratch stays together. Never hardcode `~/temp` or `/tmp`.
+- **A task's intermediate files go in its `p.cur_dir`, not in temp space.**
+  (Since 2026-11-07.) Everything a task writes on the way to its output (a
+  resampled copy, a VRT, a reclassified raster, the steps of a POG build) is
+  written beside that output in the task folder, where it can be watched while
+  the run is going, inspected when a step fails, and reused by a rerun that
+  skips what exists. A hazelbean function that writes intermediates takes a
+  folder for them and the task passes its `p.cur_dir`
+  (`hb.make_path_pog(..., intermediate_dir=p.cur_dir)`); a function that only
+  offers `hb.temp()` names gets `folder=p.cur_dir`. Remove them when the step
+  succeeds if they are large and of no further use, and leave them when it
+  fails. Temp space hides work: the 26 GB translate step of a global
+  1-arcsecond POG ran for an hour in `hazelbean_temp_<user>`, where nobody
+  waiting for it could see it grow or open it, which is the case that made this
+  a rule.
+- **`hb.temp()` / `hb.temporary_dir()` are for throwaway files outside a task,
+  under one root.** (Since 2026-09-03.) The root is `hb.get_temp_dir()`:
+  `HB_TEMP_DIR` from `machine.env` if set, else a per-user
+  `hazelbean_temp_<user>` folder in the OS temp dir, so hazelbean's scratch
+  never mixes with other programs' and never lands in a home directory with a
+  quota. Each run owns `p.temporary_dir`, a subfolder named
+  `<project_name>_<run_string>` that `execute()` creates and removes at exit.
+  Never hardcode `~/temp` or `/tmp`; inside a task, prefer `p.cur_dir` (above).
 - **Tasks are named as nouns** (this intentionally breaks PEP 8), referencing
   what is stored in the task's output directory, so the resulting file structure
   reads well to an outsider.
